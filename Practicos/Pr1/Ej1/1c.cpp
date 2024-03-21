@@ -2,11 +2,12 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include "../auxFunctions.h"
 
 #define MAX_ELEMENTS64 15 
 #define MAX_ELEMENTS96 22 
-#define MAX_ELEMENTS_IN_ARRAY_64 96*100
-#define MAX_ELEMENTS_IN_ARRAY_96 64*100
+#define MAX_ELEMENTS_IN_ARRAY_64 96*10000
+#define MAX_ELEMENTS_IN_ARRAY_96 64*10000
 
 // Definición del struct con 16 enteros y un contador: total 96 bytes
 struct FixedArray_96Bytes {
@@ -75,32 +76,35 @@ int Sum96(const FixedArray_96Bytes& data){
     return res;
 }
 
+void SumAlL64(const FixedArray_64Bytes* data){
+    int res=0;
+    
+    for(int i=0; i<MAX_ELEMENTS_IN_ARRAY_64; i++){
+        res+= Sum64(data[i]);
+    }
+    std::cout<< "Suma arreglo 64:" << res << std::endl;
+}
+
+void SumAlL96(const FixedArray_96Bytes* data){
+    int res=0;
+    for(int i=0; i<MAX_ELEMENTS_IN_ARRAY_96; i++){
+        res+= Sum96(data[i]);
+    }
+    std::cout<< "Suma arreglo 96:" << res << std::endl;
+}
+
 
 int main() {
     FixedArray_64Bytes* array64 = create64Array();
     FixedArray_96Bytes* array96 = create96Array();
 
-    int res1 = 0;
-    int res2=0;
-    auto start = std::chrono::high_resolution_clock::now();
-    for(int i=0; i<MAX_ELEMENTS_IN_ARRAY_64; i++){
-        res1+= Sum64(array64[i]);
-    }
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double>  diff = end - start;
-    std::cout << "Tiempo 64: " << diff.count() << " s" << std::endl;
-    std::cout << "Res 64: " << res1 << std::endl;
+    double time64 = Time([&]() { SumAlL64(array64); });
+    std::cout << "Tiempo 64: " << time64 << " s" << std::endl;
 
-    start = std::chrono::high_resolution_clock::now();
-    for(int i=0; i<MAX_ELEMENTS_IN_ARRAY_96; i++){
-        res2+= Sum96(array96[i]);
-    }
-    end = std::chrono::high_resolution_clock::now();
-    diff = end - start;
-    std::cout << "Tiempo 96: " << diff.count() << " s" << std::endl;
-    std::cout << "Res 96: " << res2 << std::endl;
+    double time96 = Time([&]() { SumAlL96(array96); });
+    std::cout << "Tiempo 96: " << time96 << " s" << std::endl;
 
-
-
+    delete[] array64;
+    delete[] array96;
     return 0;
 }
