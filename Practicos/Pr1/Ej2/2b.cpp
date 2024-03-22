@@ -1,21 +1,14 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
-#include <functional>
-#include <chrono>
+#include <fstream>
+
+#include "../auxFunctions.h"
 
 // Función para inicializar una matriz con valores.
 std::vector<size_t> Matrix(size_t rows){
     std::vector<size_t> res(rows * rows,1);
     return res;
-}
-
-void PrintTime(std::function<void()> func) {
-    auto start = std::chrono::high_resolution_clock::now();
-    func();
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double>  diff = end - start;
-    std::cout << diff.count() << " s" << std::endl;
 }
 
 void EfficientMatrixesMultiplier(std::vector<size_t>& C, const std::vector<size_t> A, const std::vector<size_t> B, int size){
@@ -53,19 +46,23 @@ void blockMatrixMultiply(
 
 int main() {
 
+    system("mkdir -p Ej2/results");
+
+    std::ofstream results("Ej2/results/2b");
+
     for(int size= 64; size < 2024; size *=2){
         std::vector<size_t> A = Matrix(size);
         std::vector<size_t> B = Matrix(size);
         std::vector<size_t> C = std::vector<size_t> (size * size,0);
-        std::cout << "Tiempo de Multiplicacion Comun tamano " << size << ":";
 
-        PrintTime([&]() { EfficientMatrixesMultiplier(C, A, B, size); });
+        double time = Time([&]() { EfficientMatrixesMultiplier(C, A, B, size); });
+        results << "Tiempo de Multiplicacion Comun tamano " << size << ":" << time << std::endl;
         for(int Block_Size = 64; Block_Size<2024; Block_Size *= 2){    
             C = std::vector<size_t> (size * size,0);
-            std::cout << "Tiempo de Multiplicacion en tamano "<< size << " Bloque de " << Block_Size << " :";
-            PrintTime([&]() { blockMatrixMultiply(C, A, B, Block_Size, size); });
+            double time = Time([&]() { blockMatrixMultiply(C, A, B, Block_Size, size); });
+            results << "Tiempo de Multiplicacion en tamano "<< size << " Bloque de " << Block_Size << " :" << time<< std::endl;
         }
     }
-    
+    results.close();
     return 0;
 }
