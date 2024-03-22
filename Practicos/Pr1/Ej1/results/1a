@@ -1,0 +1,10 @@
+Tiempo para L1 Data Cache: 8.416e-06 segundos
+Tiempo por linea: 2.73958e-09 segundos
+Tiempo para L2 Cache: 0.000233212 segundos
+Tiempo por linea: 4.74471e-09 segundos
+Tiempo para L3 Cache: 0.00402248 segundos
+Tiempo por linea: 1.53445e-08 segundos
+Relacion con cache 1 de cache 2: 27.7106
+Relacion linea con cache 1 de cache 2: 1.73191
+Relacion con cache 1 de cache 3: 477.956
+Relacion linea con cache 1 de cache 3: 5.60104
