@@ -1,8 +1,10 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
-#include <functional>
-#include <chrono>
+#include <fstream>
+#include "../auxFunctions.h"
+
+
 
 #define L3_SIZE (16 * 1024 * 1024) // Tamaño de la caché L3 en bytes
 #define A_ROWS 2048  
@@ -43,25 +45,23 @@ void printC(const std::vector<size_t> matrix){
     }
 }
 
-void PrintTime(std::function<void()> func) {
-    auto start = std::chrono::high_resolution_clock::now();
-    func();
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double>  diff = end - start;
-    std::cout << diff.count() << " s" << std::endl;
-}
-
 int main() {
+    system("mkdir -p Ej2/results");
+
+    std::ofstream results("Ej2/results/2a");
+    
     std::vector<size_t> A = Matrix(A_ROWS,A_COLS);
     std::vector<size_t> B = Matrix(B_ROWS,B_COLS);
     std::vector<size_t> C1 = std::vector<size_t> (A_ROWS * B_COLS,0);
     std::vector<size_t> C2 = std::vector<size_t> (A_ROWS * B_COLS,0);
 
-    std::cout << "Tiempo de Multiplicacion en Eficiente:";
-    PrintTime([&]() { EfficientMatrixesMultiplier(C1, A, B); });
+    double timeEfficientAccess = Time([&]() { EfficientMatrixesMultiplier(C1, A, B); });
+    results << "Tiempo de Multiplicacion en Eficiente:" << timeEfficientAccess << std::endl;
     // Llamada a PrintTime con lambda para NonEfficientMatrixesMultiplier
-    std::cout << "Tiempo de Multiplicacion en No Eficiente:";
-    PrintTime([&]() { NonEfficientMatrixesMultiplier(C2, A, B); });
+    double timeNonEfficientAccess = Time([&]() { NonEfficientMatrixesMultiplier(C1, A, B); });
+    results << "Tiempo de Multiplicacion en No Eficiente:" << timeNonEfficientAccess << std::endl;
+    
+    results.close();
 
     return 0;
 }
