@@ -1,30 +1,25 @@
-Tiempo de Multiplicacion Comun tamano 64:0.00287097
-Tiempo de Multiplicacion en tamano 64 Bloque de 64 :0.00278366
-Tiempo de Multiplicacion en tamano 64 Bloque de 128 :0.00136647
-Tiempo de Multiplicacion en tamano 64 Bloque de 256 :0.00128983
-Tiempo de Multiplicacion en tamano 64 Bloque de 512 :0.00129507
-Tiempo de Multiplicacion en tamano 64 Bloque de 1024 :0.00132329
-Tiempo de Multiplicacion Comun tamano 128:0.0100986
-Tiempo de Multiplicacion en tamano 128 Bloque de 64 :0.0154514
-Tiempo de Multiplicacion en tamano 128 Bloque de 128 :0.00998935
-Tiempo de Multiplicacion en tamano 128 Bloque de 256 :0.0102571
-Tiempo de Multiplicacion en tamano 128 Bloque de 512 :0.0100245
-Tiempo de Multiplicacion en tamano 128 Bloque de 1024 :0.010028
-Tiempo de Multiplicacion Comun tamano 256:0.0870999
-Tiempo de Multiplicacion en tamano 256 Bloque de 64 :0.201131
-Tiempo de Multiplicacion en tamano 256 Bloque de 128 :0.120688
-Tiempo de Multiplicacion en tamano 256 Bloque de 256 :0.0788455
-Tiempo de Multiplicacion en tamano 256 Bloque de 512 :0.0789394
-Tiempo de Multiplicacion en tamano 256 Bloque de 1024 :0.0786795
-Tiempo de Multiplicacion Comun tamano 512:0.652355
-Tiempo de Multiplicacion en tamano 512 Bloque de 64 :2.94076
-Tiempo de Multiplicacion en tamano 512 Bloque de 128 :1.62371
-Tiempo de Multiplicacion en tamano 512 Bloque de 256 :0.963694
-Tiempo de Multiplicacion en tamano 512 Bloque de 512 :0.627821
-Tiempo de Multiplicacion en tamano 512 Bloque de 1024 :0.628509
-Tiempo de Multiplicacion Comun tamano 1024:5.26434
-Tiempo de Multiplicacion en tamano 1024 Bloque de 64 :44.7659
-Tiempo de Multiplicacion en tamano 1024 Bloque de 128 :23.7719
-Tiempo de Multiplicacion en tamano 1024 Bloque de 256 :13.0578
-Tiempo de Multiplicacion en tamano 1024 Bloque de 512 :7.74848
-Tiempo de Multiplicacion en tamano 1024 Bloque de 1024 :5.14062
+Tiempo de Multiplicacion Comun tamano 64:0.00140288
+Tiempo de Multiplicacion en tamano 64 Bloque de 64 :0.00129001
+Tiempo de Multiplicacion en tamano 64 Bloque de 128 :0.00126876
+Tiempo de Multiplicacion en tamano 64 Bloque de 256 :0.00130912
+Tiempo de Multiplicacion en tamano 64 Bloque de 512 :0.00130603
+Tiempo de Multiplicacion en tamano 64 Bloque de 1024 :0.00131879
+Tiempo de Multiplicacion Comun tamano 128:0.0103816
+Tiempo de Multiplicacion en tamano 128 Bloque de 64 :0.0154696
+Tiempo de Multiplicacion en tamano 128 Bloque de 128 :0.00994852
+Tiempo de Multiplicacion en tamano 128 Bloque de 256 :0.0101991
+Tiempo de Multiplicacion en tamano 128 Bloque de 512 :0.00988475
+Tiempo de Multiplicacion en tamano 128 Bloque de 1024 :0.0100835
+Tiempo de Multiplicacion Comun tamano 256:0.0819996
+Tiempo de Multiplicacion en tamano 256 Bloque de 64 :0.203181
+Tiempo de Multiplicacion en tamano 256 Bloque de 128 :0.119404
+Tiempo de Multiplicacion en tamano 256 Bloque de 256 :0.0790343
+Tiempo de Multiplicacion en tamano 256 Bloque de 512 :0.0805059
+Tiempo de Multiplicacion en tamano 256 Bloque de 1024 :0.0793375
+Tiempo de Multiplicacion Comun tamano 512:0.656749
+Tiempo de Multiplicacion en tamano 512 Bloque de 64 :2.9134
+Tiempo de Multiplicacion en tamano 512 Bloque de 128 :1.61518
+Tiempo de Multiplicacion en tamano 512 Bloque de 256 :0.97275
+Tiempo de Multiplicacion en tamano 512 Bloque de 512 :0.63335
+Tiempo de Multiplicacion en tamano 512 Bloque de 1024 :0.631988
+Tiempo de Multiplicacion Comun tamano 1024:5.31398
