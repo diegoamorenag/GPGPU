@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
-#include <chrono>
+#include <fstream>
 #include "../auxFunctions.h"
 
 #define MAX_ELEMENTS64 15 
@@ -95,15 +95,21 @@ void SumAlL96(const FixedArray_96Bytes* data){
 
 
 int main() {
+    system("mkdir -p Ej1/results");
+
+    // Abrir el archivo en el modo de escritura
+    std::ofstream results("Ej1/results/1c");
+    
     FixedArray_64Bytes* array64 = create64Array();
     FixedArray_96Bytes* array96 = create96Array();
 
     double time64 = Time([&]() { SumAlL64(array64); });
-    std::cout << "Tiempo 64: " << time64 << " s" << std::endl;
+    results << "Tiempo 64: " << time64 << " s" << std::endl;
 
     double time96 = Time([&]() { SumAlL96(array96); });
-    std::cout << "Tiempo 96: " << time96 << " s" << std::endl;
+    results << "Tiempo 96: " << time96 << " s" << std::endl;
 
+    results.close();
     delete[] array64;
     delete[] array96;
     return 0;

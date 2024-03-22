@@ -1,7 +1,8 @@
 #include <iostream>
 #include <cstdlib>
-#include <ctime>
+#include <fstream>
 #include <tuple>
+
 #include "../auxFunctions.h"
 
 #define CACHE_LINE_SIZE 64
@@ -36,22 +37,28 @@ std::tuple<double, double> test_cache(int cache_size, int total_lines) {
 }
 
 int main() {
+    system("mkdir -p Ej1/results");
+
+    // Abrir el archivo en el modo de escritura
+    std::ofstream results("Ej1/results/1a");
+
     auto [cpu_time_usedL1, line_time_usedL1] = test_cache(L1_SIZE, L1_TOTAL_LINES);
-    std::cout << "Tiempo para L1 Data Cache: " << cpu_time_usedL1 << " segundos\n";
-    std::cout << "Tiempo por linea: " << line_time_usedL1 << " segundos\n";
+    results << "Tiempo para L1 Data Cache: " << cpu_time_usedL1 << " segundos\n";
+    results << "Tiempo por linea: " << line_time_usedL1 << " segundos\n";
 
     auto [cpu_time_usedL2, line_time_usedL2] = test_cache(L2_SIZE, L2_TOTAL_LINES);
-    std::cout << "Tiempo para L2 Cache: " << cpu_time_usedL2 << " segundos\n";
-    std::cout << "Tiempo por linea: " << line_time_usedL2 << " segundos\n";
+    results << "Tiempo para L2 Cache: " << cpu_time_usedL2 << " segundos\n";
+    results << "Tiempo por linea: " << line_time_usedL2 << " segundos\n";
 
     auto [cpu_time_usedL3, line_time_usedL3] = test_cache(L3_SIZE, L3_TOTAL_LINES);
-    std::cout << "Tiempo para L3 Cache: " << cpu_time_usedL3 << " segundos\n";
-    std::cout << "Tiempo por linea: " << line_time_usedL3 << " segundos\n";
+    results << "Tiempo para L3 Cache: " << cpu_time_usedL3 << " segundos\n";
+    results << "Tiempo por linea: " << line_time_usedL3 << " segundos\n";
 
-    std::cout << "Relacion con cache 1 de cache 2: " << cpu_time_usedL2 / cpu_time_usedL1 << std::endl;
-    std::cout << "Relacion linea con cache 1 de cache 2: " << line_time_usedL2 / line_time_usedL1 << std::endl;
-    std::cout << "Relacion con cache 1 de cache 3: " << cpu_time_usedL3 / cpu_time_usedL1 << std::endl;
-    std::cout << "Relacion linea con cache 1 de cache 3: " << line_time_usedL3 / line_time_usedL1 << std::endl;
+    results << "Relacion con cache 1 de cache 2: " << cpu_time_usedL2 / cpu_time_usedL1 << std::endl;
+    results << "Relacion linea con cache 1 de cache 2: " << line_time_usedL2 / line_time_usedL1 << std::endl;
+    results << "Relacion con cache 1 de cache 3: " << cpu_time_usedL3 / cpu_time_usedL1 << std::endl;
+    results << "Relacion linea con cache 1 de cache 3: " << line_time_usedL3 / line_time_usedL1 << std::endl;
 
+    results.close();
     return 0;
 }
