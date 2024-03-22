@@ -36,7 +36,7 @@ ej1crun:
 	echo "Ejercicio 1-C\n"
 	$(OUTPUT_DIR_1)/1c
 
-ej2compile: $(OUTPUT_DIR_2)/2a $(OUTPUT_DIR_2)/2b $(OUTPUT_DIR_2)/2c
+ej2compile: $(OUTPUT_DIR_2)/2a $(OUTPUT_DIR_2)/2b $(OUTPUT_DIR_2)/2c $(OUTPUT_DIR_2)/2c_vs
 
 $(OUTPUT_DIR_2)/2a: Ej2/2a.cpp auxFunctions.o
 	$(CXX) Ej2/2a.cpp auxFunctions.o -o $@
@@ -47,7 +47,10 @@ $(OUTPUT_DIR_2)/2b: Ej2/2b.cpp auxFunctions.o
 $(OUTPUT_DIR_2)/2c: Ej2/2c.cpp auxFunctions.o
 	$(CXX) Ej2/2c.cpp auxFunctions.o -o $@
 
-ej2run: ej2arun ej2brun ej2crun
+$(OUTPUT_DIR_2)/2c_vs: Ej2/2c_vs.cpp auxFunctions.o
+	$(CXX) Ej2/2c_vs.cpp auxFunctions.o -o $@
+
+ej2run: ej2arun ej2brun ej2crun ej2c_vsrun
 
 ej2arun:
 	echo "Ejercicio 2-A\n"
@@ -61,6 +64,10 @@ ej2crun:
 	echo "Ejercicio 2-C\n"
 	$(OUTPUT_DIR_2)/2c
 
+ej2c_vsrun:
+	echo "Ejercicio 2-C vs\n"
+	$(OUTPUT_DIR_2)/2c_vs
+
 auxFunctions.o: auxFunctions.cpp auxFunctions.h
 	$(CXX) $(CXXFLAGS) -c auxFunctions.cpp
 
@@ -72,6 +79,9 @@ auxFunctions.o: auxFunctions.cpp auxFunctions.h
 
 2c.o: 2c.cpp
 	$(CXX) $(CXXFLAGS) -c 2c.cpp
+
+2c_vs.o: 2c_vs.cpp
+	$(CXX) $(CXXFLAGS) -c 2c_vs.cpp
 
 clean:
 	rm -f *.o $(OUTPUT_DIR_1)/* $(OUTPUT_DIR_2)/* $(RESULTS_DIR_1)/* $(RESULTS_DIR_2)/* 
