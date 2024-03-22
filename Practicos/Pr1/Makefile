@@ -2,6 +2,8 @@ CXX = g++
 CXXFLAGS = -std=c++17
 OUTPUT_DIR_1 = Ej1/output
 OUTPUT_DIR_2 = Ej2/output
+RESULTS_DIR_1 = Ej1/results
+RESULTS_DIR_2 = Ej2/results
 
 all: ej1compile ej2compile ej1run ej2run
 
@@ -14,7 +16,7 @@ $(OUTPUT_DIR_1)/1bSinPrefetch: Ej1/1b.cpp auxFunctions.o
 	$(CXX) -O0 Ej1/1b.cpp auxFunctions.o -o $@
 
 $(OUTPUT_DIR_1)/1bConPrefetch: Ej1/1b.cpp auxFunctions.o
-	$(CXX) -fprefetch-loop-arrays Ej1/1b.cpp auxFunctions.o -o $@
+	$(CXX) -O2 -fprefetch-loop-arrays -DPREFETCH Ej1/1b.cpp auxFunctions.o -o $@
 
 $(OUTPUT_DIR_1)/1c: Ej1/1c.cpp auxFunctions.o
 	$(CXX) -O0 Ej1/1c.cpp auxFunctions.o -o $@
@@ -72,4 +74,4 @@ auxFunctions.o: auxFunctions.cpp auxFunctions.h
 	$(CXX) $(CXXFLAGS) -c 2c.cpp
 
 clean:
-	rm -f *.o $(OUTPUT_DIR_1)/* $(OUTPUT_DIR_2)/*
+	rm -f *.o $(OUTPUT_DIR_1)/* $(OUTPUT_DIR_2)/* $(RESULTS_DIR_1)/* $(RESULTS_DIR_2)/* 
