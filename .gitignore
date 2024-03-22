@@ -1,3 +1,5 @@
 *.o
 Practicos/Pr1/Ej1/output/*
 Practicos/Pr1/Ej2/output/*
+GPGPU/Practicos/Pr1/Ej1/output/*
+GPGPU/Practicos/Pr1/Ej2/output/*
