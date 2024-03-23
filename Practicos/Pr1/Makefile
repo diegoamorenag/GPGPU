@@ -23,16 +23,16 @@ $(OUTPUT_DIR_1)/1c: Ej1/1c.cpp auxFunctions.o
 
 ej1run: ej1arun ej1brun ej1crun
 
-ej1arun:
+ej1arun: $(OUTPUT_DIR_1)/1a 
 	echo "Ejercicio 1-A\n"
 	$(OUTPUT_DIR_1)/1a
 
-ej1brun:
+ej1brun: $(OUTPUT_DIR_1)/1bSinPrefetch $(OUTPUT_DIR_1)/1bConPrefetch 
 	echo "Ejercicio 1-B\n"
 	$(OUTPUT_DIR_1)/1bSinPrefetch
 	$(OUTPUT_DIR_1)/1bConPrefetch
 
-ej1crun:
+ej1crun: $(OUTPUT_DIR_1)/1c
 	echo "Ejercicio 1-C\n"
 	$(OUTPUT_DIR_1)/1c
 
@@ -52,19 +52,19 @@ $(OUTPUT_DIR_2)/2c_vs: Ej2/2c_vs.cpp auxFunctions.o
 
 ej2run: ej2arun ej2brun ej2crun ej2c_vsrun
 
-ej2arun:
+ej2arun: $(OUTPUT_DIR_2)/2a
 	echo "Ejercicio 2-A\n"
 	$(OUTPUT_DIR_2)/2a
 
-ej2brun:
+ej2brun: $(OUTPUT_DIR_2)/2b
 	echo "Ejercicio 2-B\n"
 	$(OUTPUT_DIR_2)/2b
 
-ej2crun:
+ej2crun: $(OUTPUT_DIR_2)/2c
 	echo "Ejercicio 2-C\n"
 	$(OUTPUT_DIR_2)/2c
 
-ej2c_vsrun:
+ej2c_vsrun: $(OUTPUT_DIR_2)/2c_vs
 	echo "Ejercicio 2-C vs\n"
 	$(OUTPUT_DIR_2)/2c_vs
 
