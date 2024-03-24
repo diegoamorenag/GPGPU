@@ -93,18 +93,17 @@ int main() {
 
     // Abrir el archivo en el modo de escritura
     std::ofstream results("Ej1/results/1c");
-    
-    LineSize* array64 = createLineSizeArray();
-    ThreeHalvesLineSize* array96 = createThreeHalvesLineSizeArray();
+    LineSize* arrayLineSize = createLineSizeArray();
+    ThreeHalvesLineSize* arrayThreeHalvesLineSize = createThreeHalvesLineSizeArray();
 
-    double time64 = Time([&]() { AccessAlLLineSize(array64); });
-    results << "Tiempo 64: " << time64 << " s" << std::endl;
+    double time64 = Time([&]() { AccessAlLLineSize(arrayLineSize); });
+    results << "Tiempo en arreglo tamano una linea: " << time64 << " s" << std::endl;
 
-    double time96 = Time([&]() { AccessAlLThreeHalvesLinesize(array96); });
-    results << "Tiempo 96: " << time96 << " s" << std::endl;
+    double time96 = Time([&]() { AccessAlLThreeHalvesLinesize(arrayThreeHalvesLineSize); });
+    results << "Tiempo en arreglo tamano 3/2 lineas: " << time96 << " s" << std::endl;
 
     results.close();
-    delete[] array64;
-    delete[] array96;
+    delete[] arrayLineSize;
+    delete[] arrayThreeHalvesLineSize;
     return 0;
 }
