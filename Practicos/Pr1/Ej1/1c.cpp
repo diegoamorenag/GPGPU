@@ -4,93 +4,87 @@
 #include <fstream>
 #include "../auxFunctions.h"
 
-#define MAX_ELEMENTS64 15 
-#define MAX_ELEMENTS96 22 
-#define MAX_ELEMENTS_IN_ARRAY_64 96*10000
-#define MAX_ELEMENTS_IN_ARRAY_96 64*10000
+
+#define CACHE_LINE_SIZE 64
+#define MAX_ELEMENT_IN_LINE_SIZE_ARRAY (CACHE_LINE_SIZE/sizeof(int)) 
+#define MAX_ELEMENT_IN_THREE_HALVES_LINE_SIZE_ARRAY (3*CACHE_LINE_SIZE/(2* sizeof(int)))
+#define MAX_ELEMENTS_IN_ARRAYS (MAX_ELEMENT_IN_LINE_SIZE_ARRAY * MAX_ELEMENT_IN_THREE_HALVES_LINE_SIZE_ARRAY * 1000)
 
 // Definición del struct con 16 enteros y un contador: total 96 bytes
-struct FixedArray_96Bytes {
-    int array[MAX_ELEMENTS96]; // Arreglo con capacidad para 16 enteros
-    int count;               // Entero que representa la cantidad de elementos en el arreglo
+struct LineSize {
+    int array[MAX_ELEMENT_IN_LINE_SIZE_ARRAY]; // Arreglo con capacidad para 16 enteros               // Entero que representa la cantidad de elementos en el arreglo
 };
 
 // Definición del struct con 15 enteros y un contador: total 64 bytes
-struct FixedArray_64Bytes {
-    int array[MAX_ELEMENTS64]; 
-    int count;               
+struct ThreeHalvesLineSize {
+    int array[MAX_ELEMENT_IN_THREE_HALVES_LINE_SIZE_ARRAY];                
 };
 
 
-// Función para crear un FixedArray_64Bytes
-FixedArray_64Bytes create64() {
-    FixedArray_64Bytes res;
-    res.count = MAX_ELEMENTS64;
-    // Inicializar el arreglo con valores 1
-    for (int i = 0; i < MAX_ELEMENTS64; ++i) {
+// Función para crear un LineSize
+LineSize createLineSize() {
+    LineSize res;
+    for (int i = 0; i < MAX_ELEMENT_IN_LINE_SIZE_ARRAY; ++i) {
         res.array[i] = 1;
     }
     return res;
 }
 
-// Función para crear un FixedArray_96Bytes
-FixedArray_96Bytes create96() {
-    FixedArray_96Bytes res;
-    res.count = MAX_ELEMENTS96;
+// Función para crear un ThreeHalvesLineSize
+ThreeHalvesLineSize createThreeHalvesLineSize() {
+    ThreeHalvesLineSize res;
     // Inicializar el arreglo con valores 1
-    for (int i = 0; i < MAX_ELEMENTS96; ++i) {
+    for (int i = 0; i < MAX_ELEMENT_IN_THREE_HALVES_LINE_SIZE_ARRAY; ++i) {
         res.array[i] = 1;
     }
     return res;
 }
 
-FixedArray_64Bytes* create64Array(){
-    FixedArray_64Bytes* res = new FixedArray_64Bytes[MAX_ELEMENTS_IN_ARRAY_64];
-    for(size_t i=0; i<MAX_ELEMENTS_IN_ARRAY_64; i++){
-        res[i]=create64();
+LineSize* createLineSizeArray(){
+    LineSize* res = new LineSize[MAX_ELEMENTS_IN_ARRAYS / (3/2*CACHE_LINE_SIZE)];
+    for(size_t i=0; i<MAX_ELEMENTS_IN_ARRAYS / (3/2*CACHE_LINE_SIZE); i++){
+        res[i]=createLineSize();
     } 
     return res;
 }
 
-FixedArray_96Bytes* create96Array(){
-    FixedArray_96Bytes* res = new FixedArray_96Bytes[MAX_ELEMENTS_IN_ARRAY_96];
-    for(size_t i=0; i<MAX_ELEMENTS_IN_ARRAY_96; i++){
-        res[i]=create96();
+ThreeHalvesLineSize* createThreeHalvesLineSizeArray(){
+    ThreeHalvesLineSize* res = new ThreeHalvesLineSize[MAX_ELEMENTS_IN_ARRAYS/CACHE_LINE_SIZE];
+    for(size_t i=0; i<MAX_ELEMENTS_IN_ARRAYS/CACHE_LINE_SIZE; i++){
+        res[i]=createThreeHalvesLineSize();
     } 
     return res;
 }
 
-int Sum64(const FixedArray_64Bytes& data){
+int AccessLineSize(const LineSize& data){
     int res=0;
-    for(int i=0; i<data.count; i++){
-        res+=data.array[i];
+    for(int i=0; i<MAX_ELEMENT_IN_LINE_SIZE_ARRAY; i++){
+        res=data.array[i];
     }
     return res;
 }
 
-int Sum96(const FixedArray_96Bytes& data){
+int AccessThreeHalvesLineSizeArray(const ThreeHalvesLineSize& data){
     int res=0;
-    for(int i=0; i<data.count; i++){
-        res+=data.array[i];
+    for(int i=0; i<MAX_ELEMENT_IN_THREE_HALVES_LINE_SIZE_ARRAY; i++){
+        res=data.array[i];
     }
     return res;
 }
 
-void SumAlL64(const FixedArray_64Bytes* data){
+void AccessAlLLineSize(const LineSize* data){
     int res=0;
     
-    for(int i=0; i<MAX_ELEMENTS_IN_ARRAY_64; i++){
-        res+= Sum64(data[i]);
+    for(int i=0; i<MAX_ELEMENT_IN_LINE_SIZE_ARRAY; i++){
+        res= AccessLineSize(data[i]);
     }
-    std::cout<< "Suma arreglo 64:" << res << std::endl;
 }
 
-void SumAlL96(const FixedArray_96Bytes* data){
+void AccessAlLThreeHalvesLinesize(const ThreeHalvesLineSize* data){
     int res=0;
-    for(int i=0; i<MAX_ELEMENTS_IN_ARRAY_96; i++){
-        res+= Sum96(data[i]);
+    for(int i=0; i<MAX_ELEMENT_IN_THREE_HALVES_LINE_SIZE_ARRAY; i++){
+        res= AccessThreeHalvesLineSizeArray(data[i]);
     }
-    std::cout<< "Suma arreglo 96:" << res << std::endl;
 }
 
 
@@ -100,13 +94,13 @@ int main() {
     // Abrir el archivo en el modo de escritura
     std::ofstream results("Ej1/results/1c");
     
-    FixedArray_64Bytes* array64 = create64Array();
-    FixedArray_96Bytes* array96 = create96Array();
+    LineSize* array64 = createLineSizeArray();
+    ThreeHalvesLineSize* array96 = createThreeHalvesLineSizeArray();
 
-    double time64 = Time([&]() { SumAlL64(array64); });
+    double time64 = Time([&]() { AccessAlLLineSize(array64); });
     results << "Tiempo 64: " << time64 << " s" << std::endl;
 
-    double time96 = Time([&]() { SumAlL96(array96); });
+    double time96 = Time([&]() { AccessAlLThreeHalvesLinesize(array96); });
     results << "Tiempo 96: " << time96 << " s" << std::endl;
 
     results.close();
