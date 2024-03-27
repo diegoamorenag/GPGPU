@@ -4,21 +4,20 @@
 #include <fstream>
 #include "../auxFunctions.h"
 
-#define MAX_ELEMENTS64 15 
-#define MAX_ELEMENTS96 22 
+#define MAX_ELEMENTS64 15
+#define MAX_ELEMENTS96 23
 #define MAX_ELEMENTS_IN_ARRAY_64 96*10000
 #define MAX_ELEMENTS_IN_ARRAY_96 64*10000
+#define ELEMENTS_PER_LINE 64/sizeof(int)
 
 // Definición del struct con 16 enteros y un contador: total 96 bytes
 struct FixedArray_96Bytes {
     int array[MAX_ELEMENTS96]; // Arreglo con capacidad para 16 enteros
-    int count;               // Entero que representa la cantidad de elementos en el arreglo
 };
 
 // Definición del struct con 15 enteros y un contador: total 64 bytes
 struct FixedArray_64Bytes {
     int array[MAX_ELEMENTS64]; 
-    int count;               
 };
 
 

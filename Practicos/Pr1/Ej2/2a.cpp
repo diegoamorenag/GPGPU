@@ -1,67 +1,71 @@
 #include <iostream>
-#include <cmath>
 #include <vector>
-#include <fstream>
-#include "../auxFunctions.h"
+#include <chrono>
 
+typedef int VALT; // Usamos int en lugar de double
 
-
-#define L3_SIZE (16 * 1024 * 1024) // Tamaño de la caché L3 en bytes
-#define A_ROWS 2048  
-#define A_COLS 1024 
-#define B_ROWS 1024 
-#define B_COLS 512 
-
-std::vector<size_t> Matrix(size_t rows, size_t cols){
-    std::vector<size_t> res(rows * cols,1);
-    return res;
+// Calcula GFLOPS
+double gflops(int m, int n, int p, double seconds) {
+    double operations = 2.0 * m * n * p;
+    double gflops = operations / (seconds * 1e9);
+    return gflops;
 }
 
-void EfficientMatrixesMultiplier(std::vector<size_t>& C, const std::vector<size_t>& A, const std::vector<size_t>& B){
-    for (size_t it = 0; it < A_COLS; it++) { 
-        for (size_t row = 0; row < A_ROWS; row++) {
-            for (size_t col = 0; col < B_COLS; col++) {
-                C[row * B_COLS + col] += A[row * A_COLS + it] * B[it * B_COLS + col];
+// Multiplicación de matrices original
+void multiplyMatrices(const std::vector<VALT>& A, const std::vector<VALT>& B, std::vector<VALT>& C, int m, int n, int p) {
+    for (int row = 0; row < m; ++row) {
+        for (int col = 0; col < n; ++col) {
+            VALT sum = 0;
+            for (int it = 0; it < p; ++it) {
+                sum += A[row * p + it] * B[it * n + col];
             }
-        }
-    }
-}
-void NonEfficientMatrixesMultiplier(std::vector<size_t>& C, const std::vector<size_t>& A, const std::vector<size_t>& B){
-    for (size_t row = 0; row < A_ROWS; row++) {
-        for (size_t col = 0; col < B_COLS; col++) {
-            for (size_t it = 0; it < A_COLS; it++) { 
-                C[row * B_COLS + col] += A[row * A_COLS + it] * B[it * B_COLS + col];
-            }
+            C[row * n + col] = sum;
         }
     }
 }
 
-void printC(const std::vector<size_t> matrix){
-    for (int i = 0; i < A_ROWS; ++i) {
-        for (int j = 0; j < B_COLS; ++j) {  
-            std::cout << matrix[i * A_COLS + j] << " ";
+// Multiplicación de matrices optimizada
+void multiplyMatricesOptimized(const std::vector<VALT>& A, const std::vector<VALT>& B, std::vector<VALT>& C, int m, int n, int p) {
+    for (int it = 0; it < p; ++it) {
+        for (int row = 0; row < m; ++row) {
+            for (int col = 0; col < n; ++col) {
+                C[row * n + col] += A[row * p + it] * B[it * n + col];
+            }
         }
-        std::cout << std::endl;
     }
 }
 
 int main() {
-    system("mkdir -p Ej2/results");
+    // Prueba con diferentes tamaños de matrices
+    std::vector<std::tuple<int, int, int>> sizes = {
+        {1600, 1600, 1600},
+        {3200, 3200, 3200},
+        {6400, 6400, 6400},
+    };
 
-    std::ofstream results("Ej2/results/2a");
-    
-    std::vector<size_t> A = Matrix(A_ROWS,A_COLS);
-    std::vector<size_t> B = Matrix(B_ROWS,B_COLS);
-    std::vector<size_t> C1 = std::vector<size_t> (A_ROWS * B_COLS,0);
-    std::vector<size_t> C2 = std::vector<size_t> (A_ROWS * B_COLS,0);
+    for (auto& [m, n, p] : sizes) {
+        // Inicializa matrices
+        std::vector<VALT> A(m * p, 1);
+        std::vector<VALT> B(p * n, 2);
+        std::vector<VALT> C(m * n, 0);
 
-    double timeEfficientAccess = Time([&]() { EfficientMatrixesMultiplier(C1, A, B); });
-    results << "Tiempo de Multiplicacion en Eficiente:" << timeEfficientAccess << std::endl;
-    // Llamada a PrintTime con lambda para NonEfficientMatrixesMultiplier
-    double timeNonEfficientAccess = Time([&]() { NonEfficientMatrixesMultiplier(C1, A, B); });
-    results << "Tiempo de Multiplicacion en No Eficiente:" << timeNonEfficientAccess << std::endl;
-    
-    results.close();
+        // Mide el tiempo de la versión original
+        auto start = std::chrono::high_resolution_clock::now();
+        multiplyMatrices(A, B, C, m, n, p);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        std::cout << "Original (" << m << "x" << p << " y " << p << "x" << n << "): "
+                  << gflops(m, n, p, elapsed.count()) << " GFLOPS" << std::endl;
+
+        // Mide el tiempo de la versión optimizada
+        std::fill(C.begin(), C.end(), 0); // Resetea C para la siguiente multiplicación
+        start = std::chrono::high_resolution_clock::now();
+        multiplyMatricesOptimized(A, B, C, m, n, p);
+        end = std::chrono::high_resolution_clock::now();
+        elapsed = end - start;
+        std::cout << "Optimizado (" << m << "x" << p << " y " << p << "x" << n << "): "
+                  << gflops(m, n, p, elapsed.count()) << " GFLOPS" << std::endl;
+    }
 
     return 0;
 }

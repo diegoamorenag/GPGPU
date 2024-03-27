@@ -1,2 +1,6 @@
-Tiempo de Multiplicacion en Eficiente:4.98615
-Tiempo de Multiplicacion en No Eficiente:5.67551
+Original (1600x1600 y 1600x1600): 0.679997 GFLOPS
+Optimizado (1600x1600 y 1600x1600): 7.08435 GFLOPS
+Original (3200x3200 y 3200x3200): 0.389301 GFLOPS
+Optimizado (3200x3200 y 3200x3200): 3.63502 GFLOPS
+Original (6400x6400 y 6400x6400): 0.291529 GFLOPS
+Optimizado (6400x6400 y 6400x6400): 5.58375 GFLOPS

@@ -39,7 +39,7 @@ ej1crun: $(OUTPUT_DIR_1)/1c
 ej2compile: $(OUTPUT_DIR_2)/2a $(OUTPUT_DIR_2)/2b $(OUTPUT_DIR_2)/2c $(OUTPUT_DIR_2)/2c_vs
 
 $(OUTPUT_DIR_2)/2a: Ej2/2a.cpp auxFunctions.o
-	$(CXX) Ej2/2a.cpp auxFunctions.o -o $@
+	$(CXX) Ej2/2a.cpp auxFunctions.o -o $@ -O3
 
 $(OUTPUT_DIR_2)/2b: Ej2/2b.cpp auxFunctions.o
 	$(CXX) Ej2/2b.cpp auxFunctions.o -o $@
