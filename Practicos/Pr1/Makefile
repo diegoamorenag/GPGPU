@@ -21,8 +21,8 @@ $(OUTPUT_DIR_1)/1bConPrefetch: Ej1/1b.cpp auxFunctions.o
 $(OUTPUT_DIR_1)/1c: Ej1/1c.cpp auxFunctions.o
 	$(CXX) -O0 Ej1/1c.cpp auxFunctions.o -o $@
 
-ej1run: ej1arun ej1brun ej1crun
-
+ej1run:  ej1crun
+# ej1arun ej1brun
 ej1arun: $(OUTPUT_DIR_1)/1a 
 	echo "Ejercicio 1-A\n"
 	$(OUTPUT_DIR_1)/1a
