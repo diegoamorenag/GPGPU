@@ -7,8 +7,8 @@ RESULTS_DIR_2 = Ej2/results
 
 all: ej1compile ej2compile ej1run ej2run
 
-ej1compile: $(OUTPUT_DIR_1)/1a $(OUTPUT_DIR_1)/1bSinPrefetch $(OUTPUT_DIR_1)/1bConPrefetch $(OUTPUT_DIR_1)/1c
-
+ej1compile:  $(OUTPUT_DIR_1)/1c
+# $(OUTPUT_DIR_1)/1a $(OUTPUT_DIR_1)/1bSinPrefetch $(OUTPUT_DIR_1)/1bConPrefetch
 $(OUTPUT_DIR_1)/1a: Ej1/1a.cpp auxFunctions.o
 	$(CXX) $(CXXFLAGS) -O0 Ej1/1a.cpp auxFunctions.o -o $@
 
