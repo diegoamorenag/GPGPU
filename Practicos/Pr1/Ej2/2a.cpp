@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <tuple>
+#include <fstream>
 
 typedef int VALT; // Usamos int en lugar de double
 
@@ -43,6 +45,9 @@ int main() {
         {6400, 6400, 6400},
     };
 
+    system("mkdir -p Ej2/results");
+
+    std::ofstream results("Ej2/results/2a");
     for (auto& [m, n, p] : sizes) {
         // Inicializa matrices
         std::vector<VALT> A(m * p, 1);
