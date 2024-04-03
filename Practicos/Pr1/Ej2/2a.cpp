@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <tuple>
+#include <fstream>
 
 typedef int VALT; // Usamos int en lugar de double
 
@@ -43,6 +45,9 @@ int main() {
         {6400, 6400, 6400},
     };
 
+    system("mkdir -p Ej2/results");
+
+    std::ofstream results("Ej2/results/2a");
     for (auto& [m, n, p] : sizes) {
         // Inicializa matrices
         std::vector<VALT> A(m * p, 1);
@@ -54,8 +59,8 @@ int main() {
         multiplyMatrices(A, B, C, m, n, p);
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end - start;
-        std::cout << "Original (" << m << "x" << p << " y " << p << "x" << n << "): "
-                  << gflops(m, n, p, elapsed.count()) << " GFLOPS" << std::endl;
+        results << "Original (" << m << "x" << p << " y " << p << "x" << n << "): "
+                  << gflops(m, n, p, elapsed.count()) << " GFLOPS";
 
         // Mide el tiempo de la versión optimizada
         std::fill(C.begin(), C.end(), 0); // Resetea C para la siguiente multiplicación
@@ -63,8 +68,8 @@ int main() {
         multiplyMatricesOptimized(A, B, C, m, n, p);
         end = std::chrono::high_resolution_clock::now();
         elapsed = end - start;
-        std::cout << "Optimizado (" << m << "x" << p << " y " << p << "x" << n << "): "
-                  << gflops(m, n, p, elapsed.count()) << " GFLOPS" << std::endl;
+        results << "Optimizado (" << m << "x" << p << " y " << p << "x" << n << "): "
+                  << gflops(m, n, p, elapsed.count()) << " GFLOPS";
     }
 
     return 0;
