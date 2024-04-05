@@ -29,18 +29,17 @@ __device__ int modulo(int a, int b){
 	return r;
 }
 
-__global__ void decrypt_kernel(int *d_message, int length){
-	int idx = threadIdx.x + blockDim.x * blockIdx.x; //ahora hay multiples bloques por lo que necesitamos calcular el indice global
-	if (idx < length){
-		int decrypt = d_message[idx] = modulo(A_MMI_M * (d_message[idx] - B), M);
-		d_message[idx] = decrypt;
-	}
+__global__ void contar_caracteres(unsigned char *text, int length, int *occurrences) {
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+    if (idx < length) {
+        unsigned char character = text[idx];
+        atomicAdd(&occurrences[character], 1);
+    }
 }
 
 int main(int argc, char *argv[])
 {
-	int *h_message;
-	int *d_message;
+	int *text;
 	unsigned int size;
 
 	const char * fname;
@@ -53,50 +52,52 @@ int main(int argc, char *argv[])
 
 	size = length * sizeof(int);
 
-	// reservar memoria para el mensaje
-	h_message = (int *)malloc(size);
+	// reservar memoria para el texto
+	text = (int *)malloc(size);
 
 	// leo el archivo de la entrada
-	read_file(fname, h_message);
+	read_file(fname, text);
 
-	/* reservar memoria en la GPU */
-	CUDA_CHK(cudaMalloc((void**)&d_message, size));
+	unsigned char *d_text;
+	int *d_occurrences;
+	int h_occurrences[256] = {0};	//inicializado en ceros
 
-	/* copiar los datos de entrada a la GPU */
-	CUDA_CHK(cudaMemcpy(d_message, h_message, size, cudaMemcpyHostToDevice));
+	CUDA_CHK(cudaMalloc((void**)&d_text, length));
+	CUDA_CHK(cudaMalloc((void**)&d_occurrences, 256 * sizeof(int)));
+	CUDA_CHK(cudaMemcpy(d_text, text, length, cudaMemcpyHostToDevice));
+	CUDA_CHK(cudaMemset(d_occurrences, 0, 256 * sizeof(int)));
 
-	/* Configurar la grilla y lanzar el kernel */
 	int threadsPerBlock = N;
 	int blocksPerGrid = (length + threadsPerBlock - 1) / threadsPerBlock;
+	contar_caracteres<<<blocksPerGrid, threadsPerBlock>>>(d_text, length, d_occurrences);
 
-	printf("Descifrando...\n");
-	decrypt_kernel<<<blocksPerGrid, threadsPerBlock>>>(d_message, length);
+	CUDA_CHK(cudaMemcpy(h_occurrences, d_occurrences, 256 * sizeof(int), cudaMemcpyDeviceToHost));
 
-	cudaDeviceSynchronize();
-	
-	/* Copiar los datos de salida a la CPU en h_message */
-	CUDA_CHK(cudaMemcpy(h_message, d_message, size, cudaMemcpyDeviceToHost));
+	for (int i = 0; i < 256; i++) {
+		if (h_occurrences[i] > 0) {
+			printf("Caracter %c -- Ocurrencias: %d\n", i, h_occurrences[i]);
+		}
+	}
 
-	printf("Descifrado\n");
-
-    // Escribir el mensaje desencriptado en texto.txt
-	FILE *f_out = fopen("texto.txt", "w");
+	// Escribir el mensaje desencriptado en texto.txt
+	FILE *f_out = fopen("ocurrencias.txt", "w");
 	if (f_out == NULL) {
-	    fprintf(stderr, "Error: No se pudo abrir texto.txt para escritura\n");
+	    fprintf(stderr, "Error: No se pudo abrir ocurrencias.txt para escritura\n");
 	    exit(1);
 	}
 
-	for (int i = 0; i < length; i++) {
-	    fprintf(f_out, "%c", (char)h_message[i]);
+	for (int i = 0; i < 256; i++) {
+	    fprintf(f_out, "%c", (char)h_occurrences[i]);
 	}
 
 	fclose(f_out);
 
-	// libero la memoria en la GPU
-	CUDA_CHK(cudaFree(d_message));
+	//liberar memoria de gpu
+	CUDA_CHK(cudaFree(d_text));
+	CUDA_CHK(cudaFree(d_occurrences));
 
-	// libero la memoria en la CPU
-	free(h_message);
+	//liberar memoria de cpu
+	free(text);
 
 	return 0;
 }

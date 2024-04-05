@@ -21,6 +21,7 @@ int get_text_length(const char * fname);
 #define A_MMI_M -17
 
 #define N 512
+#define BLOCKS 128	//definimos la cantidad de bloques a mano
 
 
 __device__ int modulo(int a, int b){
@@ -30,11 +31,12 @@ __device__ int modulo(int a, int b){
 }
 
 __global__ void decrypt_kernel(int *d_message, int length){
-	int idx = threadIdx.x + blockDim.x * blockIdx.x; //ahora hay multiples bloques por lo que necesitamos calcular el indice global
-	if (idx < length){
-		int decrypt = d_message[idx] = modulo(A_MMI_M * (d_message[idx] - B), M);
-		d_message[idx] = decrypt;
-	}
+    int idx = blockIdx.x * blockDim.x + threadIdx.x; // indice global
+    int step = blockDim.x * gridDim.x; // vamos a usar esto para asegurar que cada hilo se saltee exactamente el tamaño de la grilla (para no pisarnos)
+    
+    for (int i = idx; i < length; i += step) {
+        d_message[i] = modulo(A_MMI_M * (d_message[i] - B), M);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -67,9 +69,8 @@ int main(int argc, char *argv[])
 
 	/* Configurar la grilla y lanzar el kernel */
 	int threadsPerBlock = N;
-	int blocksPerGrid = (length + threadsPerBlock - 1) / threadsPerBlock;
 
-	decrypt_kernel<<<blocksPerGrid, threadsPerBlock>>>(d_message, length);
+	decrypt_kernel<<<BLOCKS, threadsPerBlock>>>(d_message, length);
 	cudaDeviceSynchronize();
 	
 	/* Copiar los datos de salida a la CPU en h_message */
