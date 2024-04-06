@@ -79,19 +79,6 @@ int main(int argc, char *argv[])
 
 	printf("Descifrado\n");
 
-    // Escribir el mensaje desencriptado en texto.txt
-	FILE *f_out = fopen("texto.txt", "w");
-	if (f_out == NULL) {
-	    fprintf(stderr, "Error: No se pudo abrir texto.txt para escritura\n");
-	    exit(1);
-	}
-
-	for (int i = 0; i < length; i++) {
-	    fprintf(f_out, "%c", (char)h_message[i]);
-	}
-
-	fclose(f_out);
-
 	// libero la memoria en la GPU
 	CUDA_CHK(cudaFree(d_message));
 
