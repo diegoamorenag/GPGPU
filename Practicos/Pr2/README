@@ -1,0 +1,17 @@
+Ejercicio 1
+---
+a) Descripción del Proceso con un Único Bloque 
+En este escenario, todos los hilos se alojan en un único bloque. Cada hilo, identificado por su `threadIdx.x`, es responsable de desencriptar un único carácter del mensaje cifrado. La función de descifrado utiliza la fórmula matemática \(A^{-1}(x - B) \mod M\), donde x es el valor del carácter en la posición que corresponde al índice del hilo. La distribución de la carga es equitativa, ya que cada hilo maneja exactamente un carácter, lo que simplifica la gestión del paralelismo sin requerir coordinación entre bloques múltiples.
+
+b) Uso de Múltiples Bloques
+En esta configuración, se utilizan varios bloques, y el índice de cada hilo se calcula como `threadIdx.x + blockDim.x * blockIdx.x`. Esto significa que cada hilo en cada bloque se encargará de desencriptar un carácter diferente, correspondiente a la fórmula del índice global. El uso de múltiples bloques permite procesar mensajes más largos de manera eficiente, distribuyendo la carga de trabajo de manera más amplia a través del hardware disponible.
+
+c) Desencriptar Caracteres con Saltos de Tamaño de la Grilla 
+Aquí, cada hilo realiza saltos del tamaño de la grilla completa para seleccionar el carácter a desencriptar. Esto significa que un hilo no solo desencripta el carácter en su índice inicial calculado (como en la parte b), sino que continúa desencriptando caracteres adicionales saltando un número de índices igual al tamaño total de hilos en la grilla. Esta estrategia ayuda a balancear aún más la carga y asegura que los hilos estén ocupados a lo largo del procesamiento del mensaje completo, especialmente útil para mensajes de gran longitud.
+
+Ejercicio 2
+---
+
+La configuración del kernel para la desencriptación se establece con 256 hilos por bloque. El número de bloques se determina dividiendo la longitud del mensaje por el número de hilos por bloque y redondeando hacia arriba para asegurar que todos los caracteres sean procesados:
+
+La verificación del ejercicio se realiza mediante un programa en C que calcula secuencialmente las ocurrencias de cada carácter, también con un enfoque que incluye saltos del tamaño de la grilla, al igual que en la parte b.

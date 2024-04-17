@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
 	int *h_message;
 	int *d_message;
 	unsigned int size;
-
 	const char * fname;
 
 	if (argc < 2) printf("Debe ingresar el nombre del archivo\n");
@@ -50,7 +49,6 @@ int main(int argc, char *argv[])
 		fname = argv[1];
 
 	int length = get_text_length(fname);
-
 	size = length * sizeof(int);
 
 	// reservar memoria para el mensaje
