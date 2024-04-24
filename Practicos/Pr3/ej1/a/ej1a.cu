@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cuda_runtime.h>
 
 // kernel para transponer
 __global__ void kernel(int *input, int *output, int width, int height) {
@@ -48,11 +49,27 @@ int main() {
     cudaMemcpy(d_input, h_input, bytes, cudaMemcpyHostToDevice);
 
     // Configuración del tamaño de bloque y de grilla
-    dim3 blockSize(32, 32);
+    dim3 blockSize(32, 8);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
+
+    // Eventos para medir el tiempo
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    // Inicia medición
+    cudaEventRecord(start);
 
     // Lanzamiento del kernel
     kernel<<<gridSize, blockSize>>>(d_input, d_output, width, height);
+
+    // Finaliza medición
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+
+    // Calcula el tiempo transcurrido
+    float milliseconds = 0;
+    cudaEventElapsedTime(&milliseconds, start, stop);
 
     // Copia de resultados hacia el host
     cudaMemcpy(h_output, d_output, bytes, cudaMemcpyDeviceToHost);
@@ -61,14 +78,18 @@ int main() {
     std::cout << "Bloque de la matriz original:\n";
     printMatrixSection(h_input, width, height, 0, 5, 0, 5);
 
-    std::cout << "Bloque de la matriz transpuesta por bloques de 32x32:\n";
-    printMatrixSection(h_output, width, height, 0, 5, 0, 5);
+    std::cout << "Bloque de la matriz transpuesta:\n";
+    printMatrixSection(h_output, height, width, 0, 5, 0, 5); // Ajustar impresión para matriz transpuesta
 
+    std::cout << "Tiempo de ejecución del kernel: " << milliseconds << " ms\n";
 
-    // Liberar memoria
+    // Liberar memoria y eventos
     cudaFree(d_input);
     cudaFree(d_output);
     free(h_input);
     free(h_output);
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+
     return 0;
 }
