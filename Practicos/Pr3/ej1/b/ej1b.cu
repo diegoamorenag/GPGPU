@@ -22,9 +22,9 @@ void printMatrixSection(int *matrix, int width, int height, int rowStart, int ro
     }
 }
 
-int main() {
-    int width = 1024; // Asumiendo un tamaño de matriz de 1024x1024
-    int height = 1024;
+void obtener_timepo(int block_x, int block_y) {
+    int width = 4096; // Asumiendo un tamaño de matriz de 1024x1024
+    int height = 4096;
     size_t bytes = width * height * sizeof(int);
 
     int *h_input, *h_output;
@@ -49,7 +49,7 @@ int main() {
     cudaMemcpy(d_input, h_input, bytes, cudaMemcpyHostToDevice);
 
     // Configuración del tamaño de bloque y de grilla
-    dim3 blockSize(32, 8);
+    dim3 blockSize(block_x, block_y);
     dim3 gridSize((width + blockSize.x - 1) / blockSize.x, (height + blockSize.y - 1) / blockSize.y);
 
     // Crear eventos para medir el tiempo
@@ -70,16 +70,10 @@ int main() {
     // Calcula y muestra el tiempo de ejecución
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
-    std::cout << "Tiempo de ejecución del kernel: " << milliseconds << " ms\n";
+    std::cout << "Tiempo de ejecución del kernel para (" << block_x << ", " << block_y << ") tomo: " << milliseconds << " ms\n";
 
     // Copia de resultados hacia el host
     cudaMemcpy(h_output, d_output, bytes, cudaMemcpyDeviceToHost);
-
-    // Impresión de secciones de la matriz
-    std::cout << "Bloque de la matriz original:\n";
-    printMatrixSection(h_input, width, height, 0, 5, 0, 5);
-    std::cout << "Bloque de la matriz transpuesta:\n";
-    printMatrixSection(h_output, width, height, 0, 5, 0, 5);
 
     // Liberar memoria
     cudaFree(d_input);
@@ -91,5 +85,15 @@ int main() {
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 
+    return;
+}
+
+
+int main (void) {
+    for (int i = 1; i <= 32; i*=2){
+        for (int j = 1; j <= 32; j*=2){
+            obtener_timepo(i, j);
+        }
+    }
     return 0;
 }

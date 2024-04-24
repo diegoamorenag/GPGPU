@@ -23,8 +23,8 @@ void printMatrixSection(int *matrix, int width, int height, int rowStart, int ro
 }
 
 int main() {
-    int width = 1024; // Asumiendo un tamaño de matriz de 1024x1024
-    int height = 1024;
+    int width = 4096; // Asumiendo un tamaño de matriz de 1024x1024
+    int height = 4096;
     size_t bytes = width * height * sizeof(int);
 
     int *h_input, *h_output;
