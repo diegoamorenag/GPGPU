@@ -1,7 +1,9 @@
 #include <iostream>
-#include <cuda_runtime.h> // Asegúrate de incluir el header adecuado para funciones CUDA.
+#include <vector>
+#include <cuda_runtime.h>
+#include <cmath> // Para calcular la desviación estándar
 
-// kernel para transponer
+// Kernel para transponer
 __global__ void kernel(int *input, int *output, int width, int height) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -12,19 +14,12 @@ __global__ void kernel(int *input, int *output, int width, int height) {
     }
 }
 
-// Función para imprimir una sección de la matriz
-void printMatrixSection(int *matrix, int width, int height, int rowStart, int rowEnd, int colStart, int colEnd) {
-    for (int i = rowStart; i < rowEnd; i++) {
-        for (int j = colStart; j < colEnd; j++) {
-            std::cout << matrix[i * width + j] << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-
-void obtener_timepo(int block_x, int block_y) {
-    int width = 4096; // Asumiendo un tamaño de matriz de 1024x1024
-    int height = 4096;
+// Función para obtener tiempo promedio y desviación estándar
+void obtener_tiempo(int block_x, int block_y) {
+    const int num_runs = 10; // Número de ejecuciones para cada configuración
+    std::vector<float> runtimes(num_runs);
+    int width = 16384;
+    int height = 16384;
     size_t bytes = width * height * sizeof(int);
 
     int *h_input, *h_output;
@@ -57,20 +52,20 @@ void obtener_timepo(int block_x, int block_y) {
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
-    // Registro del evento de inicio
-    cudaEventRecord(start);
+    for (int run = 0; run < num_runs; run++) {
+        // Registro del evento de inicio
+        cudaEventRecord(start);
 
-    // Lanzamiento del kernel
-    kernel<<<gridSize, blockSize>>>(d_input, d_output, width, height);
+        // Lanzamiento del kernel
+        kernel<<<gridSize, blockSize>>>(d_input, d_output, width, height);
 
-    // Registro del evento de finalización
-    cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
+        // Registro del evento de finalización
+        cudaEventRecord(stop);
+        cudaEventSynchronize(stop);
 
-    // Calcula y muestra el tiempo de ejecución
-    float milliseconds = 0;
-    cudaEventElapsedTime(&milliseconds, start, stop);
-    std::cout << "Tiempo de ejecución del kernel para (" << block_x << ", " << block_y << ") tomo: " << milliseconds << " ms\n";
+        // Calcula y guarda el tiempo de ejecución
+        cudaEventElapsedTime(&runtimes[run], start, stop);
+    }
 
     // Copia de resultados hacia el host
     cudaMemcpy(h_output, d_output, bytes, cudaMemcpyDeviceToHost);
@@ -85,14 +80,27 @@ void obtener_timepo(int block_x, int block_y) {
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 
-    return;
+    // Calcular media y desviación estándar
+    float mean = 0;
+    for (float time : runtimes) {
+        mean += time;
+    }
+    mean /= num_runs;
+
+    float stddev = 0;
+    for (float time : runtimes) {
+        stddev += (time - mean) * (time - mean);
+    }
+    stddev = sqrt(stddev / num_runs);
+
+    //std::cout << "Tiempo promedio de ejecucion del kernel para (" << block_x << ", " << block_y << ") es: " << mean << " ms, con una desviación estándar de: " << stddev << " ms\n";
+    std::cout << "(" << block_x << "," << block_y << ") " << mean << " " << stddev << "\n";
 }
 
-
-int main (void) {
-    for (int i = 1; i <= 32; i*=2){
-        for (int j = 1; j <= 32; j*=2){
-            obtener_timepo(i, j);
+int main(void) {
+    for (int i = 1; i <= 256; i *= 2) {
+        for (int j = 1; j <= 256; j *= 2) {
+            obtener_tiempo(i, j);
         }
     }
     return 0;
