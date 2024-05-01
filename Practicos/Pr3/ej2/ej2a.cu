@@ -1,5 +1,5 @@
 #include <iostream>
-#include <cuda_runtime.h> // Asegúrate de incluir el header adecuado para funciones CUDA.
+#include <cuda_runtime.h>
 
 __global__ void kernel(int *matrix, int width, int height) {
     int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -23,7 +23,7 @@ void printMatrixSection(int *matrix, int width, int height, int rowStart, int ro
 }
 
 void obtener_timepo(int block_x, int block_y) {
-    int width = 4096; // Asumiendo un tamaño de matriz de 1024x1024
+    int width = 4096;
     int height = 4096;
     size_t bytes = width * height * sizeof(int);
 
@@ -87,7 +87,6 @@ void obtener_timepo(int block_x, int block_y) {
 
     return;
 }
-
 
 int main (void) {
     for (int i = 1; i <= 32; i*=2){

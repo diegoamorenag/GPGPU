@@ -67,7 +67,7 @@ void lanzador() {
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
 
-    // Calcula el tiempo transcurrido
+    // Calcular el tiempo transcurrido
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
 
@@ -79,7 +79,7 @@ void lanzador() {
     //printMatrixSection(h_input, width, height, 0, 5, 0, 5);
 
     //std::cout << "Bloque de la matriz transpuesta:\n";
-    //printMatrixSection(h_output, height, width, 0, 5, 0, 5); // Ajustar impresión para matriz transpuesta
+    //printMatrixSection(h_output, height, width, 0, 5, 0, 5);
 
     std::cout << "Tiempo de ejecución del kernel: " << milliseconds << " ms\n";
     //std::cout << milliseconds << std::endl;

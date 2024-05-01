@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cuda_runtime.h>
-#include <cmath> // Para calcular la desviación estándar
+#include <cmath>
 
 // Kernel para transponer
 __global__ void kernel(int *input, int *output, int width, int height) {
@@ -16,7 +16,7 @@ __global__ void kernel(int *input, int *output, int width, int height) {
 
 // Función para obtener tiempo promedio y desviación estándar
 void obtener_tiempo(int block_x, int block_y) {
-    const int num_runs = 10; // Número de ejecuciones para cada configuración
+    const int num_runs = 10;
     std::vector<float> runtimes(num_runs);
     int width = 16384;
     int height = 16384;
