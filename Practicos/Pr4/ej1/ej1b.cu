@@ -1,24 +1,24 @@
 #include <iostream>
 #include <cuda_runtime.h>
 
-// kernel para transponer
+// kernel para transponer usando memoria compartida con columna dummy para evitar conflictos de bancos
 __global__ void kernel(int *input, int *output, int width, int height) {
+    __shared__ int tile[32][33]; // Agregar una columna dummy
+
     int x = blockIdx.x * blockDim.x + threadIdx.x;
     int y = blockIdx.y * blockDim.y + threadIdx.y;
-    if (x < width && y < height) {
-        int pos = y * width + x;
-        int transpos = x * height + y;
-        output[transpos] = input[pos];
-    }
-}
 
-// Función para imprimir una sección de la matriz
-void printMatrixSection(int *matrix, int width, int height, int rowStart, int rowEnd, int colStart, int colEnd) {
-    for (int i = rowStart; i < rowEnd; i++) {
-        for (int j = colStart; j < colEnd; j++) {
-            std::cout << matrix[i * width + j] << " ";
-        }
-        std::cout << std::endl;
+    // Cargar datos en la memoria compartida
+    if (x < width && y < height) {
+        tile[threadIdx.y][threadIdx.x] = input[y * width + x];
+    }
+    __syncthreads();
+
+    // Escribir datos transpuestos desde la memoria compartida a la global
+    int transpos_x = blockIdx.y * blockDim.y + threadIdx.x;
+    int transpos_y = blockIdx.x * blockDim.x + threadIdx.y;
+    if (transpos_x < height && transpos_y < width) {
+        output[transpos_y * height + transpos_x] = tile[threadIdx.x][threadIdx.y];
     }
 }
 
