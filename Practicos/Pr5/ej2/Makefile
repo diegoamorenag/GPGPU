@@ -1,0 +1,41 @@
+#INCLUDECUDA = -I/usr/local/cuda-7.0/samples/common/inc/
+# HEADERNVMLAPI = -L/usr/lib64/nvidia -lnvidia-ml -L/usr/lib64 -lcuda -I/usr/include -lpthread
+
+#compilers
+#CC=gcc
+CC=nvcc
+
+#GLOBAL_PARAMETERS
+VALUE_TYPE = double
+
+
+## Flags para Compilar Optmiziado
+NVCC_FLAGS =  -Xcompiler -ftree-vectorize -Xcompiler -fopenmp -O3 -w -m64 -gencode=arch=compute_86,code=sm_86 -Xptxas -dlcm=cg
+
+
+#ENVIRONMENT_PARAMETERS
+CUDA_INSTALL_PATH = /usr/local/cuda
+MKLROOT = /local/gpgpu/software/intel/mkl/2021.4.0
+INCLUDES = -I$(CUDA_INSTALL_PATH)/include -I./include -I${MKLROOT}/include
+        
+#libs
+#CLANG_LIBS = -stdlib=libstdc++ -lstdc++
+MKL_LIBS =  -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_tbb_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -ltbb -lstdc++ -lpthread -lm -ldl
+MKL_LIBS = -lpthread -lm# -L/opt/intel/lib/intel64_lin ${MKLROOT}/lib/intel64_lin/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64_lin/libmkl_intel_thread.a ${MKLROOT}/lib/intel64_lin/libmkl_core.a -lstdc++ -lpthread -lm -ldl -liomp5
+CUDA_LIBS = -L$(CUDA_INSTALL_PATH)/lib  -lcudart -lcuda -lcusparse -lnvidia-ml # -lgomp
+#LIBS = $(MKL_LIBS)
+LIBS = $(CUDA_LIBS) $(CLANG_LIBS) $(MKL_LIBS)
+#options
+#OPTIONS = -std=c99
+
+MAIN=main
+#FILES = main.c 
+ 
+FILES = main.cu
+
+#FILES = analysis_csr.cu \
+        test.cu \
+        main.cu
+
+make:
+	$(CC) $(NVCC_FLAGS) $(FILES) --keep-dir local -o main $(INCLUDES) $(LIBS) $(OPTIONS) -D VALUE_TYPE=$(VALUE_TYPE) -D__$(VALUE_TYPE)__ -D AMPERE=$(AMPERE) -D OLD_ANALYSIS=$(OLD) -D LOG_FILE=$(LOG_FILE) -D TIMERS_SOLVERS=$(TIMER_SOLVERS) 
