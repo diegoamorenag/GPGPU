@@ -2,8 +2,10 @@
 #include <vector>
 #include <cuda.h>
 #include <algorithm>
+#include <chrono>
+#include <numeric>
+#include <cmath>
 
-// CUDA Kernel to perform block-wise exclusive scan
 __global__ void block_scan_kernel(int* d_input, int* d_output, int* d_block_sums, int n) {
     extern __shared__ int temp[];
     int thid = threadIdx.x;
@@ -58,7 +60,6 @@ __global__ void block_scan_kernel(int* d_input, int* d_output, int* d_block_sums
     }
 }
 
-// CUDA Kernel to add block sums to each element
 __global__ void add_block_sums_kernel(int* d_output, int* d_block_sums, int n) {
     int thid = threadIdx.x;
     int block_start = 2 * blockIdx.x * blockDim.x;
@@ -72,14 +73,13 @@ __global__ void add_block_sums_kernel(int* d_output, int* d_block_sums, int n) {
     }
 }
 
-// Function to perform exclusive scan using CUDA
 void exclusive_scan(const std::vector<int>& input, std::vector<int>& output) {
     int n = input.size();
     int* d_input = nullptr;
     int* d_output = nullptr;
     int* d_block_sums = nullptr;
 
-    int blockSize = 512;  // Using 512 threads per block for better performance
+    int blockSize = 512;
     int numBlocks = (n + 2 * blockSize - 1) / (2 * blockSize);
 
     cudaMalloc(&d_input, n * sizeof(int));
@@ -90,6 +90,7 @@ void exclusive_scan(const std::vector<int>& input, std::vector<int>& output) {
     int sharedMemorySize = 2 * blockSize * sizeof(int);
 
     block_scan_kernel<<<numBlocks, blockSize, sharedMemorySize>>>(d_input, d_output, d_block_sums, n);
+    cudaDeviceSynchronize();
 
     if (numBlocks > 1) {
         std::vector<int> block_sums(numBlocks);
@@ -103,6 +104,7 @@ void exclusive_scan(const std::vector<int>& input, std::vector<int>& output) {
 
         cudaMemcpy(d_block_sums, block_sums_scan.data(), numBlocks * sizeof(int), cudaMemcpyHostToDevice);
         add_block_sums_kernel<<<numBlocks, blockSize>>>(d_output, d_block_sums, n);
+        cudaDeviceSynchronize();
     }
 
     cudaMemcpy(output.data(), d_output, n * sizeof(int), cudaMemcpyDeviceToHost);
@@ -112,7 +114,6 @@ void exclusive_scan(const std::vector<int>& input, std::vector<int>& output) {
     cudaFree(d_block_sums);
 }
 
-// Function to perform exclusive scan sequentially
 void exclusive_scan_sequential(const std::vector<int>& input, std::vector<int>& output) {
     int n = input.size();
     output[0] = 0;
@@ -121,10 +122,15 @@ void exclusive_scan_sequential(const std::vector<int>& input, std::vector<int>& 
     }
 }
 
-int main() {
-    std::vector<int> Ns = {1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288};
-    
-    for (int n : Ns) {
+int main() { 
+
+    //Warm-up
+    std::vector<int> warmup_input(1024, 1);
+    std::vector<int> warmup_output(1024);
+
+    exclusive_scan(warmup_input, warmup_output);
+    for (int k = 6; k <= 16; ++k) {
+        int n = 1024*(1<<k);
         std::vector<int> input(n);
         std::vector<int> output_gpu(n);
         std::vector<int> output_cpu(n);
@@ -133,12 +139,24 @@ int main() {
             input[i] = i + 1;
         }
 
-        exclusive_scan(input, output_gpu);
+        std::vector<double> times;
+        for (int i = 0; i < 10; ++i) {
+            auto start = std::chrono::high_resolution_clock::now();
+            exclusive_scan(input, output_gpu);
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> duration = end - start;
+            times.push_back(duration.count());
+        }
+
         exclusive_scan_sequential(input, output_cpu);
 
         bool are_equal = std::equal(output_gpu.begin(), output_gpu.end(), output_cpu.begin());
-        std::cout << "N = " << n << " -> " << (are_equal ? "Iguales" : "Diferentes") << std::endl;
-    }
 
+        double mean_time = std::accumulate(times.begin(), times.end(), 0.0) / times.size();
+        double sq_sum = std::inner_product(times.begin(), times.end(), times.begin(), 0.0);
+        double stddev_time = std::sqrt(sq_sum / times.size() - mean_time * mean_time);
+
+        std::cout << "N = " << n << " -> " << (are_equal ? "Iguales" : "Diferentes") << "\t" << "Media de tiempo: " << mean_time << " ms\t" << "Desviacion: " << stddev_time << " ms\n";
+    } 
     return 0;
 }
