@@ -1,142 +1,144 @@
 #include <iostream>
-#include <cuda.h>
 #include <vector>
-#include <numeric>
+#include <cuda.h>
 #include <algorithm>
-#include <cmath>
 
-
-__global__ void exclusive_scan_kernel(float* input, float* output, int n) {
-    extern __shared__ float temp[];  // Allocated memory for shared data
+// CUDA Kernel to perform block-wise exclusive scan
+__global__ void block_scan_kernel(int* d_input, int* d_output, int* d_block_sums, int n) {
+    extern __shared__ int temp[];
     int thid = threadIdx.x;
     int offset = 1;
 
-    // Load input into shared memory.
-    // Each thread loads one element
-    int ai = thid;
-    int bi = thid + (n/2);
-    temp[ai] = (ai < n) ? input[ai] : 0;
-    temp[bi] = (bi < n) ? input[bi] : 0;
-
+    int block_start = 2 * blockIdx.x * blockDim.x;
+    if (block_start + 2 * thid < n) {
+        temp[2 * thid] = d_input[block_start + 2 * thid];
+    } else {
+        temp[2 * thid] = 0;
+    }
+    if (block_start + 2 * thid + 1 < n) {
+        temp[2 * thid + 1] = d_input[block_start + 2 * thid + 1];
+    } else {
+        temp[2 * thid + 1] = 0;
+    }
     __syncthreads();
 
-    // Build sum in place up the tree
-    for (int d = n >> 1; d > 0; d >>= 1) {
-        __syncthreads();
+    for (int d = blockDim.x; d > 0; d >>= 1) {
         if (thid < d) {
-            int ai = offset*(2*thid+1)-1;
-            int bi = offset*(2*thid+2)-1;
+            int ai = offset * (2 * thid + 1) - 1;
+            int bi = offset * (2 * thid + 2) - 1;
             temp[bi] += temp[ai];
         }
         offset *= 2;
+        __syncthreads();
     }
 
-    // Clear the last element
-    if (thid == 0) { temp[n - 1] = 0; }
+    if (thid == 0) {
+        d_block_sums[blockIdx.x] = temp[2 * blockDim.x - 1];
+        temp[2 * blockDim.x - 1] = 0;
+    }
 
-    // Traverse down tree & build scan
-    for (int d = 1; d < n; d *= 2) {
+    for (int d = 1; d < 2 * blockDim.x; d *= 2) {
         offset >>= 1;
         __syncthreads();
         if (thid < d) {
-            int ai = offset*(2*thid+1)-1;
-            int bi = offset*(2*thid+2)-1;
-            float t = temp[ai];
+            int ai = offset * (2 * thid + 1) - 1;
+            int bi = offset * (2 * thid + 2) - 1;
+            int t = temp[ai];
             temp[ai] = temp[bi];
             temp[bi] += t;
         }
     }
     __syncthreads();
 
-    // Write results to output array
-    if (ai < n) output[ai] = temp[ai];
-    if (bi < n) output[bi] = temp[bi];
-}
-
-// Función secuencial para calcular la suma exclusiva en la CPU
-void exclusive_scan_cpu(const std::vector<int>& in, std::vector<int>& out) {
-    out[0] = 0;
-    for (size_t i = 1; i < in.size(); ++i) {
-        out[i] = out[i - 1] + in[i - 1];
+    if (block_start + 2 * thid < n) {
+        d_output[block_start + 2 * thid] = temp[2 * thid];
+    }
+    if (block_start + 2 * thid + 1 < n) {
+        d_output[block_start + 2 * thid + 1] = temp[2 * thid + 1];
     }
 }
 
-// Function to check CUDA errors
-void checkCudaError(cudaError_t error, const char* message) {
-    if (error != cudaSuccess) {
-        fprintf(stderr, "%s: %s\n", message, cudaGetErrorString(error));
-        exit(EXIT_FAILURE);
+// CUDA Kernel to add block sums to each element
+__global__ void add_block_sums_kernel(int* d_output, int* d_block_sums, int n) {
+    int thid = threadIdx.x;
+    int block_start = 2 * blockIdx.x * blockDim.x;
+    if (blockIdx.x > 0) {
+        if (block_start + 2 * thid < n) {
+            d_output[block_start + 2 * thid] += d_block_sums[blockIdx.x];
+        }
+        if (block_start + 2 * thid + 1 < n) {
+            d_output[block_start + 2 * thid + 1] += d_block_sums[blockIdx.x];
+        }
     }
 }
 
-// Calcula la desviación estándar de los tiempos
-double calculate_stddev(const std::vector<float>& times, float mean) {
-    double sum = 0.0;
-    for (auto t : times) {
-        sum += (t - mean) * (t - mean);
+// Function to perform exclusive scan using CUDA
+void exclusive_scan(const std::vector<int>& input, std::vector<int>& output) {
+    int n = input.size();
+    int* d_input = nullptr;
+    int* d_output = nullptr;
+    int* d_block_sums = nullptr;
+
+    int blockSize = 512;  // Using 512 threads per block for better performance
+    int numBlocks = (n + 2 * blockSize - 1) / (2 * blockSize);
+
+    cudaMalloc(&d_input, n * sizeof(int));
+    cudaMalloc(&d_output, n * sizeof(int));
+    cudaMalloc(&d_block_sums, numBlocks * sizeof(int));
+    cudaMemcpy(d_input, input.data(), n * sizeof(int), cudaMemcpyHostToDevice);
+
+    int sharedMemorySize = 2 * blockSize * sizeof(int);
+
+    block_scan_kernel<<<numBlocks, blockSize, sharedMemorySize>>>(d_input, d_output, d_block_sums, n);
+
+    if (numBlocks > 1) {
+        std::vector<int> block_sums(numBlocks);
+        std::vector<int> block_sums_scan(numBlocks);
+        cudaMemcpy(block_sums.data(), d_block_sums, numBlocks * sizeof(int), cudaMemcpyDeviceToHost);
+
+        block_sums_scan[0] = 0;
+        for (int i = 1; i < numBlocks; ++i) {
+            block_sums_scan[i] = block_sums_scan[i - 1] + block_sums[i - 1];
+        }
+
+        cudaMemcpy(d_block_sums, block_sums_scan.data(), numBlocks * sizeof(int), cudaMemcpyHostToDevice);
+        add_block_sums_kernel<<<numBlocks, blockSize>>>(d_output, d_block_sums, n);
     }
-    return std::sqrt(sum / times.size());
+
+    cudaMemcpy(output.data(), d_output, n * sizeof(int), cudaMemcpyDeviceToHost);
+
+    cudaFree(d_input);
+    cudaFree(d_output);
+    cudaFree(d_block_sums);
+}
+
+// Function to perform exclusive scan sequentially
+void exclusive_scan_sequential(const std::vector<int>& input, std::vector<int>& output) {
+    int n = input.size();
+    output[0] = 0;
+    for (int i = 1; i < n; ++i) {
+        output[i] = output[i - 1] + input[i - 1];
+    }
 }
 
 int main() {
-    for (int exp = 0; exp <= 10; ++exp) {
-        int N = 1024;
-        int size = N * pow(2, exp);
-        std::vector<int> h_in(size), h_out(size), h_out_cpu(size);
-        std::iota(h_in.begin(), h_in.end(), 0);  // Genera valores consecutivos desde 0
+    std::vector<int> Ns = {1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288};
+    
+    for (int n : Ns) {
+        std::vector<int> input(n);
+        std::vector<int> output_gpu(n);
+        std::vector<int> output_cpu(n);
 
-        int* d_in;
-        int* d_out;
-        int* d_sums;
-        int num_blocks = (size + N - 1) / N;
-        
-        checkCudaError(cudaMalloc((void**)&d_in, size * sizeof(int)), "Error en cudaMalloc para d_in");
-        checkCudaError(cudaMalloc((void**)&d_out, size * sizeof(int)), "Error en cudaMalloc para d_out");
-        checkCudaError(cudaMalloc((void**)&d_sums, num_blocks * sizeof(int)), "Error en cudaMalloc para d_sums");
-
-        checkCudaError(cudaMemcpy(d_in, h_in.data(), size * sizeof(int), cudaMemcpyHostToDevice), "Error en cudaMemcpy HostToDevice");
-
-        int shared_mem_size = N * sizeof(int);
-        std::vector<float> times(10);
-
-        cudaEvent_t start, stop;
-        checkCudaError(cudaEventCreate(&start), "Error creating start event");
-        checkCudaError(cudaEventCreate(&stop), "Error creating stop event");
-
-        int threads = N / 2;  // Number of threads should match the base size / 2
-
-        for (int i = 0; i < 10; ++i) {
-            cudaEventRecord(start);
-            exclusive_scan_kernel<<<num_blocks, threads, shared_mem_size>>>(d_in, d_out, size, d_sums);
-            cudaEventSynchronize(start);
-            adjust_sums<<<num_blocks, threads>>>(d_out, d_sums, size);
-            cudaEventRecord(stop);
-            cudaEventSynchronize(stop);
-
-            float milliseconds = 0;
-            cudaEventElapsedTime(&milliseconds, start, stop);
-            times[i] = milliseconds;
+        for (int i = 0; i < n; ++i) {
+            input[i] = i + 1;
         }
 
-        float mean_time = std::accumulate(times.begin(), times.end(), 0.0f) / times.size();
-        double std_dev = calculate_stddev(times, mean_time);
+        exclusive_scan(input, output_gpu);
+        exclusive_scan_sequential(input, output_cpu);
 
-        checkCudaError(cudaMemcpy(h_out.data(), d_out, size * sizeof(int), cudaMemcpyDeviceToHost), "Error en cudaMemcpy DeviceToHost");
-
-        // Verificar con la implementación secuencial
-        exclusive_scan_cpu(h_in, h_out_cpu);
-        bool correct = std::equal(h_out.begin(), h_out.end(), h_out_cpu.begin());
-        if (!correct) {
-            std::cerr << "Resultado incorrecto para tamaño " << size << std::endl;
-        }
-
-        std::cout << "Size: " << N << "*2^" << exp << ", Media: " << mean_time * 1000 << " microsec, Desvio: " << std_dev * 1000 << " microsec" << std::endl;
-
-        cudaFree(d_in);
-        cudaFree(d_out);
-        cudaFree(d_sums);
-        cudaEventDestroy(start);
-        cudaEventDestroy(stop);
+        bool are_equal = std::equal(output_gpu.begin(), output_gpu.end(), output_cpu.begin());
+        std::cout << "N = " << n << " -> " << (are_equal ? "Iguales" : "Diferentes") << std::endl;
     }
+
     return 0;
 }
