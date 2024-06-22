@@ -58,7 +58,7 @@ void lanzador() {
     cudaEventCreate(&stop);
 
     // Inicia medición
-    cudaEventRecord(start);
+    cudaEventRecord(start); 
 
     // Lanzamiento del kernel
     kernel<<<gridSize, blockSize>>>(d_input, d_output, width, height);
