@@ -5,18 +5,27 @@
 #CC=gcc
 CC=nvcc
 
-#GLOBAL_PARAMETERS
+#Param
 VALUE_TYPE = double
 
 
-## Flags para Compilar Optmiziado
-NVCC_FLAGS =  -Xcompiler -ftree-vectorize -Xcompiler -fopenmp -O3 -w -m64 -gencode=arch=compute_86,code=sm_86 -Xptxas -dlcm=cg
+#NVCC_FLAGS = -Xcompiler -ftree-vectorize -Xcompiler -fopenmp -O3 -w -m64 -gencode=arch=compute_75,code=sm_75 -Xptxas -dlcm=cg #60 para tener warps sincrónicos
+## Flags para Compilar y Debuggear
+NVCC_FLAGS = -O3 -w -m64 -std=c++11 -gencode=arch=compute_60,code=sm_60 -Xptxas -dlcm=cg #-DTHRUST_IGNORE_CUB_VERSION_CHECK
+#NVCC_FLAGS = -g  -lineinfo -Xcompiler -fopenmp -O3 -w -m64 -gencode=arch=compute_75,code=sm_75 -Xptxas -dlcm=cg #Show line error
+MGPU_FLAGS = --expt-extended-lambda -std=c++11 -use_fast_math #-Xptxas="-v" -lineinfo
 
+##NVCC_FLAGS = -Xcompiler -fopenmp -O3 -w -m64 -gencode=arch=compute_60,code=sm_60 -gencode=arch=compute_60,code=compute_60 -Xptxas -dlcm=cg
+#NVCC_FLAGS = -O3 -std=c99 -w -m64
 
 #ENVIRONMENT_PARAMETERS
-CUDA_INSTALL_PATH = /usr/local/cuda
-MKLROOT = /local/gpgpu/software/intel/mkl/2021.4.0
-INCLUDES = -I$(CUDA_INSTALL_PATH)/include -I./include -I${MKLROOT}/include
+CUDA_INSTALL_PATH = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5"
+#MKLROOT = /opt/intel/mkl
+MKLROOT = "C:\Program Files (x86)\Intel\oneAPI\mkl\latest\"
+#includes
+CUB= "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5\include\cub"
+
+INCLUDES = -I${CUB} -I$(CUDA_INSTALL_PATH)/include  
         
 #libs
 #CLANG_LIBS = -stdlib=libstdc++ -lstdc++
@@ -24,18 +33,24 @@ MKL_LIBS =  -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLRO
 MKL_LIBS = -lpthread -lm# -L/opt/intel/lib/intel64_lin ${MKLROOT}/lib/intel64_lin/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64_lin/libmkl_intel_thread.a ${MKLROOT}/lib/intel64_lin/libmkl_core.a -lstdc++ -lpthread -lm -ldl -liomp5
 CUDA_LIBS = -L$(CUDA_INSTALL_PATH)/lib  -lcudart -lcuda -lcusparse -lnvidia-ml # -lgomp
 #LIBS = $(MKL_LIBS)
-LIBS = $(CUDA_LIBS) $(CLANG_LIBS) $(MKL_LIBS)
+#LIBS = $(CUDA_LIBS) $(CLANG_LIBS) $(MKL_LIBS)
 #options
 #OPTIONS = -std=c99
 
-MAIN=main
+
 #FILES = main.c 
  
-FILES = main.cu
+#FILES = solver/solve_csr_simple.cu \
+	solver/solve_csr_multirow.cu \
+        solver/solve_csr_cusparse.cu \
+		solver/solve_csr_order.cu \
+        analysis_csr.cu \
+        main.cu \
+        nvmlPower.cpp \
+        test/test.cu \
 
-#FILES = analysis_csr.cu \
-        test.cu \
-        main.cu
+FILES = main.cu
+#FILES = test.cu
 
 make:
-	$(CC) $(NVCC_FLAGS) $(FILES) --keep-dir local -o main $(INCLUDES) $(LIBS) $(OPTIONS) -D VALUE_TYPE=$(VALUE_TYPE) -D__$(VALUE_TYPE)__ -D AMPERE=$(AMPERE) -D OLD_ANALYSIS=$(OLD) -D LOG_FILE=$(LOG_FILE) -D TIMERS_SOLVERS=$(TIMER_SOLVERS) 
+	$(CC) $(NVCC_FLAGS) $(FILES) --keep-dir local -o biblios $(INCLUDES) $(LIBS) $(OPTIONS) -D VALUE_TYPE=$(VALUE_TYPE)

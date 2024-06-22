@@ -156,7 +156,7 @@ int main() {
         double sq_sum = std::inner_product(times.begin(), times.end(), times.begin(), 0.0);
         double stddev_time = std::sqrt(sq_sum / times.size() - mean_time * mean_time);
 
-        std::cout << "N = " << n << " -> " << (are_equal ? "Iguales" : "Diferentes") << "\t" << "Media de tiempo: " << mean_time << " ms\t" << "Desviacion: " << stddev_time << " ms\n";
+        std::cout << "N = " << k << " -> " << (are_equal ? "Iguales" : "Diferentes") << "\t" << "Media de tiempo: " << mean_time << " ms\t" << "Desviacion: " << stddev_time << " ms\n";
     } 
     return 0;
 }

@@ -168,14 +168,17 @@ void calc_mean_stddev(const std::vector<double>& times, double& mean, double& st
 }
 
 int main() {
-    std::vector<int> Ns = {1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144, 524288, 1048576, 2097152, 4194304, 8388608, 16777216, 33554432, 67108864};
-    
+    std::vector<int> exponents = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};  // Exponents for 2^N
+
     // Warm-up kernel execution
     std::vector<int> warmup_input(1024, 1);
     std::vector<int> warmup_output(1024);
     exclusive_scan(warmup_input, warmup_output);
 
-    for (int n : Ns) {
+    std::cout << "N\tmedia_custom\tmedia_CUB\tmedia_thrust\n";
+
+    for (int exp : exponents) {
+        int n = 1024 * (1 << exp);  // Calculate 1024 * 2^N
         std::vector<int> input(n);
         std::vector<int> output_gpu(n);
         std::vector<int> output_cpu(n);
@@ -195,8 +198,6 @@ int main() {
             std::chrono::duration<double, std::milli> duration = end - start;
             times_custom.push_back(duration.count());
         }
-
-        exclusive_scan_sequential(input, output_cpu);
 
         std::vector<double> times_cub;
         for (int i = 0; i < 10; ++i) {
@@ -218,10 +219,6 @@ int main() {
             times_thrust.push_back(duration.count());
         }
 
-        bool are_equal_custom = std::equal(output_gpu.begin(), output_gpu.end(), output_cpu.begin());
-        bool are_equal_cub = std::equal(output_cub.begin(), output_cub.end(), output_cpu.begin());
-        bool are_equal_thrust = std::equal(output_thrust.begin(), output_thrust.end(), output_cpu.begin());
-
         double mean_custom, stddev_custom;
         calc_mean_stddev(times_custom, mean_custom, stddev_custom);
 
@@ -231,22 +228,7 @@ int main() {
         double mean_thrust, stddev_thrust;
         calc_mean_stddev(times_thrust, mean_thrust, stddev_thrust);
 
-        std::cout << "----------------------------------------------\n";
-        std::cout << "N = " << n << "\n";
-        std::cout << "Custom Implementation:\n";
-        std::cout << "  Result: " << (are_equal_custom ? "Iguales" : "Diferentes") << "\n";
-        std::cout << "  Media de tiempo: " << mean_custom << " ms\n";
-        std::cout << "  Desviacion estandar: " << stddev_custom << " ms\n";
-        std::cout << "CUB Implementation:\n";
-        std::cout << "  Result: " << (are_equal_cub ? "Iguales" : "Diferentes") << "\n";
-        std::cout << "  Media de tiempo: " << mean_cub << " ms\n";
-        std::cout << "  Desviacion estandar: " << stddev_cub << " ms\n";
-        std::cout << "Thrust Implementation:\n";
-        std::cout << "  Result: " << (are_equal_thrust ? "Iguales" : "Diferentes") << "\n";
-        std::cout << "  Media de tiempo: " << mean_thrust << " ms\n";
-        std::cout << "  Desviacion estandar: " << stddev_thrust << " ms\n";
-        std::cout << "----------------------------------------------\n";
-
+        std::cout << exp << "\t" << mean_custom << "\t" << mean_cub << "\t" << mean_thrust << "\n";
     }
 
     return 0;
