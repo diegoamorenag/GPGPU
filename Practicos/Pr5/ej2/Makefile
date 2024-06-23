@@ -19,11 +19,11 @@ MGPU_FLAGS = --expt-extended-lambda -std=c++11 -use_fast_math #-Xptxas="-v" -lin
 #NVCC_FLAGS = -O3 -std=c99 -w -m64
 
 #ENVIRONMENT_PARAMETERS
-CUDA_INSTALL_PATH = "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5"
+CUDA_INSTALL_PATH = /usr/local/cuda
 #MKLROOT = /opt/intel/mkl
-MKLROOT = "C:\Program Files (x86)\Intel\oneAPI\mkl\latest\"
+MKLROOT = /home/gpgpu/software/mkl
 #includes
-CUB= "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5\include\cub"
+CUB= /clusteruy/home/gpgpu7/cub/cub
 
 INCLUDES = -I${CUB} -I$(CUDA_INSTALL_PATH)/include  
         
