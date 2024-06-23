@@ -1,4 +1,14 @@
 #include "mmio.h"
+#include <thrust/sort.h>
+#include <thrust/device_vector.h>
+#include <thrust/execution_policy.h>
+#include <thrust/device_ptr.h>
+#include <thrust/sort.h>
+#include <thrust/unique.h>
+#include <thrust/iterator/counting_iterator.h>
+#include <thrust/execution_policy.h>
+#include <cmath>
+
 #define WARP_PER_BLOCK 32
 #define WARP_SIZE 32
 #define CUDA_CHK(call) print_cuda_state(call);
