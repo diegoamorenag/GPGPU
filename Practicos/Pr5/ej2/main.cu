@@ -3,11 +3,13 @@
 #include <thrust/device_vector.h>
 #include <thrust/execution_policy.h>
 #include <thrust/device_ptr.h>
-#include <thrust/sort.h>
 #include <thrust/unique.h>
 #include <thrust/iterator/counting_iterator.h>
-#include <thrust/execution_policy.h>
 #include <cmath>
+#include <thrust/reduce.h>
+#include <thrust/scan.h>
+#include <thrust/for_each.h>
+
 
 #define WARP_PER_BLOCK 32
 #define WARP_SIZE 32
