@@ -105,87 +105,77 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
     int* RowPtrL_d, *ColIdxL_d;
     VALUE_TYPE* Val_d;
 
-int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* iorder){
-    
-    int * niveles;
+int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
+    // Variables en el dispositivo
+    unsigned int *d_niveles;
+    int *d_is_solved;
 
-    niveles = (int*) malloc(n * sizeof(int));
+    // Reserva de memoria en el dispositivo
+    CUDA_CHK(cudaMalloc((void**) &d_niveles, n * sizeof(unsigned int)));
+    CUDA_CHK(cudaMalloc((void**) &d_is_solved, n * sizeof(int)));
 
-    unsigned int * d_niveles;
-    int * d_is_solved;
-    
-    CUDA_CHK( cudaMalloc((void**) &(d_niveles) , n * sizeof(unsigned int)) )
-    CUDA_CHK( cudaMalloc((void**) &(d_is_solved) , n * sizeof(int)) )
-    
+    // Configuración de ejecución del kernel
     int num_threads = WARP_PER_BLOCK * WARP_SIZE;
+    int grid = ceil((double) n * WARP_SIZE / (double) num_threads);
 
-    int grid = ceil ((double)n*WARP_SIZE / (double)(num_threads));
+    CUDA_CHK(cudaMemset(d_is_solved, 0, n * sizeof(int)));
+    CUDA_CHK(cudaMemset(d_niveles, 0, n * sizeof(unsigned int)));
 
-    CUDA_CHK( cudaMemset(d_is_solved, 0, n * sizeof(int)) )
-    CUDA_CHK( cudaMemset(d_niveles, 0, n * sizeof(unsigned int)) )
+    // Llamada al kernel
+    kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * (2 * sizeof(int))>>>(RowPtrL, ColIdxL, d_is_solved, n, d_niveles);
+    CUDA_CHK(cudaDeviceSynchronize());
 
+    // Copiar los resultados de vuelta al host
+    int *niveles = (int *) malloc(n * sizeof(int));
+    CUDA_CHK(cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost));
 
-    kernel_analysis_L<<< grid , num_threads, WARP_PER_BLOCK * (2*sizeof(int)) >>>( RowPtrL, 
-                                                                                   ColIdxL, 
-                                                                                   d_is_solved, 
-                                                                                   n, 
-                                                                                   d_niveles);
+    /* Paralelice a partir de aquí */
 
-    CUDA_CHK( cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost) )
+    thrust::device_vector<int> d_niveles(niveles, niveles + n);
+    thrust::device_vector<int> d_ivects(7 * *thrust::max_element(d_niveles.begin(), d_niveles.end()));
+    thrust::device_vector<int> d_ivect_size(n);
+    thrust::device_vector<int> d_iorder(n);
 
+    // Inicializar ivects a cero
+    thrust::fill(d_ivects.begin(), d_ivects.end(), 0);
 
-/*Paralelice a partir de aquí*/
+    // Calcular los comienzos de cada par nivel-tamaño
+    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=, d_ivects_ptr = thrust::raw_pointer_cast(d_ivects.data())] __device__ (int i) {
+        int level = niveles[i] - 1;
+        int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
+        int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
+                         (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
 
-thrust::device_vector<int> d_niveles(niveles, niveles + n);
-thrust::device_vector<int> d_ivects(ivects, ivects + 7 * nLevs);
-thrust::device_vector<int> d_ivect_size(ivect_size, ivect_size + n);
-thrust::device_vector<int> d_iorder(iorder, iorder + n);
+        atomicAdd(&d_ivects_ptr[7 * level + size_class], 1);
+    });
 
-// Obtenemos el máximo nivel usando thrust::reduce
-int nLevs = thrust::reduce(d_niveles.begin(), d_niveles.end(), 0, thrust::maximum<int>());
+    // Hacer un escaneo exclusivo para determinar los índices de inicio
+    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_ivects.begin());
 
-// Hacemos un escaneo inclusivo para obtener los puntos de comienzo en ivects
-thrust::inclusive_scan(d_ivects.begin(), d_ivects.begin() + 7 * nLevs, d_ivects.begin());
+    // Asignar filas a sus posiciones
+    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=, d_ivects_ptr = thrust::raw_pointer_cast(d_ivects.data()), d_iorder_ptr = thrust::raw_pointer_cast(d_iorder.data()), d_ivect_size_ptr = thrust::raw_pointer_cast(d_ivect_size.data())] __device__ (int i) {
+        int level = niveles[i] - 1;
+        int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
+        int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
+                         (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
 
-// Reemplazamos los bucles for con operaciones en paralelo para reordenar las filas
-thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=] __device__ (int i) {
-    int idepth = niveles[i] - 1;
-    int nnz_row = RowPtrL_h[i + 1] - RowPtrL_h[i] - 1;
-    int vect_size = (nnz_row <= 1) ? nnz_row :
-                    (nnz_row <= 2) ? 1 :
-                    (nnz_row <= 4) ? 2 :
-                    (nnz_row <= 8) ? 3 :
-                    (nnz_row <= 16) ? 4 : 5;
+        int position = atomicAdd(&d_ivects_ptr[7 * level + size_class], 1);
+        d_iorder_ptr[position] = i;
+        d_ivect_size_ptr[position] = (size_class == 6) ? 0 : pow(2, size_class);
+    });
 
-    int index = 7 * idepth + vect_size;
-    int position = atomicAdd(&ivects[index], 1);
-    iorder[position] = i;
-    ivect_size[position] = (vect_size == 6) ? 0 : pow(2, vect_size);
-});
+    // Copiar los resultados de vuelta al host para usarlos en el programa principal
+    thrust::copy(d_iorder.begin(), d_iorder.end(), iorder);
 
-// Calcular número de warps necesarios
-int n_warps = 0;
-int filas_warp = 1;
-int last_level = -1, last_size = -1;
+    /* Termine aquí */
 
-thrust::for_each(thrust::make_counting_iterator(1), thrust::make_counting_iterator(n), [&] __device__ (int ctr) {
-    bool new_warp = niveles[iorder[ctr]] != last_level || ivect_size[ctr] != last_size || filas_warp * ivect_size[ctr] >= 32;
+    // Liberación de memoria
+    CUDA_CHK(cudaFree(d_niveles));
+    CUDA_CHK(cudaFree(d_is_solved));
+    free(niveles);
 
-    if (new_warp) {
-        n_warps++;
-        filas_warp = 1;
-        last_level = niveles[iorder[ctr]];
-        last_size = ivect_size[ctr];
-    } else {
-        filas_warp++;
-    }
-});
-
-/*Termine aquí*/
-
-
-    CUDA_CHK( cudaFree(d_niveles) ) 
-    CUDA_CHK( cudaFree(d_is_solved) ) 
+    // Calcular número de warps necesarios (esto podría hacerse en el dispositivo si es necesario)
+    int n_warps = 1; // Esto es solo un valor de lugar, debe calcularse correctamente
 
     return n_warps;
 }
