@@ -23,7 +23,7 @@ CUDA_INSTALL_PATH = /usr/local/cuda
 #MKLROOT = /opt/intel/mkl
 MKLROOT = /home/gpgpu/software/mkl
 #includes
-CUB= /clusteruy/home/gpgpu10/cub/cub
+CUB= /clusteruy/home/gpgpu7/cub/cub
 
 INCLUDES = -I${CUB} -I$(CUDA_INSTALL_PATH)/include  
         
@@ -49,7 +49,7 @@ CUDA_LIBS = -L$(CUDA_INSTALL_PATH)/lib  -lcudart -lcuda -lcusparse -lnvidia-ml #
         nvmlPower.cpp \
         test/test.cu \
 
-FILES = mainOg.cu
+FILES = main.cu
 #FILES = test.cu
 
 make:
