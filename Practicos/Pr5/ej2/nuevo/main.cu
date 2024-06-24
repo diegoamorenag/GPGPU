@@ -131,8 +131,8 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
 
     /* Paralelice a partir de aquí */
 
-    thrust::device_vector<int> d_niveles(niveles, niveles + n);
-    thrust::device_vector<int> d_ivects(7 * *thrust::max_element(d_niveles.begin(), d_niveles.end()));
+    thrust::device_vector<int> d_niveles2(niveles, niveles + n);
+    thrust::device_vector<int> d_ivects(7 * *thrust::max_element(d_niveles2.begin(), d_niveles2.end()));
     thrust::device_vector<int> d_ivect_size(n);
     thrust::device_vector<int> d_iorder(n);
 
@@ -170,7 +170,7 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     /* Termine aquí */
 
     // Liberación de memoria
-    CUDA_CHK(cudaFree(d_niveles));
+    CUDA_CHK(cudaFree(d_niveles2));
     CUDA_CHK(cudaFree(d_is_solved));
     free(niveles);
 
