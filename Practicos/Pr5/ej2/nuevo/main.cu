@@ -101,7 +101,11 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 		is_solved[wrp] = 1;
 	}
 }
-
+    void CHECKcudaGetLastError(cudaError_t error){
+        if (error != cudaSuccess) {
+            fprintf(stderr, "CUDA error after Thrust operation: %s\n", cudaGetErrorString(error));
+        }
+    }
     int* RowPtrL_d, *ColIdxL_d;
     VALUE_TYPE* Val_d;
 
@@ -130,6 +134,13 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     CUDA_CHK(cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost));
 
     /* Paralelice a partir de aquí */
+    cudaError_t error = cudaGetLastError();
+    
+    if (error != cudaSuccess) {
+        fprintf(stderr, "CUDA error before Thrust operation: %s\n", cudaGetErrorString(error));
+    }
+    CHECKcudaGetLastError
+    // Thrust operation here
 
     thrust::device_vector<int> d_niveles2(niveles, niveles + n);
     thrust::device_vector<int> d_ivects(7 * *thrust::max_element(d_niveles2.begin(), d_niveles2.end()));
@@ -138,7 +149,10 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
 
     // Inicializar ivects a cero
     thrust::fill(d_ivects.begin(), d_ivects.end(), 0);
-
+    error = cudaGetLastError();
+    if (error != cudaSuccess) {
+        fprintf(stderr, "CUDA error after Thrust operation: %s\n", cudaGetErrorString(error));
+    }
     // Calcular los comienzos de cada par nivel-tamaño
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=, d_ivects_ptr = thrust::raw_pointer_cast(d_ivects.data())] __device__ (int i) {
         int level = niveles[i] - 1;
