@@ -30,51 +30,7 @@ static inline void print_cuda_state(cudaError_t code){
    if (code != cudaSuccess) printf("\ncuda error: %s\n", cudaGetErrorString(code));
    
 }
-/*
-int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
-    // ... (previous code remains the same)
 
-    // Crear y inicializar los vectores necesarios
-    thrust::device_vector<int> d_ivects(7 * max_level, 0);
-    thrust::device_vector<int> d_ivect_size(n);
-    thrust::device_vector<int> d_iorder(n);
-
-    // Get raw pointers for use in device code
-    int* d_ivects_raw = thrust::raw_pointer_cast(d_ivects.data());
-    unsigned int* d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
-
-    // Calcular los comienzos de cada par nivel-tamaño
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
-        [=] __device__ (int i) {
-            int level = d_niveles_raw[i] - 1;
-            int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
-            int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
-                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-
-            atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
-        }
-    );
-
-    // Hacer un escaneo exclusivo para determinar los índices de inicio
-    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_ivects.begin());
-
-    // Asignar filas a sus posiciones
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
-        [=] __device__ (int i) {
-            int level = d_niveles_raw[i] - 1;
-            int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
-            int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
-                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-
-            int position = atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
-            d_iorder[position] = i;
-            d_ivect_size[position] = (size_class == 6) ? 0 : pow(2, size_class);
-        }
-    );
-
-    // ... (rest of the code remains the same)
-}
-*/
 __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 	const int* __restrict__ col_idx,
 	volatile int* is_solved, int n,
@@ -161,74 +117,63 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
     int* RowPtrL_d, *ColIdxL_d;
     VALUE_TYPE* Val_d;
 
+// Corrected handling for device vectors and pointers
 int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
-    // Variables en el dispositivo
     thrust::device_vector<unsigned int> d_niveles(n);
-    thrust::device_vector<int> d_is_solved(n);
+    thrust::device_vector<int> d_is_solved(n, 0); // Initialized with 0
 
-    // Configuración de ejecución del kernel
+    // Launch configuration
     int num_threads = WARP_PER_BLOCK * WARP_SIZE;
-    int grid = ceil((double) n * WARP_SIZE / (double) num_threads);
+    int grid = (n + num_threads - 1) / num_threads;
 
-    thrust::fill(d_niveles.begin(), d_niveles.end(), 0);
-    thrust::fill(d_is_solved.begin(), d_is_solved.end(), 0);
-
-    // Llamada al kernel
-    kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * (2 * sizeof(int))>>>(
+    // Kernel call
+    kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * 2 * sizeof(int)>>>(
         RowPtrL, ColIdxL, 
         thrust::raw_pointer_cast(d_is_solved.data()), 
         n, 
         thrust::raw_pointer_cast(d_niveles.data())
     );
-    CUDA_CHK(cudaDeviceSynchronize());
+    cudaDeviceSynchronize();
+    CUDA_CHK(cudaGetLastError());
 
-    // Calcular el máximo nivel
     unsigned int max_level = *thrust::max_element(d_niveles.begin(), d_niveles.end());
-
-    // Crear y inicializar los vectores necesarios
     thrust::device_vector<int> d_ivects(7 * max_level, 0);
     thrust::device_vector<int> d_ivect_size(n);
     thrust::device_vector<int> d_iorder(n);
 
-    // Get raw pointers for use in device code
     int* d_ivects_raw = thrust::raw_pointer_cast(d_ivects.data());
     unsigned int* d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
 
-    // Calcular los comienzos de cada par nivel-tamaño
+    // Compute histogram of levels and sizes
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
         [=] __device__ (int i) {
             int level = d_niveles_raw[i] - 1;
-            int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
-            int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
-                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-
+            int row_size = RowPtrL[i + 1] - RowPtrL[i];
+            int size_class = (row_size <= 1) ? row_size : (row_size <= 2) ? 1 :
+                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : 
+                             (row_size <= 16) ? 4 : 5;
             atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
         }
     );
 
-    // Hacer un escaneo exclusivo para determinar los índices de inicio
     thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_ivects.begin());
 
-    // Asignar filas a sus posiciones
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
         [=] __device__ (int i) {
             int level = d_niveles_raw[i] - 1;
-            int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
-            int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
-                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-
+            int row_size = RowPtrL[i + 1] - RowPtrL[i];
+            int size_class = (row_size <= 1) ? row_size : (row_size <= 2) ? 1 :
+                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : 
+                             (row_size <= 16) ? 4 : 5;
             int position = atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
             d_iorder[position] = i;
             d_ivect_size[position] = (size_class == 6) ? 0 : pow(2, size_class);
         }
     );
 
-    // Copiar los resultados de vuelta al host
     thrust::copy(d_iorder.begin(), d_iorder.end(), iorder);
 
-    // Calcular número de warps necesarios
     int n_warps = (n + WARP_SIZE - 1) / WARP_SIZE;
-
     return n_warps;
 }
 
