@@ -131,8 +131,7 @@ void CHECKcudaGetLastError(cudaError_t error)
 int *RowPtrL_d, *ColIdxL_d;
 VALUE_TYPE *Val_d;
 
-int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorder)
-{
+int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorder) {
     thrust::device_vector<unsigned int> d_niveles(n);
     thrust::device_vector<int> d_is_solved(n, 0);
 
@@ -146,18 +145,19 @@ int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorde
 
     unsigned int max_level = *thrust::max_element(d_niveles.begin(), d_niveles.end());
     thrust::device_vector<int> d_ivects(7 * max_level, 0);
-    thrust::device_vector<int> d_ivect_size(n);
+    thrust::device_vector<int> d_iorder_positions(7 * max_level, 0); // New vector to keep track of positions
     thrust::device_vector<int> d_iorder(n);
+    thrust::device_vector<int> d_ivect_size(n);
 
     auto d_ivects_raw = thrust::raw_pointer_cast(d_ivects.data());
+    auto d_iorder_positions_raw = thrust::raw_pointer_cast(d_iorder_positions.data()); // Raw pointer for positions
     auto d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
     auto d_iorder_raw = thrust::raw_pointer_cast(d_iorder.data());
     auto d_ivect_size_raw = thrust::raw_pointer_cast(d_ivect_size.data());
 
     // First pass: count occurrences
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n),
-                     [=] __device__(int i)
-                     {
+                     [=] __device__(int i) {
                          int level = d_niveles_raw[i] - 1;
                          int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
                          int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
@@ -165,20 +165,19 @@ int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorde
                          atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
                      });
 
-    // Exclusive scan
-    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_ivects.begin());
+    // Exclusive scan to find starting positions
+    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_iorder_positions.begin());
 
-    // Second pass: assign positions
+    // Second pass: assign positions using separate counter for indices
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n),
-                     [=] __device__(int i)
-                     {
+                     [=] __device__(int i) {
                          int level = d_niveles_raw[i] - 1;
                          int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
                          int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
                                           (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-                         int position = atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
-                         if (position < n)
-                         {
+                         int index = 7 * level + size_class;
+                         int position = atomicAdd(&d_iorder_positions_raw[index], 1) + d_iorder_positions_raw[index];
+                         if (position < n) {
                              d_iorder_raw[position] = i;
                              d_ivect_size_raw[position] = (size_class == 6) ? 0 : pow(2, size_class);
                          }
@@ -190,6 +189,7 @@ int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorde
     int n_warps = (n + WARP_SIZE - 1) / WARP_SIZE;
     return n_warps;
 }
+
 
 
 int ordenar_filas2(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorder)
