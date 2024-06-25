@@ -232,7 +232,6 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     return n_warps;
 }
 
-
 int ordenar_filas2(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
     // Variables en el dispositivo
     unsigned int *d_niveles;
