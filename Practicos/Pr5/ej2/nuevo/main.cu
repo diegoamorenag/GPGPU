@@ -120,18 +120,13 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 // Corrected handling for device vectors and pointers
 int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
     thrust::device_vector<unsigned int> d_niveles(n);
-    thrust::device_vector<int> d_is_solved(n, 0); // Initialized with 0
+    thrust::device_vector<int> d_is_solved(n, 0); // Initialize with zero
 
-    // Launch configuration
     int num_threads = WARP_PER_BLOCK * WARP_SIZE;
     int grid = (n + num_threads - 1) / num_threads;
 
-    // Kernel call
     kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * 2 * sizeof(int)>>>(
-        RowPtrL, ColIdxL, 
-        thrust::raw_pointer_cast(d_is_solved.data()), 
-        n, 
-        thrust::raw_pointer_cast(d_niveles.data())
+        RowPtrL, ColIdxL, thrust::raw_pointer_cast(d_is_solved.data()), n, thrust::raw_pointer_cast(d_niveles.data())
     );
     cudaDeviceSynchronize();
     CUDA_CHK(cudaGetLastError());
@@ -141,22 +136,9 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     thrust::device_vector<int> d_ivect_size(n);
     thrust::device_vector<int> d_iorder(n);
 
-    int* d_ivects_raw = thrust::raw_pointer_cast(d_ivects.data());
-    unsigned int* d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
-
-    // Compute histogram of levels and sizes
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
-        [=] __device__ (int i) {
-            int level = d_niveles_raw[i] - 1;
-            int row_size = RowPtrL[i + 1] - RowPtrL[i];
-            int size_class = (row_size <= 1) ? row_size : (row_size <= 2) ? 1 :
-                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : 
-                             (row_size <= 16) ? 4 : 5;
-            atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
-        }
-    );
-
-    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_ivects.begin());
+    auto d_ivects_raw = thrust::raw_pointer_cast(d_ivects.data());
+    auto d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
+    auto d_iorder_raw = thrust::raw_pointer_cast(d_iorder.data());
 
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
         [=] __device__ (int i) {
@@ -166,8 +148,9 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
                              (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : 
                              (row_size <= 16) ? 4 : 5;
             int position = atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
-            d_iorder[position] = i;
-            d_ivect_size[position] = (size_class == 6) ? 0 : pow(2, size_class);
+            if (position < n) {  // Check added to ensure position is within bounds
+                d_iorder_raw[position] = i;
+            }
         }
     );
 
@@ -176,6 +159,7 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     int n_warps = (n + WARP_SIZE - 1) / WARP_SIZE;
     return n_warps;
 }
+
 
 int ordenar_filas2(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
     // Variables en el dispositivo
