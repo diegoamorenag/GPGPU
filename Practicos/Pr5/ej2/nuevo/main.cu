@@ -131,65 +131,58 @@ void CHECKcudaGetLastError(cudaError_t error)
 int *RowPtrL_d, *ColIdxL_d;
 VALUE_TYPE *Val_d;
 
-int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorder)
-{
+// Define una función para clasificar el tamaño de las filas en categorías
+__host__ __device__
+int size_category(int size) {
+    if (size == 0) return 6; // Sin elementos
+    if (size == 1) return 0;
+    if (size <= 2) return 1;
+    if (size <= 4) return 2;
+    if (size <= 8) return 3;
+    if (size <= 16) return 4;
+    return 5; // Más de 16 elementos
+}
+
+int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorder) {
     thrust::device_vector<unsigned int> d_niveles(n);
     thrust::device_vector<int> d_is_solved(n, 0);
 
     int num_threads = WARP_PER_BLOCK * WARP_SIZE;
-    int grid = (n + num_threads - 1) / num_threads;
+    int grid = (n + WARP_SIZE - 1) / WARP_SIZE;
 
     kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * 2 * sizeof(int)>>>(
         RowPtrL, ColIdxL, thrust::raw_pointer_cast(d_is_solved.data()), n, thrust::raw_pointer_cast(d_niveles.data()));
     cudaDeviceSynchronize();
     CUDA_CHK(cudaGetLastError());
 
-    unsigned int max_level = *thrust::max_element(d_niveles.begin(), d_niveles.end());
-    thrust::device_vector<int> d_ivects(7 * max_level, 0);
-    thrust::device_vector<int> d_ivect_size(n);
     thrust::device_vector<int> d_iorder(n);
+    thrust::device_vector<int> d_sizes(n);
 
-    auto d_ivects_raw = thrust::raw_pointer_cast(d_ivects.data());
-    auto d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
-    auto d_iorder_raw = thrust::raw_pointer_cast(d_iorder.data());
-    auto d_ivect_size_raw = thrust::raw_pointer_cast(d_ivect_size.data());
+    // Calcula los tamaños de cada fila y los almacena en d_sizes
+    thrust::transform(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n),
+                      d_sizes.begin(),
+                      [=] __device__(int i) {
+                          return RowPtrL[i + 1] - RowPtrL[i] - 1;
+                      });
 
-    // First pass: count occurrences
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n),
-                     [=] __device__(int i)
-                     {
-                         int level = d_niveles_raw[i] - 1;
-                         int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
-                         int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
-                                          (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-                         atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
-                     });
+    // Ordena las filas por nivel y tamaño utilizando categorías
+    thrust::sort_by_key(
+        thrust::make_zip_iterator(thrust::make_tuple(d_niveles.begin(), d_sizes.begin())),
+        thrust::make_zip_iterator(thrust::make_tuple(d_niveles.end(), d_sizes.end())),
+        thrust::make_zip_iterator(thrust::make_tuple(d_iorder.begin(), d_sizes.begin())),
+        [] __device__(const thrust::tuple<int, int>& a, const thrust::tuple<int, int>& b) {
+            if (thrust::get<0>(a) == thrust::get<0>(b)) return thrust::get<1>(a) < thrust::get<1>(b);
+            return thrust::get<0>(a) < thrust::get<0>(b);
+        });
 
-    // Exclusive scan
-    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_ivects.begin());
-
-    // Second pass: assign positions
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n),
-                     [=] __device__(int i)
-                     {
-                         int level = d_niveles_raw[i] - 1;
-                         int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
-                         int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
-                                          (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-                         int position = atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
-                         if (position < n)
-                         {
-                             d_iorder_raw[position] = i;
-                             d_ivect_size_raw[position] = (size_class == 6) ? 0 : pow(2, size_class);
-                         }
-                     });
-
-    cudaDeviceSynchronize();
+    // Copia el orden calculado de vuelta al host
     thrust::copy(d_iorder.begin(), d_iorder.end(), iorder);
 
+    // Calcula el número de warps necesarios basado en el número máximo de filas por warp
     int n_warps = (n + WARP_SIZE - 1) / WARP_SIZE;
     return n_warps;
 }
+
 int ordenar_filas2(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorder)
 {
     // Variables en el dispositivo
