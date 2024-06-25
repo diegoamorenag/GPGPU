@@ -171,7 +171,7 @@ int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorde
                          }
                          else
                          {
-                             // You could handle errors or unexpected conditions here
+                            print("Position fell out of range position is within bounds\n");
                          }
                      });
 
