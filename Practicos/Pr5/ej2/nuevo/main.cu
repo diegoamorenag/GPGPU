@@ -9,7 +9,15 @@
 #include <thrust/reduce.h>
 #include <thrust/scan.h>
 #include <thrust/for_each.h>
-
+#include <thrust/host_vector.h>
+#include <thrust/generate.h>
+#include <thrust/copy.h>
+#include <thrust/random.h>
+#include <thrust/inner_product.h>
+#include <thrust/binary_search.h>
+#include <thrust/adjacent_difference.h>
+#include <thrust/iterator/constant_iterator.h>
+#include <thrust/iterator/counting_iterator.h>
 
 #define WARP_PER_BLOCK 32
 #define WARP_SIZE 32
@@ -36,7 +44,7 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 	int wrp = (threadIdx.x + blockIdx.x * blockDim.x) / WARP_SIZE;
 	int local_warp_id = threadIdx.x / WARP_SIZE;
 
-	int lne = threadIdx.x & 0x1f;                   // identifica el hilo dentro el warp
+	int lne = threadIdx.x & 0x1f;
 
 	if (wrp >= n) return;
 
