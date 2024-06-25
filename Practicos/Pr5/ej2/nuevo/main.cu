@@ -161,7 +161,7 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
     int* RowPtrL_d, *ColIdxL_d;
     VALUE_TYPE* Val_d;
 
-int ordenar_filasCLAUD(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
+int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
     // Variables en el dispositivo
     thrust::device_vector<unsigned int> d_niveles(n);
     thrust::device_vector<int> d_is_solved(n);
@@ -170,8 +170,8 @@ int ordenar_filasCLAUD(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* 
     int num_threads = WARP_PER_BLOCK * WARP_SIZE;
     int grid = ceil((double) n * WARP_SIZE / (double) num_threads);
 
-    thrust::fill(d_is_solved.begin(), d_is_solved.end(), 0);
     thrust::fill(d_niveles.begin(), d_niveles.end(), 0);
+    thrust::fill(d_is_solved.begin(), d_is_solved.end(), 0);
 
     // Llamada al kernel
     kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * (2 * sizeof(int))>>>(
@@ -180,11 +180,7 @@ int ordenar_filasCLAUD(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* 
         n, 
         thrust::raw_pointer_cast(d_niveles.data())
     );
-
     CUDA_CHK(cudaDeviceSynchronize());
-
-    // Copiar los resultados de vuelta al host
-    thrust::host_vector<unsigned int> h_niveles = d_niveles;
 
     // Calcular el máximo nivel
     unsigned int max_level = *thrust::max_element(d_niveles.begin(), d_niveles.end());
@@ -235,6 +231,8 @@ int ordenar_filasCLAUD(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* 
 
     return n_warps;
 }
+
+
 int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
     // Variables en el dispositivo
     unsigned int *d_niveles;
