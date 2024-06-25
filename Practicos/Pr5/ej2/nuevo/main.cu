@@ -574,7 +574,7 @@ int main(int argc, char** argv)
 
     int * iorder  = (int *) calloc(n,sizeof(int));
 
-    int nwarps = ordenar_filasCLAUD(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
+    int nwarps = ordenar_filas(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
     //int nwarps = ordenar_filas(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
 
     printf("Number of warps: %i\n",nwarps);
