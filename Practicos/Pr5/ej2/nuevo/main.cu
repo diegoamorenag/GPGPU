@@ -139,7 +139,7 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     if (error != cudaSuccess) {
         fprintf(stderr, "CUDA error before Thrust operation: %s\n", cudaGetErrorString(error));
     }
-    CHECKcudaGetLastError
+
     // Thrust operation here
 
     thrust::device_vector<int> d_niveles2(niveles, niveles + n);
