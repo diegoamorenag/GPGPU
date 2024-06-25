@@ -22,103 +22,118 @@
 #define WARP_PER_BLOCK 32
 #define WARP_SIZE 32
 #define CUDA_CHK(call) print_cuda_state(call);
-#define MAX(A,B)        (((A)>(B))?(A):(B))
-#define MIN(A,B)        (((A)<(B))?(A):(B))
+#define MAX(A, B) (((A) > (B)) ? (A) : (B))
+#define MIN(A, B) (((A) < (B)) ? (A) : (B))
 
-static inline void print_cuda_state(cudaError_t code){
+static inline void print_cuda_state(cudaError_t code)
+{
 
-   if (code != cudaSuccess) printf("\ncuda error: %s\n", cudaGetErrorString(code));
-   
+    if (code != cudaSuccess)
+        printf("\ncuda error: %s\n", cudaGetErrorString(code));
 }
 
-__global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
-	const int* __restrict__ col_idx,
-	volatile int* is_solved, int n,
-	unsigned int* niveles) {
-	extern volatile __shared__ int s_mem[];
+__global__ void kernel_analysis_L(const int *__restrict__ row_ptr,
+                                  const int *__restrict__ col_idx,
+                                  volatile int *is_solved, int n,
+                                  unsigned int *niveles)
+{
+    extern volatile __shared__ int s_mem[];
 
-	if(threadIdx.x==0&&blockIdx.x==0) printf("%i\n", WARP_PER_BLOCK);
-	int* s_is_solved = (int*)&s_mem[0];
-	int* s_info = (int*)&s_is_solved[WARP_PER_BLOCK];
+    if (threadIdx.x == 0 && blockIdx.x == 0)
+        printf("%i\n", WARP_PER_BLOCK);
+    int *s_is_solved = (int *)&s_mem[0];
+    int *s_info = (int *)&s_is_solved[WARP_PER_BLOCK];
 
-	int wrp = (threadIdx.x + blockIdx.x * blockDim.x) / WARP_SIZE;
-	int local_warp_id = threadIdx.x / WARP_SIZE;
+    int wrp = (threadIdx.x + blockIdx.x * blockDim.x) / WARP_SIZE;
+    int local_warp_id = threadIdx.x / WARP_SIZE;
 
-	int lne = threadIdx.x & 0x1f;
+    int lne = threadIdx.x & 0x1f;
 
-	if (wrp >= n) return;
+    if (wrp >= n)
+        return;
 
-	int row = row_ptr[wrp];
-	int start_row = blockIdx.x * WARP_PER_BLOCK;
-	int nxt_row = row_ptr[wrp + 1];
+    int row = row_ptr[wrp];
+    int start_row = blockIdx.x * WARP_PER_BLOCK;
+    int nxt_row = row_ptr[wrp + 1];
 
-	int my_level = 0;
-	if (lne == 0) {
-		s_is_solved[local_warp_id] = 0;
-		s_info[local_warp_id] = 0;
-	}
+    int my_level = 0;
+    if (lne == 0)
+    {
+        s_is_solved[local_warp_id] = 0;
+        s_info[local_warp_id] = 0;
+    }
 
-	__syncthreads();
+    __syncthreads();
 
-	int off = row + lne;
-	int colidx = col_idx[off];
-	int myvar = 0;
+    int off = row + lne;
+    int colidx = col_idx[off];
+    int myvar = 0;
 
-	while (off < nxt_row - 1)
-	{
-		colidx = col_idx[off];
-		if (!myvar)
-		{
-			if (colidx > start_row) {
-				myvar = s_is_solved[colidx - start_row];
+    while (off < nxt_row - 1)
+    {
+        colidx = col_idx[off];
+        if (!myvar)
+        {
+            if (colidx > start_row)
+            {
+                myvar = s_is_solved[colidx - start_row];
 
-				if (myvar) {
-					my_level = max(my_level, s_info[colidx - start_row]);
-				}
-			} else
-			{
-				myvar = is_solved[colidx];
+                if (myvar)
+                {
+                    my_level = max(my_level, s_info[colidx - start_row]);
+                }
+            }
+            else
+            {
+                myvar = is_solved[colidx];
 
-				if (myvar) {
-					my_level = max(my_level, niveles[colidx]);
-				}
-			}
-		}
+                if (myvar)
+                {
+                    my_level = max(my_level, niveles[colidx]);
+                }
+            }
+        }
 
-		if (__all_sync(__activemask(), myvar)) {
+        if (__all_sync(__activemask(), myvar))
+        {
 
-			off += WARP_SIZE;
-			//           colidx = col_idx[off];
-			myvar = 0;
-		}
-	}
-	__syncwarp();
-	
-	for (int i = 16; i >= 1; i /= 2) {
-		my_level = max(my_level, __shfl_down_sync(__activemask(), my_level, i));
-	}
-
-	if (lne == 0) {
-
-		s_info[local_warp_id] = 1 + my_level;
-		s_is_solved[local_warp_id] = 1;
-		niveles[wrp] = 1 + my_level;
-
-		__threadfence();
-
-		is_solved[wrp] = 1;
-	}
-}
-    void CHECKcudaGetLastError(cudaError_t error){
-        if (error != cudaSuccess) {
-            fprintf(stderr, "CUDA error after Thrust operation: %s\n", cudaGetErrorString(error));
+            off += WARP_SIZE;
+            //           colidx = col_idx[off];
+            myvar = 0;
         }
     }
-    int* RowPtrL_d, *ColIdxL_d;
-    VALUE_TYPE* Val_d;
+    __syncwarp();
+
+    for (int i = 16; i >= 1; i /= 2)
+    {
+        my_level = max(my_level, __shfl_down_sync(__activemask(), my_level, i));
+    }
+
+    if (lne == 0)
+    {
+
+        s_info[local_warp_id] = 1 + my_level;
+        s_is_solved[local_warp_id] = 1;
+        niveles[wrp] = 1 + my_level;
+
+        __threadfence();
+
+        is_solved[wrp] = 1;
+    }
+}
+void CHECKcudaGetLastError(cudaError_t error)
+{
+    if (error != cudaSuccess)
+    {
+        fprintf(stderr, "CUDA error after Thrust operation: %s\n", cudaGetErrorString(error));
+    }
+}
+int *RowPtrL_d, *ColIdxL_d;
+VALUE_TYPE *Val_d;
 
 // Corrected handling for device vectors and pointers
-int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
+int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorder)
+{
     thrust::device_vector<unsigned int> d_niveles(n);
     thrust::device_vector<int> d_is_solved(n, 0); // Initialize with zero
 
@@ -126,8 +141,7 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     int grid = (n + num_threads - 1) / num_threads;
 
     kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * 2 * sizeof(int)>>>(
-        RowPtrL, ColIdxL, thrust::raw_pointer_cast(d_is_solved.data()), n, thrust::raw_pointer_cast(d_niveles.data())
-    );
+        RowPtrL, ColIdxL, thrust::raw_pointer_cast(d_is_solved.data()), n, thrust::raw_pointer_cast(d_niveles.data()));
     cudaDeviceSynchronize();
     CUDA_CHK(cudaGetLastError());
 
@@ -140,19 +154,30 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     auto d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
     auto d_iorder_raw = thrust::raw_pointer_cast(d_iorder.data());
 
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
-        [=] __device__ (int i) {
-            int level = d_niveles_raw[i] - 1;
-            int row_size = RowPtrL[i + 1] - RowPtrL[i];
-            int size_class = (row_size <= 1) ? row_size : (row_size <= 2) ? 1 :
-                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : 
-                             (row_size <= 16) ? 4 : 5;
-            int position = atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
-            if (position < n) {  // Check added to ensure position is within bounds
-                d_iorder_raw[position] = i;
-            }
-        }
-    );
+    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n),
+                     [=] __device__(int i)
+                     {
+                         int level = d_niveles_raw[i] - 1;
+                         int row_size = RowPtrL[i + 1] - RowPtrL[i];
+                         int size_class = (row_size <= 1) ? row_size : (row_size <= 2) ? 1
+                                                                   : (row_size <= 4)   ? 2
+                                                                   : (row_size <= 8)   ? 3
+                                                                   : (row_size <= 16)  ? 4
+                                                                                       : 5;
+                         int position = atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
+                         if (position < n)
+                         { // Ensuring position is within bounds
+                             d_iorder_raw[position] = i;
+                         }
+                         else
+                         {
+                             // You could handle errors or unexpected conditions here
+                         }
+                     });
+
+    // After kernel execution
+    cudaDeviceSynchronize();
+    thrust::copy(d_iorder.begin(), d_iorder.end(), iorder); // Check if all values are as expected
 
     thrust::copy(d_iorder.begin(), d_iorder.end(), iorder);
 
@@ -160,19 +185,19 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     return n_warps;
 }
 
-
-int ordenar_filas2(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
+int ordenar_filas2(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorder)
+{
     // Variables en el dispositivo
     unsigned int *d_niveles;
     int *d_is_solved;
 
     // Reserva de memoria en el dispositivo
-    CUDA_CHK(cudaMalloc((void**) &d_niveles, n * sizeof(unsigned int)));
-    CUDA_CHK(cudaMalloc((void**) &d_is_solved, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc((void **)&d_niveles, n * sizeof(unsigned int)));
+    CUDA_CHK(cudaMalloc((void **)&d_is_solved, n * sizeof(int)));
 
     // Configuración de ejecución del kernel
     int num_threads = WARP_PER_BLOCK * WARP_SIZE;
-    int grid = ceil((double) n * WARP_SIZE / (double) num_threads);
+    int grid = ceil((double)n * WARP_SIZE / (double)num_threads);
 
     CUDA_CHK(cudaMemset(d_is_solved, 0, n * sizeof(int)));
     CUDA_CHK(cudaMemset(d_niveles, 0, n * sizeof(unsigned int)));
@@ -182,13 +207,14 @@ int ordenar_filas2(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iord
     CUDA_CHK(cudaDeviceSynchronize());
 
     // Copiar los resultados de vuelta al host
-    int *niveles = (int *) malloc(n * sizeof(int));
+    int *niveles = (int *)malloc(n * sizeof(int));
     CUDA_CHK(cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost));
 
     /* Paralelice a partir de aquí */
     cudaError_t error = cudaGetLastError();
-    
-    if (error != cudaSuccess) {
+
+    if (error != cudaSuccess)
+    {
         fprintf(stderr, "CUDA error before Thrust operation: %s\n", cudaGetErrorString(error));
     }
 
@@ -202,24 +228,26 @@ int ordenar_filas2(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iord
     // Inicializar ivects a cero
     thrust::fill(d_ivects.begin(), d_ivects.end(), 0);
     error = cudaGetLastError();
-    if (error != cudaSuccess) {
+    if (error != cudaSuccess)
+    {
         fprintf(stderr, "CUDA error after Thrust operation: %s\n", cudaGetErrorString(error));
     }
     // Calcular los comienzos de cada par nivel-tamaño
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=, d_ivects_ptr = thrust::raw_pointer_cast(d_ivects.data())] __device__ (int i) {
+    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=, d_ivects_ptr = thrust::raw_pointer_cast(d_ivects.data())] __device__(int i)
+                     {
         int level = niveles[i] - 1;
         int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
         int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
                          (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
 
-        atomicAdd(&d_ivects_ptr[7 * level + size_class], 1);
-    });
+        atomicAdd(&d_ivects_ptr[7 * level + size_class], 1); });
 
     // Hacer un escaneo exclusivo para determinar los índices de inicio
     thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_ivects.begin());
 
     // Asignar filas a sus posiciones
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=, d_ivects_ptr = thrust::raw_pointer_cast(d_ivects.data()), d_iorder_ptr = thrust::raw_pointer_cast(d_iorder.data()), d_ivect_size_ptr = thrust::raw_pointer_cast(d_ivect_size.data())] __device__ (int i) {
+    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=, d_ivects_ptr = thrust::raw_pointer_cast(d_ivects.data()), d_iorder_ptr = thrust::raw_pointer_cast(d_iorder.data()), d_ivect_size_ptr = thrust::raw_pointer_cast(d_ivect_size.data())] __device__(int i)
+                     {
         int level = niveles[i] - 1;
         int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
         int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
@@ -227,8 +255,7 @@ int ordenar_filas2(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iord
 
         int position = atomicAdd(&d_ivects_ptr[7 * level + size_class], 1);
         d_iorder_ptr[position] = i;
-        d_ivect_size_ptr[position] = (size_class == 6) ? 0 : pow(2, size_class);
-    });
+        d_ivect_size_ptr[position] = (size_class == 6) ? 0 : pow(2, size_class); });
 
     // Copiar los resultados de vuelta al host para usarlos en el programa principal
     thrust::copy(d_iorder.begin(), d_iorder.end(), iorder);
@@ -236,7 +263,7 @@ int ordenar_filas2(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iord
     /* Termine aquí */
 
     // Liberación de memoria
-    //d_niveles2.shrink_to_feet()
+    // d_niveles2.shrink_to_feet()
     CUDA_CHK(cudaFree(d_is_solved));
     free(niveles);
 
@@ -246,18 +273,20 @@ int ordenar_filas2(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iord
     return n_warps;
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     // report precision of floating-point
     printf("---------------------------------------------------------------------------------------------\n");
-    char* precision;
+    char *precision;
     if (sizeof(VALUE_TYPE) == 4)
     {
-        precision = (char*)"32-bit Single Precision";
-    } else if (sizeof(VALUE_TYPE) == 8)
+        precision = (char *)"32-bit Single Precision";
+    }
+    else if (sizeof(VALUE_TYPE) == 8)
     {
-        precision = (char*)"64-bit Double Precision";
-    } else
+        precision = (char *)"64-bit Double Precision";
+    }
+    else
     {
         printf("Wrong precision. Program exit!\n");
         return 0;
@@ -265,15 +294,14 @@ int main(int argc, char** argv)
 
     printf("PRECISION = %s\n", precision);
 
-
     int m, n, nnzA;
-    int* csrRowPtrA;
-    int* csrColIdxA;
-    VALUE_TYPE* csrValA;
+    int *csrRowPtrA;
+    int *csrColIdxA;
+    VALUE_TYPE *csrValA;
 
     int argi = 1;
 
-    char* filename;
+    char *filename;
     if (argc > argi)
     {
         filename = argv[argi];
@@ -282,12 +310,10 @@ int main(int argc, char** argv)
 
     printf("-------------- %s --------------\n", filename);
 
-
-
     // read matrix from mtx file
     int ret_code;
     MM_typecode matcode;
-    FILE* f;
+    FILE *f;
 
     int nnzA_mtx_report;
     int isInteger = 0, isReal = 0, isPattern = 0, isSymmetric = 0;
@@ -308,25 +334,33 @@ int main(int argc, char** argv)
         return -3;
     }
 
-    char* pch, * pch1;
+    char *pch, *pch1;
     pch = strtok(filename, "/");
-    while (pch != NULL) {
+    while (pch != NULL)
+    {
         pch1 = pch;
         pch = strtok(NULL, "/");
     }
 
     pch = strtok(pch1, ".");
 
-
-    if (mm_is_pattern(matcode)) { isPattern = 1; }
-    if (mm_is_real(matcode)) { isReal = 1;  }
-    if (mm_is_integer(matcode)) { isInteger = 1; }
+    if (mm_is_pattern(matcode))
+    {
+        isPattern = 1;
+    }
+    if (mm_is_real(matcode))
+    {
+        isReal = 1;
+    }
+    if (mm_is_integer(matcode))
+    {
+        isInteger = 1;
+    }
 
     /* find out size of sparse matrix .... */
     ret_code = mm_read_mtx_crd_size(f, &m, &n, &nnzA_mtx_report);
     if (ret_code != 0)
         return -4;
-
 
     if (n != m)
     {
@@ -338,17 +372,18 @@ int main(int argc, char** argv)
     {
         isSymmetric = 1;
         printf("input matrix is symmetric = true\n");
-    } else
+    }
+    else
     {
         printf("input matrix is symmetric = false\n");
     }
 
-    int* csrRowPtrA_counter = (int*)malloc((m + 1) * sizeof(int));
+    int *csrRowPtrA_counter = (int *)malloc((m + 1) * sizeof(int));
     memset(csrRowPtrA_counter, 0, (m + 1) * sizeof(int));
 
-    int* csrRowIdxA_tmp = (int*)malloc(nnzA_mtx_report * sizeof(int));
-    int* csrColIdxA_tmp = (int*)malloc(nnzA_mtx_report * sizeof(int));
-    VALUE_TYPE* csrValA_tmp = (VALUE_TYPE*)malloc(nnzA_mtx_report * sizeof(VALUE_TYPE));
+    int *csrRowIdxA_tmp = (int *)malloc(nnzA_mtx_report * sizeof(int));
+    int *csrColIdxA_tmp = (int *)malloc(nnzA_mtx_report * sizeof(int));
+    VALUE_TYPE *csrValA_tmp = (VALUE_TYPE *)malloc(nnzA_mtx_report * sizeof(VALUE_TYPE));
 
     /* NOTE: when reading in doubles, ANSI C requires the use of the "l"  */
     /*   specifier as in "%lg", "%lf", "%le", otherwise errors will occur */
@@ -367,7 +402,8 @@ int main(int argc, char** argv)
         {
             returnvalue = fscanf(f, "%d %d %d\n", &idxi, &idxj, &ival);
             fval = ival;
-        } else if (isPattern)
+        }
+        else if (isPattern)
         {
             returnvalue = fscanf(f, "%d %d\n", &idxi, &idxj);
             fval = 1.0;
@@ -408,12 +444,12 @@ int main(int argc, char** argv)
     }
 
     nnzA = csrRowPtrA_counter[m];
-    csrRowPtrA = (int*)malloc((m + 1) * sizeof(int));
+    csrRowPtrA = (int *)malloc((m + 1) * sizeof(int));
     memcpy(csrRowPtrA, csrRowPtrA_counter, (m + 1) * sizeof(int));
     memset(csrRowPtrA_counter, 0, (m + 1) * sizeof(int));
 
-    csrColIdxA = (int*)malloc(nnzA * sizeof(int));
-    csrValA = (VALUE_TYPE*)malloc(nnzA * sizeof(VALUE_TYPE));
+    csrColIdxA = (int *)malloc(nnzA * sizeof(int));
+    csrValA = (VALUE_TYPE *)malloc(nnzA * sizeof(VALUE_TYPE));
 
     if (isSymmetric)
     {
@@ -430,7 +466,8 @@ int main(int argc, char** argv)
                 csrColIdxA[offset] = csrRowIdxA_tmp[i];
                 csrValA[offset] = csrValA_tmp[i];
                 csrRowPtrA_counter[csrColIdxA_tmp[i]]++;
-            } else
+            }
+            else
             {
                 int offset = csrRowPtrA[csrRowIdxA_tmp[i]] + csrRowPtrA_counter[csrRowIdxA_tmp[i]];
                 csrColIdxA[offset] = csrColIdxA_tmp[i];
@@ -438,7 +475,8 @@ int main(int argc, char** argv)
                 csrRowPtrA_counter[csrRowIdxA_tmp[i]]++;
             }
         }
-    } else
+    }
+    else
     {
         for (int i = 0; i < nnzA_mtx_report; i++)
         {
@@ -448,14 +486,14 @@ int main(int argc, char** argv)
             csrRowPtrA_counter[csrRowIdxA_tmp[i]]++;
         }
     }
- 
+
     printf("input matrix A: ( %i, %i ) nnz = %i\n", m, n, nnzA);
 
     // extract L with the unit-lower triangular sparsity structure of A
     int nnzL = 0;
-    int* csrRowPtrL_tmp = (int*)malloc((m + 1) * sizeof(int));
-    int* csrColIdxL_tmp = (int*)malloc(nnzA * sizeof(int));
-    VALUE_TYPE* csrValL_tmp = (VALUE_TYPE*)malloc(nnzA * sizeof(VALUE_TYPE));
+    int *csrRowPtrL_tmp = (int *)malloc((m + 1) * sizeof(int));
+    int *csrColIdxL_tmp = (int *)malloc(nnzA * sizeof(int));
+    VALUE_TYPE *csrValL_tmp = (VALUE_TYPE *)malloc(nnzA * sizeof(VALUE_TYPE));
 
     int nnz_pointer = 0;
     csrRowPtrL_tmp[0] = 0;
@@ -466,9 +504,10 @@ int main(int argc, char** argv)
             if (csrColIdxA[j] < i)
             {
                 csrColIdxL_tmp[nnz_pointer] = csrColIdxA[j];
-                csrValL_tmp[nnz_pointer] = 1.0; //csrValA[j];
+                csrValL_tmp[nnz_pointer] = 1.0; // csrValA[j];
                 nnz_pointer++;
-            } else
+            }
+            else
             {
                 break;
             }
@@ -484,30 +523,30 @@ int main(int argc, char** argv)
     nnzL = csrRowPtrL_tmp[m];
     printf("A's unit-lower triangular L: ( %i, %i ) nnz = %i\n", m, n, nnzL);
 
-    csrColIdxL_tmp = (int*)realloc(csrColIdxL_tmp, sizeof(int) * nnzL);
-    csrValL_tmp = (VALUE_TYPE*)realloc(csrValL_tmp, sizeof(VALUE_TYPE) * nnzL);
+    csrColIdxL_tmp = (int *)realloc(csrColIdxL_tmp, sizeof(int) * nnzL);
+    csrValL_tmp = (VALUE_TYPE *)realloc(csrValL_tmp, sizeof(VALUE_TYPE) * nnzL);
 
     printf("---------------------------------------------------------------------------------------------\n");
 
-    int* RowPtrL_d, *ColIdxL_d;
-    VALUE_TYPE* Val_d;
+    int *RowPtrL_d, *ColIdxL_d;
+    VALUE_TYPE *Val_d;
 
-    cudaMalloc((void**)&RowPtrL_d, (n + 1) * sizeof(int));
-    cudaMalloc((void**)&ColIdxL_d, nnzL * sizeof(int));
-    cudaMalloc((void**)&Val_d, nnzL * sizeof(VALUE_TYPE));
-  
+    cudaMalloc((void **)&RowPtrL_d, (n + 1) * sizeof(int));
+    cudaMalloc((void **)&ColIdxL_d, nnzL * sizeof(int));
+    cudaMalloc((void **)&Val_d, nnzL * sizeof(VALUE_TYPE));
+
     cudaMemcpy(RowPtrL_d, csrRowPtrL_tmp, (n + 1) * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(ColIdxL_d, csrColIdxL_tmp, nnzL * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(Val_d, csrValL_tmp, nnzL * sizeof(VALUE_TYPE), cudaMemcpyHostToDevice);
 
-    int * iorder  = (int *) calloc(n,sizeof(int));
+    int *iorder = (int *)calloc(n, sizeof(int));
 
-    int nwarps = ordenar_filas(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
-    //int nwarps = ordenar_filas(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
+    int nwarps = ordenar_filas(RowPtrL_d, ColIdxL_d, Val_d, n, iorder);
+    // int nwarps = ordenar_filas(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
 
-    printf("Number of warps: %i\n",nwarps);
-    for(int i =0; i<n && i<20;i++)
-        printf("Iorder[%i] = %i\n",i,iorder[i]);
+    printf("Number of warps: %i\n", nwarps);
+    for (int i = 0; i < n && i < 20; i++)
+        printf("Iorder[%i] = %i\n", i, iorder[i]);
 
     printf("Bye!\n");
 
