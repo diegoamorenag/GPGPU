@@ -30,7 +30,51 @@ static inline void print_cuda_state(cudaError_t code){
    if (code != cudaSuccess) printf("\ncuda error: %s\n", cudaGetErrorString(code));
    
 }
+/*
+int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
+    // ... (previous code remains the same)
 
+    // Crear y inicializar los vectores necesarios
+    thrust::device_vector<int> d_ivects(7 * max_level, 0);
+    thrust::device_vector<int> d_ivect_size(n);
+    thrust::device_vector<int> d_iorder(n);
+
+    // Get raw pointers for use in device code
+    int* d_ivects_raw = thrust::raw_pointer_cast(d_ivects.data());
+    unsigned int* d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
+
+    // Calcular los comienzos de cada par nivel-tamaño
+    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
+        [=] __device__ (int i) {
+            int level = d_niveles_raw[i] - 1;
+            int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
+            int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
+                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
+
+            atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
+        }
+    );
+
+    // Hacer un escaneo exclusivo para determinar los índices de inicio
+    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_ivects.begin());
+
+    // Asignar filas a sus posiciones
+    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
+        [=] __device__ (int i) {
+            int level = d_niveles_raw[i] - 1;
+            int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
+            int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
+                             (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
+
+            int position = atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
+            d_iorder[position] = i;
+            d_ivect_size[position] = (size_class == 6) ? 0 : pow(2, size_class);
+        }
+    );
+
+    // ... (rest of the code remains the same)
+}
+*/
 __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 	const int* __restrict__ col_idx,
 	volatile int* is_solved, int n,
@@ -136,6 +180,7 @@ int ordenar_filasCLAUD(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* 
         n, 
         thrust::raw_pointer_cast(d_niveles.data())
     );
+
     CUDA_CHK(cudaDeviceSynchronize());
 
     // Copiar los resultados de vuelta al host
@@ -149,15 +194,19 @@ int ordenar_filasCLAUD(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* 
     thrust::device_vector<int> d_ivect_size(n);
     thrust::device_vector<int> d_iorder(n);
 
+    // Get raw pointers for use in device code
+    int* d_ivects_raw = thrust::raw_pointer_cast(d_ivects.data());
+    unsigned int* d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
+
     // Calcular los comienzos de cada par nivel-tamaño
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
         [=] __device__ (int i) {
-            int level = h_niveles[i] - 1;
+            int level = d_niveles_raw[i] - 1;
             int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
             int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
                              (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
 
-            atomicAdd(&d_ivects[7 * level + size_class], 1);
+            atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
         }
     );
 
@@ -167,12 +216,12 @@ int ordenar_filasCLAUD(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* 
     // Asignar filas a sus posiciones
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), 
         [=] __device__ (int i) {
-            int level = h_niveles[i] - 1;
+            int level = d_niveles_raw[i] - 1;
             int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
             int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
                              (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
 
-            int position = atomicAdd(&d_ivects[7 * level + size_class], 1);
+            int position = atomicAdd(&d_ivects_raw[7 * level + size_class], 1);
             d_iorder[position] = i;
             d_ivect_size[position] = (size_class == 6) ? 0 : pow(2, size_class);
         }
