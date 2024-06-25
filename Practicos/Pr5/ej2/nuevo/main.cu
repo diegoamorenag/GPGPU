@@ -145,15 +145,13 @@ int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorde
 
     unsigned int max_level = *thrust::max_element(d_niveles.begin(), d_niveles.end());
     thrust::device_vector<int> d_ivects(7 * max_level, 0);
-    thrust::device_vector<int> d_iorder_positions(7 * max_level, 0); // New vector to keep track of positions
-    thrust::device_vector<int> d_iorder(n);
-    thrust::device_vector<int> d_ivect_size(n);
+    thrust::device_vector<int> d_positions(7 * max_level, 0); // For storing starting positions after scan
+    thrust::device_vector<int> d_iorder(n, -1); // Initialize with -1 for debugging
 
     auto d_ivects_raw = thrust::raw_pointer_cast(d_ivects.data());
-    auto d_iorder_positions_raw = thrust::raw_pointer_cast(d_iorder_positions.data()); // Raw pointer for positions
+    auto d_positions_raw = thrust::raw_pointer_cast(d_positions.data());
     auto d_niveles_raw = thrust::raw_pointer_cast(d_niveles.data());
     auto d_iorder_raw = thrust::raw_pointer_cast(d_iorder.data());
-    auto d_ivect_size_raw = thrust::raw_pointer_cast(d_ivect_size.data());
 
     // First pass: count occurrences
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n),
@@ -166,20 +164,18 @@ int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorde
                      });
 
     // Exclusive scan to find starting positions
-    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_iorder_positions.begin());
+    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_positions.begin());
 
-    // Second pass: assign positions using separate counter for indices
+    // Second pass: assign positions
     thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n),
                      [=] __device__(int i) {
                          int level = d_niveles_raw[i] - 1;
                          int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
                          int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
                                           (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-                         int index = 7 * level + size_class;
-                         int position = atomicAdd(&d_iorder_positions_raw[index], 1) + d_iorder_positions_raw[index];
+                         int position = atomicAdd(&d_positions_raw[7 * level + size_class], 1);
                          if (position < n) {
                              d_iorder_raw[position] = i;
-                             d_ivect_size_raw[position] = (size_class == 6) ? 0 : pow(2, size_class);
                          }
                      });
 
@@ -190,95 +186,6 @@ int ordenar_filas(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorde
     return n_warps;
 }
 
-
-
-int ordenar_filas2(int *RowPtrL, int *ColIdxL, VALUE_TYPE *Val, int n, int *iorder)
-{
-    // Variables en el dispositivo
-    unsigned int *d_niveles;
-    int *d_is_solved;
-
-    // Reserva de memoria en el dispositivo
-    CUDA_CHK(cudaMalloc((void **)&d_niveles, n * sizeof(unsigned int)));
-    CUDA_CHK(cudaMalloc((void **)&d_is_solved, n * sizeof(int)));
-
-    // Configuración de ejecución del kernel
-    int num_threads = WARP_PER_BLOCK * WARP_SIZE;
-    int grid = ceil((double)n * WARP_SIZE / (double)num_threads);
-
-    CUDA_CHK(cudaMemset(d_is_solved, 0, n * sizeof(int)));
-    CUDA_CHK(cudaMemset(d_niveles, 0, n * sizeof(unsigned int)));
-
-    // Llamada al kernel
-    kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * (2 * sizeof(int))>>>(RowPtrL, ColIdxL, d_is_solved, n, d_niveles);
-    CUDA_CHK(cudaDeviceSynchronize());
-
-    // Copiar los resultados de vuelta al host
-    int *niveles = (int *)malloc(n * sizeof(int));
-    CUDA_CHK(cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost));
-
-    /* Paralelice a partir de aquí */
-    cudaError_t error = cudaGetLastError();
-
-    if (error != cudaSuccess)
-    {
-        fprintf(stderr, "CUDA error before Thrust operation: %s\n", cudaGetErrorString(error));
-    }
-
-    // Thrust operation here
-
-    thrust::device_vector<int> d_niveles2(niveles, niveles + n);
-    thrust::device_vector<int> d_ivects(7 * *thrust::max_element(d_niveles2.begin(), d_niveles2.end()));
-    thrust::device_vector<int> d_ivect_size(n);
-    thrust::device_vector<int> d_iorder(n);
-
-    // Inicializar ivects a cero
-    thrust::fill(d_ivects.begin(), d_ivects.end(), 0);
-    error = cudaGetLastError();
-    if (error != cudaSuccess)
-    {
-        fprintf(stderr, "CUDA error after Thrust operation: %s\n", cudaGetErrorString(error));
-    }
-    // Calcular los comienzos de cada par nivel-tamaño
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=, d_ivects_ptr = thrust::raw_pointer_cast(d_ivects.data())] __device__(int i)
-                     {
-        int level = niveles[i] - 1;
-        int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
-        int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
-                         (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-
-        atomicAdd(&d_ivects_ptr[7 * level + size_class], 1); });
-
-    // Hacer un escaneo exclusivo para determinar los índices de inicio
-    thrust::exclusive_scan(d_ivects.begin(), d_ivects.end(), d_ivects.begin());
-
-    // Asignar filas a sus posiciones
-    thrust::for_each(thrust::make_counting_iterator(0), thrust::make_counting_iterator(n), [=, d_ivects_ptr = thrust::raw_pointer_cast(d_ivects.data()), d_iorder_ptr = thrust::raw_pointer_cast(d_iorder.data()), d_ivect_size_ptr = thrust::raw_pointer_cast(d_ivect_size.data())] __device__(int i)
-                     {
-        int level = niveles[i] - 1;
-        int row_size = RowPtrL[i + 1] - RowPtrL[i] - 1;
-        int size_class = (row_size == 0) ? 6 : (row_size == 1) ? 0 : (row_size <= 2) ? 1 :
-                         (row_size <= 4) ? 2 : (row_size <= 8) ? 3 : (row_size <= 16) ? 4 : 5;
-
-        int position = atomicAdd(&d_ivects_ptr[7 * level + size_class], 1);
-        d_iorder_ptr[position] = i;
-        d_ivect_size_ptr[position] = (size_class == 6) ? 0 : pow(2, size_class); });
-
-    // Copiar los resultados de vuelta al host para usarlos en el programa principal
-    thrust::copy(d_iorder.begin(), d_iorder.end(), iorder);
-
-    /* Termine aquí */
-
-    // Liberación de memoria
-    // d_niveles2.shrink_to_feet()
-    CUDA_CHK(cudaFree(d_is_solved));
-    free(niveles);
-
-    // Calcular número de warps necesarios (esto podría hacerse en el dispositivo si es necesario)
-    int n_warps = 1; // Esto es solo un valor de lugar, debe calcularse correctamente
-
-    return n_warps;
-}
 
 int main(int argc, char **argv)
 {
