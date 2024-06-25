@@ -233,7 +233,7 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
 }
 
 
-int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
+int ordenar_filas2(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorder) {
     // Variables en el dispositivo
     unsigned int *d_niveles;
     int *d_is_solved;
