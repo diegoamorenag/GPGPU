@@ -170,7 +170,7 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE *Val, int n, int* iorde
     /* Termine aquí */
 
     // Liberación de memoria
-    CUDA_CHK(cudaFree(d_niveles2));
+    d_niveles2.shrink_to_Feet()
     CUDA_CHK(cudaFree(d_is_solved));
     free(niveles);
 
