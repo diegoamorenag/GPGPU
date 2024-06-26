@@ -29,24 +29,24 @@ struct TransformarNiveles {
     int operator()(const int &i) const {
         int nivel = niveles[i] - 1;
         int tamFila = filaPtr[i + 1] - filaPtr[i] - 1;
-        int claseTamaño;
+        int claseTamanio;
 
         if (tamFila == 0)
-            claseTamaño = 6;
+            claseTamanio = 6;
         else if (tamFila == 1)
-            claseTamaño = 0;
+            claseTamanio = 0;
         else if (tamFila <= 2)
-            claseTamaño = 1;
+            claseTamanio = 1;
         else if (tamFila <= 4)
-            claseTamaño = 2;
+            claseTamanio = 2;
         else if (tamFila <= 8)
-            claseTamaño = 3;
+            claseTamanio = 3;
         else if (tamFila <= 16)
-            claseTamaño = 4;
+            claseTamanio = 4;
         else 
-            claseTamaño = 5;
+            claseTamanio = 5;
 
-        return 7 * nivel + claseTamaño;
+        return 7 * nivel + claseTamanio;
     }
 };
 
@@ -220,25 +220,25 @@ int ordenar_filas(int* filaPtr, int* colIdx, int n, int* orden) {
     for (int i = 0; i < n; i++) {
         int idepth = niveles[i] - 1;
         int tamFila = filaPtr[i + 1] - filaPtr[i] - 1;
-        int claseTamaño;
+        int claseTamanio;
 
         if (tamFila == 0)
-            claseTamaño = 6;
+            claseTamanio = 6;
         else if (tamFila == 1)
-            claseTamaño = 0;
+            claseTamanio = 0;
         else if (tamFila <= 2)
-            claseTamaño = 1;
+            claseTamanio = 1;
         else if (tamFila <= 4)
-            claseTamaño = 2;
+            claseTamanio = 2;
         else if (tamFila <= 8)
-            claseTamaño = 3;
+            claseTamanio = 3;
         else if (tamFila <= 16)
-            claseTamaño = 4;
+            claseTamanio = 4;
         else 
-            claseTamaño = 5;
+            claseTamanio = 5;
 
-        orden[ivects[7 * idepth + claseTamaño]] = i;
-        ivects[7 * idepth + claseTamaño]++;
+        orden[ivects[7 * idepth + claseTamanio]] = i;
+        ivects[7 * idepth + claseTamanio]++;
     }
 
     int* ivect_size = (int*)malloc(n * sizeof(int));
