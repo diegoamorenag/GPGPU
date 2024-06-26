@@ -22,7 +22,7 @@ struct TransformarNiveles {
     TransformarNiveles( int* rowPtr,int* levels) : rowPtr(rowPtr), levels(levels) {}
     __host__ __device__ __forceinline__
     int operator()(const int  & i ) const {
-        int  lev   = niveles [i]-1;
+        int  lev   = levels [i]-1;
         int filaNNZ = rowPtr [i+1]-rowPtr [ i ]-1;
         int tamanioArray;
 
