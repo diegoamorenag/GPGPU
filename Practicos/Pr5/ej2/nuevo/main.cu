@@ -176,27 +176,39 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 
 
 int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorder) {
+auto start = std::chrono::high_resolution_clock::now();
+
     int* levels = (int*)malloc(n * sizeof(int));
 
+    int* d_unsolved;
     unsigned int* d_levels;
-    int* d_is_solved;
     
     CUDA_CHK(cudaMalloc((void**)&d_levels, n * sizeof(unsigned int)));
-    CUDA_CHK(cudaMalloc((void**)&d_is_solved, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc((void**)&d_unsolved, n * sizeof(int)));
     
-    int num_threads = WARP_PER_BLOCK * WARP_SIZE;
-    int grid = ceil((double)n * WARP_SIZE / (double)(num_threads));
+    int threads_per_block = WARP_PER_BLOCK * WARP_SIZE;
+    int blocks_per_grid = ceil((double)n * WARP_SIZE / (double)(threads_per_block));
 
-    CUDA_CHK(cudaMemset(d_is_solved, 0, n * sizeof(int)));
     CUDA_CHK(cudaMemset(d_levels, 0, n * sizeof(unsigned int)));
+    CUDA_CHK(cudaMemset(d_unsolved, 0, n * sizeof(int)));
 
-    kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * (2 * sizeof(int))>>>(RowPtrL, ColIdxL, d_is_solved, n, d_levels);
+    int shared_mem_size = WARP_PER_BLOCK * (2 * sizeof(int));
 
+    auto start_kernel = std::chrono::high_resolution_clock::now();
+    kernel_analysis_L<<<blocks_per_grid, threads_per_block, shared_mem_size>>>(RowPtrL, ColIdxL, d_unsolved, n, d_levels);
+    auto end_kernel = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> kernel_duration = end_kernel - start_kernel;
+    std::cout << "Tiempo de ejecucion del kernel: " << kernel_duration.count() << " segundos." << std::endl;
+
+    auto start_copy = std::chrono::high_resolution_clock::now();
     CUDA_CHK(cudaMemcpy(levels, d_levels, n * sizeof(int), cudaMemcpyDeviceToHost));
+    auto end_copy = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> copy_duration = end_copy - start_copy;
+    std::cout << "Tiempo de copia: " << copy_duration.count() << " segundos." << std::endl;
 
-    int* max_level = new int[1];
     int* d_input = nullptr;
     int* d_output = nullptr;
+    int* max_level_holder = new int[1];
 
     CUDA_CHK(cudaMalloc(&d_input, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_output, 1 * sizeof(int)));
@@ -204,74 +216,89 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
 
     void* d_temp_storage = nullptr;
     size_t temp_storage_bytes = 0;
+
+    auto start_reduce = std::chrono::high_resolution_clock::now();
     CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));
     cudaMalloc(&d_temp_storage, temp_storage_bytes);
     CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));
-    CUDA_CHK(cudaMemcpy(max_level, d_output, sizeof(int), cudaMemcpyDeviceToHost));
+    auto end_reduce = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> reduce_duration = end_reduce - start_reduce;
+    std::cout << "Tiempo del reduce: " << reduce_duration.count() << " segundos." << std::endl;
 
-    int nLevs = max_level[0];
+    CUDA_CHK(cudaMemcpy(max_level_holder, d_output, sizeof(int), cudaMemcpyDeviceToHost));
+    int max_levels = max_level_holder[0];
 
-    int* RowPtrL_h = (int*)malloc((n + 1) * sizeof(int));
-    CUDA_CHK(cudaMemcpy(RowPtrL_h, RowPtrL, (n + 1) * sizeof(int), cudaMemcpyDeviceToHost));
+    int* host_RowPtrL = (int*)malloc((n + 1) * sizeof(int));
+    CUDA_CHK(cudaMemcpy(host_RowPtrL, RowPtrL, (n + 1) * sizeof(int), cudaMemcpyDeviceToHost));
 
-    int* ivects = (int*)calloc(7 * nLevs, sizeof(int));
-    int* ivect_size = (int*)calloc(n, sizeof(int));
+    int* vector_counts = (int*)calloc(7 * max_levels, sizeof(int));
+    int* vector_sizes = (int*)calloc(n, sizeof(int));
 
-    int* index = (int*)malloc(n * sizeof(int));
-    int* index2 = (int*)malloc(7 * nLevs * sizeof(int));
+    int* idx = (int*)malloc(n * sizeof(int));
+    int* idx2 = (int*)malloc(7 * max_levels * sizeof(int));
     for (int i = 0; i < n; i++) {
-        index[i] = i;
-        index2[i] = i;
+        idx[i] = i;
+        idx2[i] = i;
     }
-    for (int i = n; i < 7 * nLevs; i++) {
-        index2[i] = i;
+    for (int i = n; i < 7 * max_levels; i++) {
+        idx2[i] = i;
     }
 
-    Trans_niveles transform(levels, RowPtrL_h);
-    auto itr = cub::TransformInputIterator<int, Trans_niveles, int*>(index, transform);
+    Trans_niveles classify(levels, host_RowPtrL);
+    auto transformed_idx = cub::TransformInputIterator<int, Trans_niveles, int*>(idx, classify);
 
-    int* d_itr;
-    int* d_ivects;
-    int num_levels = 7 * nLevs + 1;
-    float lower_level = 0;
-    float upper_level = 7 * nLevs;
+    int* d_transformed_idx;
+    int* d_vector_counts;
+    int num_bins = 7 * max_levels + 1;
+    float lower_bound = 0;
+    float upper_bound = 7 * max_levels;
 
-    int* itr2 = new int[n * sizeof(int)];
-    thrust::copy(itr, itr + n, itr2);
+    int* transformed_idx_copy = new int[n * sizeof(int)];
+    thrust::copy(transformed_idx, transformed_idx + n, transformed_idx_copy);
 
-    CUDA_CHK(cudaMalloc(&d_itr, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_ivects, 7 * nLevs * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&d_transformed_idx, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&d_vector_counts, 7 * max_levels * sizeof(int)));
 
-    CUDA_CHK(cudaMemcpy(d_itr, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHK(cudaMemset(d_ivects, 0, 7 * nLevs * sizeof(int)));
+    CUDA_CHK(cudaMemcpy(d_transformed_idx, transformed_idx_copy, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemset(d_vector_counts, 0, 7 * max_levels * sizeof(int)));
 
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
-    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_itr, d_ivects, num_levels, lower_level, upper_level, n);
+
+    auto start_histogram = std::chrono::high_resolution_clock::now();
+    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_transformed_idx, d_vector_counts, num_bins, lower_bound, upper_bound, n);
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
-    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_itr, d_ivects, num_levels, lower_level, upper_level, n);
+    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_transformed_idx, d_vector_counts, num_bins, lower_bound, upper_bound, n);
+    auto end_histogram = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> histogram_duration = end_histogram - start_histogram;
+    std::cout << "Tiempo del histograma: " << histogram_duration.count() << " segundos." << std::endl;
 
-    CUDA_CHK(cudaMemcpy(ivects, d_ivects, 7 * nLevs * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHK(cudaMemcpy(vector_counts, d_vector_counts, 7 * max_levels * sizeof(int), cudaMemcpyDeviceToHost));
 
-    int* ivectsAux = new int[n * sizeof(int)];
-    thrust::copy(ivects, ivects + 7 * nLevs, ivectsAux);
+    int* vector_counts_copy = new int[n * sizeof(int)];
+    thrust::copy(vector_counts, vector_counts + 7 * max_levels, vector_counts_copy);
 
-    int length = 7 * nLevs;
+    int length = 7 * max_levels;
 
     d_input = nullptr;
     d_output = nullptr;
 
     CUDA_CHK(cudaMalloc(&d_input, length * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_output, length * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_input, ivects, length * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(d_input, vector_counts, length * sizeof(int), cudaMemcpyHostToDevice));
 
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
+
+    auto start_scan = std::chrono::high_resolution_clock::now();
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));
     cudaMalloc(&d_temp_storage, temp_storage_bytes);
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));
+    auto end_scan = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> scan_duration = end_scan - start_scan;
+    std::cout << "Tiempo del scan: " << scan_duration.count() << " segundos." << std::endl;
 
-    CUDA_CHK(cudaMemcpy(ivects, d_output, 7 * nLevs * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHK(cudaMemcpy(vector_counts, d_output, 7 * max_levels * sizeof(int), cudaMemcpyDeviceToHost));
 
     int* d_keys_in = nullptr;
     int* d_keys_out = nullptr;
@@ -282,49 +309,63 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
     CUDA_CHK(cudaMalloc(&d_keys_out, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_values_in, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_values_out, n * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_keys_in, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHK(cudaMemcpy(d_values_in, index, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(d_keys_in, transformed_idx_copy, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(d_values_in, idx, n * sizeof(int), cudaMemcpyHostToDevice));
 
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
+
+    auto start_sort = std::chrono::high_resolution_clock::now();
     cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes, d_keys_in, d_keys_out, d_values_in, d_values_out, n);
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes, d_keys_in, d_keys_out, d_values_in, d_values_out, n);
+    auto end_sort = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> sort_duration = end_sort - start_sort;
+    std::cout << "Tiempo del sort: " << sort_duration.count() << " segundos." << std::endl;
 
-    CUDA_CHK(cudaMemcpy(iorder, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHK(cudaMemcpy(row_order, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
 
-    Trans_mapear transform2(itr2, iorder);
-    cub::TransformInputIterator<int, Trans_mapear, int*> itr3(index, transform2);
-    thrust::copy(itr3, itr3 + n, ivect_size);
+    Trans_mapear map_power(transformed_idx_copy, row_order);
+    cub::TransformInputIterator<int, Trans_mapear, int*> mapped_idx(idx, map_power);
+    thrust::copy(mapped_idx, mapped_idx + n, vector_sizes);
 
-    Trans_asignar_warps transform3(ivectsAux);
-    cub::TransformInputIterator<int, Trans_asignar_warps, int*> itr4(index2, transform3);
+    Trans_asignar_warps assign_warps(vector_counts_copy);
+    cub::TransformInputIterator<int, Trans_asignar_warps, int*> transformed_idx2(idx2, assign_warps);
 
-    int* itr4aux = new int[n * sizeof(int)];
-    thrust::copy(itr4, itr4 + 7 * nLevs, itr4aux);
+    int* transformed_idx2_copy = new int[n * sizeof(int)];
+    thrust::copy(transformed_idx2, transformed_idx2 + 7 * max_levels, transformed_idx2_copy);
 
-    int* d_in;
-    int* d_out;
+    int* d_input2;
+    int* d_output2;
 
-    CUDA_CHK(cudaMalloc(&d_in, 7 * nLevs * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_out, sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_in, itr4aux, 7 * nLevs * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMalloc(&d_input2, 7 * max_levels * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&d_output2, sizeof(int)));
+    CUDA_CHK(cudaMemcpy(d_input2, transformed_idx2_copy, 7 * max_levels * sizeof(int), cudaMemcpyHostToDevice));
 
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
-    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, 7 * nLevs);
+
+    auto start_reduce_sum = std::chrono::high_resolution_clock::now();
+    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_input2, d_output2, 7 * max_levels);
     CUDA_CHK(cudaDeviceSynchronize());
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
-    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, 7 * nLevs);
+    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_input2, d_output2, 7 * max_levels);
     CUDA_CHK(cudaDeviceSynchronize());
+    auto end_reduce_sum = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> reduce_sum_duration = end_reduce_sum - start_reduce_sum;
+    std::cout << "Tiempo del reduce: " << reduce_sum_duration.count() << " segundos." << std::endl;
 
-    int n_warps[1];
-    CUDA_CHK(cudaMemcpy(n_warps, d_out, sizeof(int), cudaMemcpyDeviceToHost));
+    int num_warps[1];
+    CUDA_CHK(cudaMemcpy(num_warps, d_output2, sizeof(int), cudaMemcpyDeviceToHost));
 
-    int result = n_warps[0];
+    int result = num_warps[0];
 
     CUDA_CHK(cudaFree(d_levels));
-    CUDA_CHK(cudaFree(d_is_solved));
+    CUDA_CHK(cudaFree(d_unsolved));
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> total_duration = end - start;
+    std::cout << "Total: " << total_duration.count() << " segundos." << std::endl;
 
     return result;
 }
