@@ -19,7 +19,7 @@ struct TransformarNiveles {
     int* rowPtr;
     int* levels;
 
-    TransformarNiveles( int* rowPtr,int* levels) : rowPtr(rowPtr), levels(levels) {}
+    TransformarNiveles( int* levels, int* rowPtr) : rowPtr(rowPtr), levels(levels) {}
     __host__ __device__ __forceinline__
     int operator()(const int  & i ) const {
         int  lev   = levels [i]-1;
