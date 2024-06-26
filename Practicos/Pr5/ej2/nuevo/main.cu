@@ -5,7 +5,6 @@
 #include <thrust/transform.h>
 #include <thrust/device_vector.h>
 #include <thrust/sequence.h>
-//#include <thrust/device.h>
 #include <thrust/sort.h>
 
 
@@ -189,12 +188,17 @@ int ordenar_filas(int* filaPtr, int* colIdx, int n, int* orden) {
     
     int num_hilos = WARP_PER_BLOCK * WARP_SIZE;
     int grid = ceil((double)n * WARP_SIZE / (double)(num_hilos));
+    printf("Launching kernel with grid: %d, threads: %d\n", grid, num_hilos);
 
     CUDA_CHK(cudaMemset(d_resuelto, 0, n * sizeof(int)))
     CUDA_CHK(cudaMemset(d_niveles, 0, n * sizeof(unsigned int)))
 
     kernel_analysis_L<<< grid , num_hilos, WARP_PER_BLOCK * (2 * sizeof(int)) >>>(filaPtr, colIdx, d_resuelto, n, d_niveles);
+    cudaDeviceSynchronize();
+    CUDA_CHK(cudaPeekAtLastError())
+
     CUDA_CHK(cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost))
+    printf("Niveles copied back to host.\n");
 
     int* index = (int*)malloc(n * sizeof(int));
     for (int i = 0; i < n; i++) {
@@ -207,6 +211,7 @@ int ordenar_filas(int* filaPtr, int* colIdx, int n, int* orden) {
     thrust::transform(d_index.begin(), d_index.end(), d_index.begin(), transformarNiveles);
 
     int num_levels = 7 * (*thrust::max_element(thrust::device, niveles, niveles + n));
+    printf("Number of levels: %d\n", num_levels);
 
     thrust::device_vector<int> d_ivects(num_levels, 0);
     thrust::sort(d_index.begin(), d_index.end());
@@ -252,6 +257,7 @@ int ordenar_filas(int* filaPtr, int* colIdx, int n, int* orden) {
     thrust::transform(thrust::device, ivectsAux, ivectsAux + num_levels, ivectsAux, calcularWarps);
 
     int n_warps = thrust::reduce(thrust::device, ivectsAux, ivectsAux + num_levels);
+    printf("Total warps calculated: %d\n", n_warps);
 
     CUDA_CHK(cudaFree(d_niveles))
     CUDA_CHK(cudaFree(d_resuelto))
@@ -264,7 +270,6 @@ int ordenar_filas(int* filaPtr, int* colIdx, int n, int* orden) {
 
     return n_warps;
 }
-
 
 int main(int argc, char** argv)
 {
