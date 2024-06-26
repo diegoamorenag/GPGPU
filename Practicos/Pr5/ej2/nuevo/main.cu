@@ -4,9 +4,8 @@
 #include <thrust/copy.h>
 #include <thrust/transform.h>
 #include <thrust/device_vector.h>
-
 #include <thrust/sequence.h>
-#include <thrust/device.h>
+//#include <thrust/device.h>
 #include <thrust/sort.h>
 
 
@@ -17,9 +16,7 @@
 #define MIN(A,B)        (((A)<(B))?(A):(B))
 
 static inline void print_cuda_state(cudaError_t code){
-
    if (code != cudaSuccess) printf("\ncuda error: %s\n", cudaGetErrorString(code));
-   
 }
 
 struct TransformarNiveles {
