@@ -9,6 +9,9 @@
 #define MAX(A,B)        (((A)>(B))?(A):(B))
 #define MIN(A,B)        (((A)<(B))?(A):(B))
 
+
+
+
 static inline void print_cuda_state(cudaError_t code){
 
    if (code != cudaSuccess) printf("\ncuda error: %s\n", cudaGetErrorString(code));
@@ -44,53 +47,6 @@ struct GPGPUTransform {
         return 7*lev+vect_size;
     }
 };
-
-
-struct GPGPUTransform2 {
-    int* itr2;
-    int* iorder;
-
-    GPGPUTransform2(int* itr2, int* iorder) : itr2(itr2), iorder(iorder) {}
-
-    __host__ __device__ __forceinline__
-    int operator()(const int &i) const {
-        int r = itr2[iorder[i]] % 7;
-        int nnz_row = (r < 0) ? r + 7 : r;
-
-        return ( nnz_row == 6)? 0 : pow(2,nnz_row);;
-    }
-};
-
-
-struct GPGPUTransform3 {
-    int* ivectsAux;
-
-    GPGPUTransform3(int* ivectsAux) : ivectsAux(ivectsAux) {}
-
-    __host__ __device__ __forceinline__
-    int operator()(const int &i) const {
-        if (ivectsAux[i] != 0) {
-            int r = i % 7;
-            int nnz_row = (r < 0) ? r + 7 : r;
-
-            if (nnz_row == 6) {
-                int a = ivectsAux[i] / 32;
-                if (ivectsAux[i] % 32  != 0) a++;
-                return a;
-            } else if (nnz_row == 5) {
-                return ivectsAux[i];
-            } else {
-                int cant_ncv = ivectsAux[i] * pow(2, nnz_row + 1);
-                int a = cant_ncv / 32;
-                if (cant_ncv % 32  != 0) a++;
-                return a;
-            }
-        }
-        
-        return 0;
-    }
-};
-
 
 
 __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
@@ -278,15 +234,9 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     // }
 
     int* index;
-    int* index2;
     index = (int*)malloc(n*sizeof(int));
-    index2 = (int*)malloc(7*nLevs*sizeof(int));
     for (int i = 0; i < n; i++){
         index[i] = i;
-        index2[i] = i;
-    }
-    for (int i = n; i < 7*nLevs; i++){
-        index2[i] = i;
     }    
 
     GPGPUTransform transform(niveles, RowPtrL_h);
@@ -330,9 +280,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     // for (int i = 0; i < n; i++){
     //     ivects[itr[i]]++;
     // }
-
-    int* ivectsAux = new int[n * sizeof(int)];
-    thrust::copy(ivects, ivects + 7 * nLevs, ivectsAux);
 
     for (int y = 0; y < 7*nLevs; y++) {
         printf("itr2[%d]: %d\n", y, itr2[y]);
@@ -384,63 +331,33 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     incrementando por 1 luego 
     iorder(ivects(idepth(j)) + offset(idepth(j))) = j */
  
-    // for(int i = 0; i < n; i++ ){
-    //     // 3
-    //     int idepth = niveles[i]-1; // 2
-    //     int nnz_row = RowPtrL_h[i+1]-RowPtrL_h[i]-1; // 2
-    //     int vect_size;
-// 
-    //     if (nnz_row == 0)
-    //         vect_size = 6; 
-    //     else if (nnz_row == 1)
-    //         vect_size = 0;
-    //     else if (nnz_row <= 2)
-    //         vect_size = 1;
-    //     else if (nnz_row <= 4)
-    //         vect_size = 2;
-    //     else if (nnz_row <= 8)
-    //         vect_size = 3;
-    //     else if (nnz_row <= 16)
-    //         vect_size = 4;
-    //     else vect_size = 5;
-// 
-    //     iorder[ ivects[ 7*idepth+vect_size ] ] = i;  // 15 15  3
-    //     ivect_size[ ivects[ 7*idepth+vect_size ] ] = ( vect_size == 6)? 0 : pow(2,vect_size);
-// 
-    //     ivects[ 7*idepth+vect_size ]++;
-    // }
+    for(int i = 0; i < n; i++ ){
+        // 3
+        int idepth = niveles[i]-1; // 2
+        int nnz_row = RowPtrL_h[i+1]-RowPtrL_h[i]-1; // 2
+        int vect_size;
+
+        if (nnz_row == 0)
+            vect_size = 6; 
+        else if (nnz_row == 1)
+            vect_size = 0;
+        else if (nnz_row <= 2)
+            vect_size = 1;
+        else if (nnz_row <= 4)
+            vect_size = 2;
+        else if (nnz_row <= 8)
+            vect_size = 3;
+        else if (nnz_row <= 16)
+            vect_size = 4;
+        else vect_size = 5;
+
+        iorder[ ivects[ 7*idepth+vect_size ] ] = i;  // 15 15  3
+        ivect_size[ ivects[ 7*idepth+vect_size ] ] = ( vect_size == 6)? 0 : pow(2,vect_size);
+
+        ivects[ 7*idepth+vect_size ]++;
+    }
 
     // SORT BY KEY ?
-
-    int  *d_keys_in = nullptr;
-    int  *d_keys_out = nullptr;
-    int  *d_values_in = nullptr;
-    int  *d_values_out = nullptr;
-
-    CUDA_CHK(cudaMalloc(&d_keys_in, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_keys_out, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_values_in, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_values_out, n * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_keys_in, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHK(cudaMemcpy(d_values_in, index, n * sizeof(int), cudaMemcpyHostToDevice));
-
-    d_temp_storage = nullptr;
-    temp_storage_bytes = 0;
-    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes,
-        d_keys_in, d_keys_out, d_values_in, d_values_out, n);
-
-    CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
-
-    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes,
-        d_keys_in, d_keys_out, d_values_in, d_values_out, n);
-
-
-    // CUDA_CHK(cudaMemcpy(keys_in, d_keys_out, n * sizeof(int), cudaMemcpyDeviceToHost));
-    CUDA_CHK(cudaMemcpy(iorder, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
-
-    GPGPUTransform2 transform2(itr2, iorder);
-    cub::TransformInputIterator<int, GPGPUTransform2, int*> itr3(index, transform2);
-    thrust::copy(itr3, itr3 + n, ivect_size);
 
     for (int y = 0; y < n; y++) {
         printf("iorder[%d]: %d\n", y, iorder[y]);
@@ -457,73 +374,34 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     /* Recorrer las filas en el orden dado por iorder y asignarlas a warps
     Dos filas solo pueden ser asignadas a un mismo warp si tienen el mismo 
     nivel y tamaño y si el warp tiene espacio suficiente */
-    /*Termine aquí*/
 
     int ii = 1;
     int filas_warp = 1;
 
-    // for (int ctr = 1; ctr < n; ++ctr)
-    // {
-    //     if( niveles[iorder[ctr]]!=niveles[iorder[ctr-1]] ||
-    //         ivect_size[ctr]!=ivect_size[ctr-1] ||
-    //         filas_warp * ivect_size[ctr] >= 32 ||
-    //         (ivect_size[ctr]==0 && filas_warp == 32) ){
-// 
-    //         filas_warp = 1;
-    //         ii++;
-    //     }else{
-    //         filas_warp++;
-    //     }
-    // }
+    for (int ctr = 1; ctr < n; ++ctr)
+    {
 
-    GPGPUTransform3 transform3(ivectsAux);
-    cub::TransformInputIterator<int, GPGPUTransform3, int*> itr4(index2, transform3);
+        if( niveles[iorder[ctr]]!=niveles[iorder[ctr-1]] ||
+            ivect_size[ctr]!=ivect_size[ctr-1] ||
+            filas_warp * ivect_size[ctr] >= 32 ||
+            (ivect_size[ctr]==0 && filas_warp == 32) ){
 
-    int* itr4aux = new int[n * sizeof(int)];
-    thrust::copy(itr4, itr4 + 7 * nLevs, itr4aux);
-
-    // Declare, allocate, and initialize device-accessible pointers
-    // for input and output
-    int num = 7*nLevs;
-    int *d_in;          // e.g., [8, 6, 7, 5, 3, 0, 9]
-    int *d_out;         // e.g., [-]
-
-    CUDA_CHK(cudaMalloc(&d_in, 7*nLevs * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_out, sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_in, itr4aux, 7*nLevs * sizeof(int), cudaMemcpyHostToDevice));
-
-    // Determine temporary device storage requirements
-    d_temp_storage = nullptr;
-    temp_storage_bytes = 0;
-    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
-    CUDA_CHK(cudaDeviceSynchronize());
-
-    // Allocate temporary storage
-    CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
-
-    // Run sum-reduction
-    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
-    CUDA_CHK(cudaDeviceSynchronize());
-
-    int n_warps[1];
-    CUDA_CHK(cudaMemcpy(n_warps, d_out, sizeof(int), cudaMemcpyDeviceToHost));
-
-
-    for (int y = 0; y < 7*nLevs; y++) {
-        printf("itr4[%d]: %d\n", y, itr4[y]);
+            filas_warp = 1;
+            ii++;
+        }else{
+            filas_warp++;
+        }
     }
-    printf("n_warps[%d]: %d\n", 0, n_warps[0]);
-    printf("------------------------------------------DEBUG: 6---------------------------------------------\n");
 
+    int n_warps = ii;
 
-    
-    int sol = n_warps[0];
+    /*Termine aquí*/
 
 
     CUDA_CHK( cudaFree(d_niveles) ) 
     CUDA_CHK( cudaFree(d_is_solved) ) 
 
-    return sol;
+    return n_warps;
 
 }
 
