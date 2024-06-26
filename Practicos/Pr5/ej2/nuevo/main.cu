@@ -5,6 +5,10 @@
 #include <thrust/transform.h>
 #include <thrust/device_vector.h>
 
+#include <thrust/sequence.h>
+#include <thrust/device.h>
+#include <thrust/sort.h>
+
 
 #define WARP_PER_BLOCK 32
 #define WARP_SIZE 32
