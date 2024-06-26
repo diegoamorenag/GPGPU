@@ -7,7 +7,6 @@
 #include <thrust/sequence.h>
 #include <thrust/sort.h>
 
-
 #define WARP_PER_BLOCK 32
 #define WARP_SIZE 32
 #define CUDA_CHK(call) print_cuda_state(call);
@@ -337,17 +336,13 @@ int main(int argc, char** argv)
     }
 
     pch = strtok(pch1, ".");
-
-
     if (mm_is_pattern(matcode)) { isPattern = 1; }
     if (mm_is_real(matcode)) { isReal = 1;  }
     if (mm_is_integer(matcode)) { isInteger = 1; }
 
-    /* find out size of sparse matrix .... */
     ret_code = mm_read_mtx_crd_size(f, &m, &n, &nnzA_mtx_report);
     if (ret_code != 0)
         return -4;
-
 
     if (n != m)
     {
