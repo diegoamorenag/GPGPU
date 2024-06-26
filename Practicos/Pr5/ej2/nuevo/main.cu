@@ -44,20 +44,19 @@ struct TransformarNiveles {
     }
 };
 
-struct GPGPUTransform2 {
-    int* itr2;
-    int* iorder;
+struct TransformarTamanio {
+    int* orden;
+    int* tamFila;
 
-    GPGPUTransform2(int* itr2, int* iorder) : itr2(itr2), iorder(iorder) {}
-
+    TransformarTamanio(int* orden, int* tamFila) : tamFila(tamFila), orden(orden) {}
     __host__ __device__ __forceinline__
     int operator()(const int &i) const {
-        int r = itr2[iorder[i]] % 7;
-        int nnz_row = (r < 0) ? r + 7 : r;
-
-        return ( nnz_row == 6)? 0 : pow(2,nnz_row);;
+        int r =  tamFila[ orden[i]]  % 7; 
+        int filaNNZ =  (r < 0) ?  r + 7 : r ;
+        return ( filaNNZ == 6)? 0 : pow(2,filaNNZ);;
     }
 };
+
 
 
 struct GPGPUTransform3 {
@@ -434,8 +433,8 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     // CUDA_CHK(cudaMemcpy(keys_in, d_keys_out, n * sizeof(int), cudaMemcpyDeviceToHost));
     CUDA_CHK(cudaMemcpy(iorder, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
 
-    GPGPUTransform2 transform2(itr2, iorder);
-    cub::TransformInputIterator<int, GPGPUTransform2, int*> itr3(index, transform2);
+    TransformarTamanio transform2(iorder, itr2);
+    cub::TransformInputIterator<int, TransformarTamanio, int*> itr3(index, transform2);    
     thrust::copy(itr3, itr3 + n, ivect_size);
 
     for (int y = 0; y < n; y++) {
