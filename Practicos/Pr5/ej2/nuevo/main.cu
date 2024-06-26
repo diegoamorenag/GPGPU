@@ -1,10 +1,7 @@
 #include "mmio.h"
 #include <cub/cub.cuh>
-#include <thrust/copy.h>
-#include <thrust/transform.h>
-#include <thrust/device_vector.h>
-#include <thrust/sequence.h>
-#include <thrust/sort.h>
+#include <thrust/copy.h> 
+
 #define WARP_PER_BLOCK 32
 #define WARP_SIZE 32
 #define CUDA_CHK(call) print_cuda_state(call);
@@ -12,77 +9,88 @@
 #define MIN(A,B)        (((A)<(B))?(A):(B))
 
 static inline void print_cuda_state(cudaError_t code){
+
    if (code != cudaSuccess) printf("\ncuda error: %s\n", cudaGetErrorString(code));
+   
 }
 
-struct TransformarNiveles {
-    int* rowPtr;
-    int* levels;
+struct GPGPUTransform {
+    int* niveles;
+    int* rowptr;
 
-    TransformarNiveles( int* rowPtr,int* levels) : rowPtr(rowPtr), levels(levels) {}
+    GPGPUTransform(int* niveles, int* rowptr) : niveles(niveles), rowptr(rowptr) {}
+
     __host__ __device__ __forceinline__
-    int operator()(const int  & i ) const {
-        int  lev   = niveles [i]-1;
-        int filaNNZ = rowPtr [i+1]-rowPtr [ i ]-1;
-        int tamanioArray;
+    int operator()(const int &i) const {
+        int lev = niveles[i]-1;
+        int nnz_row = rowptr[i+1]-rowptr[i]-1;
+        int vect_size;
 
-        if (filaNNZ  == 0)
-            tamanioArray  = 6;
-        else if (filaNNZ ==  1)
-            tamanioArray =  0;
-        else if (filaNNZ <= 2)
-            tamanioArray = 1; 
-        else if ( filaNNZ <= 4)
-            tamanioArray = 2 ; 
-        else if (filaNNZ <= 8)
-            tamanioArray = 3;
-        else if ( filaNNZ <=  16)
-            tamanioArray = 4 ;
-        else tamanioArray = 5; 
+        if (nnz_row == 0)
+            vect_size = 6;
+        else if (nnz_row == 1)
+            vect_size = 0;
+        else if (nnz_row <= 2)
+            vect_size = 1;
+        else if (nnz_row <= 4)
+            vect_size = 2;
+        else if (nnz_row <= 8)
+            vect_size = 3;
+        else if (nnz_row <= 16)
+            vect_size = 4;
+        else vect_size = 5;
 
-        return 7* lev + tamanioArray;
+        return 7*lev+vect_size;
     }
 };
 
 
-struct TransformarTamanio {
-    int* orden;
-    int* tamFila;
+struct GPGPUTransform2 {
+    int* itr2;
+    int* iorder;
 
-    TransformarTamanio(int* tamFila, int* orden) : tamFila(tamFila), orden(orden) {}
+    GPGPUTransform2(int* itr2, int* iorder) : itr2(itr2), iorder(iorder) {}
+
     __host__ __device__ __forceinline__
     int operator()(const int &i) const {
-        int r =  tamFila[ orden[i]]  % 7; 
-        int filaNNZ =  (r < 0) ?  r + 7 : r ;
-        return ( filaNNZ == 6)? 0 : pow(2,filaNNZ);;
+        int r = itr2[iorder[i]] % 7;
+        int nnz_row = (r < 0) ? r + 7 : r;
+
+        return ( nnz_row == 6)? 0 : pow(2,nnz_row);;
     }
 };
 
-struct CalcularWarps {
-    int* vectorI;
 
-    CalcularWarps(int* vectorI) : vectorI(vectorI) {}
+struct GPGPUTransform3 {
+    int* ivectsAux;
+
+    GPGPUTransform3(int* ivectsAux) : ivectsAux(ivectsAux) {}
 
     __host__ __device__ __forceinline__
     int operator()(const int &i) const {
-        if (vectorI [i] != 0) {
-            int r  = i  % 7;
-            int  filaNNZ = (r < 0) ? r + 7 : r;
+        if (ivectsAux[i] != 0) {
+            int r = i % 7;
+            int nnz_row = (r < 0) ? r + 7 : r;
 
-            if (filaNNZ == 6) {
-                int a = vectorI[i] / 32;
-                 if (vectorI[ i] % 32  != 0)  a++;
-                return a; 
-            } else if ( filaNNZ == 5) {
-                return vectorI[i];
+            if (nnz_row == 6) {
+                int a = ivectsAux[i] / 32;
+                if (ivectsAux[i] % 32  != 0) a++;
+                return a;
+            } else if (nnz_row == 5) {
+                return ivectsAux[i];
             } else {
-                int cant  = vectorI[i] *  pow( 2 , filaNNZ + 1);
-                int a = cant / 32 ;
-                if (cant  % 32  != 0) a++;
-                return a;}
+                int cant_ncv = ivectsAux[i] * pow(2, nnz_row + 1);
+                int a = cant_ncv / 32;
+                if (cant_ncv % 32  != 0) a++;
+                return a;
+            }
         }
-        return 0;}
+        
+        return 0;
+    }
 };
+
+
 
 __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 	const int* __restrict__ col_idx,
@@ -248,7 +256,7 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     // for(int i = 0; i < n; i++ ){
     //     // El vector de niveles es 1-based y quiero niveles en 0-based
     //     int lev = niveles[i]-1;
-    //     int filaNNZ = RowPtrL_h[i+1]-RowPtrL_h[i]-1;
+    //     int nnz_row = RowPtrL_h[i+1]-RowPtrL_h[i]-1;
     //     int vect_size;
 
     //     if (nnz_row == 0)
@@ -280,8 +288,8 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
         index2[i] = i;
     }    
 
-    TransformarNiveles transform(niveles, RowPtrL_h);
-    auto itr = cub::TransformInputIterator<int, TransformarNiveles, int*>(index, transform);
+    GPGPUTransform transform(niveles, RowPtrL_h);
+    auto itr = cub::TransformInputIterator<int, GPGPUTransform, int*>(index, transform);
 
     int* d_itr;      // e.g., [2.2, 6.1, 7.1, 2.9, 3.5, 0.3, 2.9, 2.1, 6.1, 999.5]
     int* d_ivects;    // e.g., [ -, -, -, -, -, -]
@@ -429,8 +437,8 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     // CUDA_CHK(cudaMemcpy(keys_in, d_keys_out, n * sizeof(int), cudaMemcpyDeviceToHost));
     CUDA_CHK(cudaMemcpy(iorder, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
 
-    TransformarTamanio transform2(itr2, iorder);
-    cub::TransformInputIterator<int, TransformarTamanio, int*> itr3(index, transform2);
+    GPGPUTransform2 transform2(itr2, iorder);
+    cub::TransformInputIterator<int, GPGPUTransform2, int*> itr3(index, transform2);
     thrust::copy(itr3, itr3 + n, ivect_size);
 
     for (int y = 0; y < n; y++) {
@@ -467,8 +475,8 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     //     }
     // }
 
-    CalcularWarps transform3(ivectsAux);
-    cub::TransformInputIterator<int, CalcularWarps, int*> itr4(index2, transform3);
+    GPGPUTransform3 transform3(ivectsAux);
+    cub::TransformInputIterator<int, GPGPUTransform3, int*> itr4(index2, transform3);
 
     int* itr4aux = new int[n * sizeof(int)];
     thrust::copy(itr4, itr4 + 7 * nLevs, itr4aux);
