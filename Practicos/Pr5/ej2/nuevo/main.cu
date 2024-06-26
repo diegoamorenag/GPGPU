@@ -196,8 +196,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     for (int y = 0; y < n; y++) {
         printf("niveles[%d]: %d\n", y, niveles[y]);
     }
-    printf("------------------------------------------DEBUG: 2---------------------------------------------\n");
-
     int* nLevsArr = new int[1];
 
     int* d_input = nullptr;
@@ -221,7 +219,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 
     int * ivects = (int *) calloc( 7*nLevs, sizeof(int) );
     int * ivect_size  = (int *) calloc(n,sizeof(int));
-
 
     for (int y = 0; y < n+1; y++) {
         printf("RowPtrL_h[%d]: %d\n", y, RowPtrL_h[y]);
@@ -333,8 +330,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes,
         d_keys_in, d_keys_out, d_values_in, d_values_out, n);
 
-
-    // CUDA_CHK(cudaMemcpy(keys_in, d_keys_out, n * sizeof(int), cudaMemcpyDeviceToHost));
     CUDA_CHK(cudaMemcpy(iorder, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
 
     TransformarTamanio transform2(iorder, itr2);
