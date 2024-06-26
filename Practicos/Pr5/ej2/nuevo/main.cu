@@ -164,7 +164,6 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
     int* RowPtrL_d, *ColIdxL_d;
     VALUE_TYPE* Val_d;
 
-
 int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* iorder){
     
     int * niveles;
@@ -192,18 +191,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
                                                                                    d_niveles);
 
     CUDA_CHK( cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost) )
-
-
-    /*Paralelice a partir de aquí*/
-
-
-    /* Obtener el máximo nivel */
-
-    // int nLevs = niveles[0];
-    // for (int i = 1; i < n; ++i)
-    // {
-    //     nLevs = MAX(nLevs, niveles[i]);
-    // }
 
     printf("------------------------------------------DEBUG: 1---------------------------------------------\n");
     for (int y = 0; y < n; y++) {
@@ -241,31 +228,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     }
     printf("------------------------------------------DEBUG: 3---------------------------------------------\n");
 
-    // Contar el número de filas en cada nivel y clase de equivalencia de tamaño
-
-    // for(int i = 0; i < n; i++ ){
-    //     // El vector de niveles es 1-based y quiero niveles en 0-based
-    //     int lev = niveles[i]-1;
-    //     int filaNNZ = RowPtrL_h[i+1]-RowPtrL_h[i]-1;
-    //     int vect_size;
-
-    //     if (nnz_row == 0)
-    //         vect_size = 6;
-    //     else if (nnz_row == 1)
-    //         vect_size = 0;
-    //     else if (nnz_row <= 2)
-    //         vect_size = 1;
-    //     else if (nnz_row <= 4)
-    //         vect_size = 2;
-    //     else if (nnz_row <= 8)
-    //         vect_size = 3;
-    //     else if (nnz_row <= 16)
-    //         vect_size = 4;
-    //     else vect_size = 5;
-
-    //     ivects[7*lev+vect_size]++;
-    // }
-
     int* index;
     int* index2;
     index = (int*)malloc(n*sizeof(int));
@@ -281,11 +243,11 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     TransformarNiveles transform(niveles, RowPtrL_h);
     auto itr = cub::TransformInputIterator<int, TransformarNiveles, int*>(index, transform);
 
-    int* d_itr;      // e.g., [2.2, 6.1, 7.1, 2.9, 3.5, 0.3, 2.9, 2.1, 6.1, 999.5]
-    int* d_ivects;    // e.g., [ -, -, -, -, -, -]
-    int num_levels = 7 * nLevs + 1;     // e.g., 7       (seven level boundaries for six bins)
-    float lower_level = 0;    // e.g., 0.0     (lower sample value boundary of lowest bin)
-    float upper_level = 7 * nLevs;    // e.g., 12.0    (upper sample value boundary of upper bin)
+    int* d_itr;      // [2.2, 6.1, 7.1, 2.9, 3.5, 0.3, 2.9, 2.1, 6.1, 999.5]
+    int* d_ivects;    // [ -, -, -, -, -, -]
+    int num_levels = 7 * nLevs + 1;     // 7       (seven level boundaries for six bins)
+    float lower_level = 0;    // 0.0     (lower sample value boundary of lowest bin)
+    float upper_level = 7 * nLevs;    // 12.0    (upper sample value boundary of upper bin)
 
     int* itr2 = new int[n * sizeof(int)];
     thrust::copy(itr, itr + n, itr2);
@@ -316,10 +278,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 
     CUDA_CHK( cudaMemcpy(ivects, d_ivects, 7 * nLevs * sizeof(int), cudaMemcpyDeviceToHost) )
 
-    // for (int i = 0; i < n; i++){
-    //     ivects[itr[i]]++;
-    // }
-
     int* ivectsAux = new int[n * sizeof(int)];
     thrust::copy(ivects, ivects + 7 * nLevs, ivectsAux);
 
@@ -331,20 +289,7 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     }
     printf("------------------------------------------DEBUG: 4---------------------------------------------\n");
 
-
-    /* Si se hace una suma prefija del vector se obtiene
-    el punto de comienzo de cada par tamaño, nivel en el vector
-    final ordenado */
     int length = 7 * nLevs;
-	// int old_val, new_val;
-	// old_val = ivects[0];
-	// ivects[0] = 0;
-	// for (int i = 1; i < length; i++)
-	// {
-	// 	new_val = ivects[i];
-	// 	ivects[i] = old_val + ivects[i - 1];
-	// 	old_val = new_val;
-	// }
 
     d_input = nullptr;
     d_output = nullptr;
@@ -366,41 +311,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     }
     printf("------------------------------------------DEBUG: 5---------------------------------------------\n");
     
-
-    /* Usando el offset calculado puedo recorrer la fila y generar un orden
-    utilizando el nivel (idepth) y la clase de tamaño (vect_size) como clave.
-    Esto se hace asignando a cada fila al punto apuntado por el offset e
-    incrementando por 1 luego 
-    iorder(ivects(idepth(j)) + offset(idepth(j))) = j */
- 
-    // for(int i = 0; i < n; i++ ){
-    //     // 3
-    //     int idepth = niveles[i]-1; // 2
-    //     int nnz_row = RowPtrL_h[i+1]-RowPtrL_h[i]-1; // 2
-    //     int vect_size;
-// 
-    //     if (nnz_row == 0)
-    //         vect_size = 6; 
-    //     else if (nnz_row == 1)
-    //         vect_size = 0;
-    //     else if (nnz_row <= 2)
-    //         vect_size = 1;
-    //     else if (nnz_row <= 4)
-    //         vect_size = 2;
-    //     else if (nnz_row <= 8)
-    //         vect_size = 3;
-    //     else if (nnz_row <= 16)
-    //         vect_size = 4;
-    //     else vect_size = 5;
-// 
-    //     iorder[ ivects[ 7*idepth+vect_size ] ] = i;  // 15 15  3
-    //     ivect_size[ ivects[ 7*idepth+vect_size ] ] = ( vect_size == 6)? 0 : pow(2,vect_size);
-// 
-    //     ivects[ 7*idepth+vect_size ]++;
-    // }
-
-    // SORT BY KEY ?
-
     int  *d_keys_in = nullptr;
     int  *d_keys_out = nullptr;
     int  *d_values_in = nullptr;
@@ -442,38 +352,18 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     }
     printf("------------------------------------------DEBUG: 6---------------------------------------------\n");
 
-
-    /* Recorrer las filas en el orden dado por iorder y asignarlas a warps
-    Dos filas solo pueden ser asignadas a un mismo warp si tienen el mismo 
-    nivel y tamaño y si el warp tiene espacio suficiente */
-    /*Termine aquí*/
-
     int ii = 1;
     int filas_warp = 1;
 
-    // for (int ctr = 1; ctr < n; ++ctr)
-    // {
-    //     if( niveles[iorder[ctr]]!=niveles[iorder[ctr-1]] ||
-    //         ivect_size[ctr]!=ivect_size[ctr-1] ||
-    //         filas_warp * ivect_size[ctr] >= 32 ||
-    //         (ivect_size[ctr]==0 && filas_warp == 32) ){
-// 
-    //         filas_warp = 1;
-    //         ii++;
-    //     }else{
-    //         filas_warp++;
-    //     }
     CalcularWarps transform3(ivectsAux);
     cub::TransformInputIterator<int, CalcularWarps, int*> itr4(index2, transform3);
 
     int* itr4aux = new int[n * sizeof(int)];
     thrust::copy(itr4, itr4 + 7 * nLevs, itr4aux);
 
-    // Declare, allocate, and initialize device-accessible pointers
-    // for input and output
     int num = 7*nLevs;
-    int *d_in;          // e.g., [8, 6, 7, 5, 3, 0, 9]
-    int *d_out;         // e.g., [-]
+    int *d_in;          // [8, 6, 7, 5, 3, 0, 9]
+    int *d_out;         // [-]
 
     CUDA_CHK(cudaMalloc(&d_in, 7*nLevs * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_out, sizeof(int)));
@@ -485,33 +375,25 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
     CUDA_CHK(cudaDeviceSynchronize());
 
-    // Allocate temporary storage
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
 
-    // Run sum-reduction
     cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
     CUDA_CHK(cudaDeviceSynchronize());
 
     int n_warps[1];
     CUDA_CHK(cudaMemcpy(n_warps, d_out, sizeof(int), cudaMemcpyDeviceToHost));
 
-
     for (int y = 0; y < 7*nLevs; y++) {
         printf("itr4[%d]: %d\n", y, itr4[y]);
     }
     printf("n_warps[%d]: %d\n", 0, n_warps[0]);
     printf("------------------------------------------DEBUG: 6---------------------------------------------\n");
-
-
     
     int sol = n_warps[0];
-
-
     CUDA_CHK( cudaFree(d_niveles) ) 
     CUDA_CHK( cudaFree(d_is_solved) ) 
 
     return sol;
-
 }
 
 
@@ -534,7 +416,6 @@ int main(int argc, char** argv)
 
     printf("PRECISION = %s\n", precision);
 
-
     int m, n, nnzA;
     int* csrRowPtrA;
     int* csrColIdxA;
@@ -550,8 +431,6 @@ int main(int argc, char** argv)
     }
 
     printf("-------------- %s --------------\n", filename);
-
-
 
     // read matrix from mtx file
     int ret_code;
@@ -586,7 +465,6 @@ int main(int argc, char** argv)
 
     pch = strtok(pch1, ".");
 
-
     if (mm_is_pattern(matcode)) { isPattern = 1; }
     if (mm_is_real(matcode)) { isReal = 1;  }
     if (mm_is_integer(matcode)) { isInteger = 1; }
@@ -595,7 +473,6 @@ int main(int argc, char** argv)
     ret_code = mm_read_mtx_crd_size(f, &m, &n, &nnzA_mtx_report);
     if (ret_code != 0)
         return -4;
-
 
     if (n != m)
     {
@@ -651,7 +528,6 @@ int main(int argc, char** argv)
         csrColIdxA_tmp[i] = idxj;
         csrValA_tmp[i] = fval;
     }
-
     if (f != stdin)
         fclose(f);
 
