@@ -2,11 +2,15 @@
 #include <cub/cub.cuh>
 #include <thrust/copy.h> 
 
+
 #define WARP_PER_BLOCK 32
 #define WARP_SIZE 32
 #define CUDA_CHK(call) print_cuda_state(call);
 #define MAX(A,B)        (((A)>(B))?(A):(B))
 #define MIN(A,B)        (((A)<(B))?(A):(B))
+
+
+
 
 static inline void print_cuda_state(cudaError_t code){
 
