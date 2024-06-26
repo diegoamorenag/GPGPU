@@ -50,11 +50,11 @@ struct TransformarNiveles {
     }
 };
 
-struct TransformarTamaio {
+struct TransformarTamanio {
     int* tamFila;
     int* orden;
 
-    TransformarTamaio(int* tamFila, int* orden) : tamFila(tamFila), orden(orden) {}
+    TransformarTamanio(int* tamFila, int* orden) : tamFila(tamFila), orden(orden) {}
 
     __host__ __device__ __forceinline__
     int operator()(const int &i) const {
@@ -242,8 +242,8 @@ int ordenar_filas(int* filaPtr, int* colIdx, int n, int* orden) {
     }
 
     int* ivect_size = (int*)malloc(n * sizeof(int));
-    TransformarTamaio transformarTamaño(filaPtr, orden);
-    thrust::transform(thrust::device, orden, orden + n, ivect_size, transformarTamaio);
+    TransformarTamanio transformarTamanio(filaPtr, orden);
+    thrust::transform(thrust::device, orden, orden + n, ivect_size, transformarTamanio);
 
     int* ivectsAux = new int[n * sizeof(int)];
     thrust::copy(ivects, ivects + num_levels, ivectsAux);
