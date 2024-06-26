@@ -179,6 +179,7 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
 auto start = std::chrono::high_resolution_clock::now();
 
     int* levels = (int*)malloc(n * sizeof(int));
+    int* row_order = (int*)malloc(n * sizeof(int));
 
     int* d_unsolved;
     unsigned int* d_levels;
@@ -323,8 +324,6 @@ auto start = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> sort_duration = end_sort - start_sort;
     std::cout << "Tiempo del sort: " << sort_duration.count() << " segundos." << std::endl;
 
-    int* row_order = (int*)malloc(n * sizeof(int));
-
     CUDA_CHK(cudaMemcpy(row_order, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
 
     Trans_mapear map_power(transformed_idx_copy, row_order);
@@ -368,6 +367,8 @@ auto start = std::chrono::high_resolution_clock::now();
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> total_duration = end - start;
     std::cout << "Total: " << total_duration.count() << " segundos." << std::endl;
+
+    free(row_order);
 
     return result;
 }
