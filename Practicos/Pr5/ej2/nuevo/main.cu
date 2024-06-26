@@ -323,6 +323,8 @@ auto start = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> sort_duration = end_sort - start_sort;
     std::cout << "Tiempo del sort: " << sort_duration.count() << " segundos." << std::endl;
 
+    int* row_order = (int*)malloc(n * sizeof(int));
+
     CUDA_CHK(cudaMemcpy(row_order, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
 
     Trans_mapear map_power(transformed_idx_copy, row_order);
