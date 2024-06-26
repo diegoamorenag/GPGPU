@@ -307,9 +307,6 @@ int main(int argc, char** argv)
 
     printf("-------------- %s --------------\n", filename);
 
-
-
-    // read matrix from mtx file
     int ret_code;
     MM_typecode matcode;
     FILE* f;
@@ -317,7 +314,6 @@ int main(int argc, char** argv)
     int nnzA_mtx_report;
     int isInteger = 0, isReal = 0, isPattern = 0, isSymmetric = 0;
 
-    // load matrix
     if ((f = fopen(filename, "r")) == NULL)
         return -1;
 
