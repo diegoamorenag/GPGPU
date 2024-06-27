@@ -1,4 +1,4 @@
-mkdir -p ../results # Ensure the results directory exists
+mkdir -p results # Ensure the results directory exists
 result_file="../results/all_results.txt" # Define the result file path
 
 # Clear the result file at the start or create it if it doesn't exist
