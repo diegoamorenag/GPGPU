@@ -357,7 +357,7 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
     /*Termine aquí*/
     auto end_parallel_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> parallel_time_dur = end_parallel_time - parallel_time;
-    std::cout << "Tiempo de parte paralela: " << parallel_time_dur.count() << " segundos" << std::endl;
+    std::cout << "Tiempo de parte paralela: " << parallel_time_dur.count()*100 << " segundos" << std::endl;
 
 
 

@@ -257,7 +257,7 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     /*Termine aquí*/
     auto end_non_parallel_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> non_parallel_time_dur = end_non_parallel_time - non_parallel_time;
-    std::cout << "Tiempo de parte no paralela: " << non_parallel_time_dur.count() << " segundos" << std::endl;
+    std::cout << "Tiempo de parte no paralela: " << non_parallel_time_dur.count()*100 << " segundos" << std::endl;
 
 
     CUDA_CHK( cudaFree(d_niveles) ) 
