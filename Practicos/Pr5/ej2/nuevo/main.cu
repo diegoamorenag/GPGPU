@@ -161,6 +161,7 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 	}
 }
 
+
     int* RowPtrL_d, *ColIdxL_d;
     VALUE_TYPE* Val_d;
 
@@ -472,6 +473,79 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 
 }
 
+void measurePerformance() {
+    printf("---------------------------------------------------------------------------------------------\n");
+    printf("Parelizado\n");
+
+    int n, nnzL; // these should be set accordingly
+    VALUE_TYPE *csrValL_tmp; // Pointer to matrix values
+    int *csrRowPtrL_tmp, *csrColIdxL_tmp; // Pointers to matrix row pointers and column indices
+
+    int* RowPtrL_d, *ColIdxL_d;
+    VALUE_TYPE* Val_d;
+
+    CUDA_CHK(cudaMalloc((void**)&RowPtrL_d, (n + 1) * sizeof(int)));
+    CUDA_CHK(cudaMalloc((void**)&ColIdxL_d, nnzL * sizeof(int)));
+    CUDA_CHK(cudaMalloc((void**)&Val_d, nnzL * sizeof(VALUE_TYPE)));
+
+    CUDA_CHK(cudaMemcpy(RowPtrL_d, csrRowPtrL_tmp, (n + 1) * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(ColIdxL_d, csrColIdxL_tmp, nnzL * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(Val_d, csrValL_tmp, nnzL * sizeof(VALUE_TYPE), cudaMemcpyHostToDevice));
+
+    int* iorder = (int*)calloc(n, sizeof(int));
+
+    // Start measuring time
+    cudaEvent_t start, stop;
+    float elapsedTime;
+
+    CUDA_CHK(cudaEventCreate(&start));
+    CUDA_CHK(cudaEventCreate(&stop));
+    CUDA_CHK(cudaEventRecord(start, 0));
+
+    int nwarps = ordenar_filasNuestro(RowPtrL_d, ColIdxL_d, Val_d, n, iorder);
+
+    CUDA_CHK(cudaEventRecord(stop, 0));
+    CUDA_CHK(cudaEventSynchronize(stop));
+    CUDA_CHK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    printf("Time for ordenar_filasNuestro: %f ms\n", elapsedTime);
+    printf("Number of warps: %i\n", nwarps);
+    for (int i = 0; i < n && i < 20; i++)
+        printf("Iorder[%i] = %i\n", i, iorder[i]);
+
+    // Clean up
+    CUDA_CHK(cudaEventDestroy(start));
+    CUDA_CHK(cudaEventDestroy(stop));
+    CUDA_CHK(cudaFree(RowPtrL_d));
+    CUDA_CHK(cudaFree(ColIdxL_d));
+    CUDA_CHK(cudaFree(Val_d));
+    free(iorder);
+
+    // Assume similar setup for ordenar_filas as above
+    // Setup memory and data transfer as above
+
+    // Repeat the process for ordenar_filas
+    iorder = (int*)calloc(n, sizeof(int));
+    CUDA_CHK(cudaEventCreate(&start));
+    CUDA_CHK(cudaEventCreate(&stop));
+    CUDA_CHK(cudaEventRecord(start, 0));
+
+    nwarps = ordenar_filas(RowPtrL_d, ColIdxL_d, Val_d, n, iorder);
+
+    CUDA_CHK(cudaEventRecord(stop, 0));
+    CUDA_CHK(cudaEventSynchronize(stop));
+    CUDA_CHK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    printf("Time for ordenar_filas: %f ms\n", elapsedTime);
+    printf("Number of warps: %i\n", nwarps);
+    for (int i = 0; i < n && i < 20; i++)
+        printf("Iorder[%i] = %i\n", i, iorder[i]);
+
+    printf("Bye!\n");
+
+    // Clean up
+    CUDA_CHK(cudaEventDestroy(start));
+    CUDA_CHK(cudaEventDestroy(stop));
+    free(iorder);
+}
 int main(int argc, char** argv)
 {
     // report precision of floating-point
@@ -707,47 +781,7 @@ int main(int argc, char** argv)
     csrColIdxL_tmp = (int*)realloc(csrColIdxL_tmp, sizeof(int) * nnzL);
     csrValL_tmp = (VALUE_TYPE*)realloc(csrValL_tmp, sizeof(VALUE_TYPE) * nnzL);
 
-    printf("---------------------------------------------------------------------------------------------\n");
-    printf("Parelizado");
-    int* RowPtrL_d, *ColIdxL_d;
-    VALUE_TYPE* Val_d;
-
-    cudaMalloc((void**)&RowPtrL_d, (n + 1) * sizeof(int));
-    cudaMalloc((void**)&ColIdxL_d, nnzL * sizeof(int));
-    cudaMalloc((void**)&Val_d, nnzL * sizeof(VALUE_TYPE));
-  
-    cudaMemcpy(RowPtrL_d, csrRowPtrL_tmp, (n + 1) * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(ColIdxL_d, csrColIdxL_tmp, nnzL * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(Val_d, csrValL_tmp, nnzL * sizeof(VALUE_TYPE), cudaMemcpyHostToDevice);
-
-    int * iorder  = (int *) calloc(n,sizeof(int));
-
-    int nwarps = ordenar_filasNuestro(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
-
-    printf("Number of warps: %i\n",nwarps);
-    for(int i =0; i<n && i<20;i++)
-        printf("Iorder[%i] = %i\n",i,iorder[i]);
-
-    printf("Bye!\n");
-    printf("CPU");
-    
-    cudaMalloc((void**)&RowPtrL_d, (n + 1) * sizeof(int));
-    cudaMalloc((void**)&ColIdxL_d, nnzL * sizeof(int));
-    cudaMalloc((void**)&Val_d, nnzL * sizeof(VALUE_TYPE));
-    cudaMemcpy(RowPtrL_d, csrRowPtrL_tmp, (n + 1) * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(ColIdxL_d, csrColIdxL_tmp, nnzL * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(Val_d, csrValL_tmp, nnzL * sizeof(VALUE_TYPE), cudaMemcpyHostToDevice);
-
-    iorder  = (int *) calloc(n,sizeof(int));
-
-    nwarps = ordenar_filas(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
-
-    printf("Number of warps: %i\n",nwarps);
-    for(int i =0; i<n && i<20;i++)
-        printf("Iorder[%i] = %i\n",i,iorder[i]);
-
-    printf("Bye!\n");
-
+    measurePerformance();
     // done!
     free(csrColIdxA);
     free(csrValA);
