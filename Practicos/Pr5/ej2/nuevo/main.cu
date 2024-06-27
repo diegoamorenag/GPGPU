@@ -294,7 +294,7 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     tmp_bytes = 0;
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, length));  // GPUassert: invalid device function example.cu
     cudaMalloc(&tmp_storage, tmp_bytes);
-    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, out, length));
+    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, length));
 
     CUDA_CHK(cudaMemcpy(ivects, out, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost));
 
