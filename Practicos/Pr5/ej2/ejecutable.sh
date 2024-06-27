@@ -1,4 +1,4 @@
-cd /a/
+cd a/
 make
 ./biblios ../matrices/A_matrix.mtx
 ./biblios ../matrices/1.mtx
@@ -6,7 +6,7 @@ make
 ./biblios ../matrices/3.mtx
 ./biblios ../matrices/4.mtx
 ./biblios ../matrices/5.mtx
-cd /ellos/
+cd ellos/
 make
 ./biblios ../matrices/A_matrix.mtx
 ./biblios ../matrices/1.mtx
