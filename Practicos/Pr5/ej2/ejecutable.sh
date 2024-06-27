@@ -1,14 +1,16 @@
 cd /a/
 make
-./biblios matrices\A_matrix.mtx
-./biblios matrices\Andrews.mtx
-./biblios matrices\PGPgiantcompo_coord.mtx
-./biblios matrices\soc-sign-bitcoin-alpha_nodeid.mtx
-./biblios matrices\sx-mathoverflow_A2Q.mtx
-cd /OG/
+./biblios ../matrices/A_matrix.mtx
+./biblios ../matrices/1.mtx
+./biblios ../matrices/2.mtx
+./biblios ../matrices/3.mtx
+./biblios ../matrices/4.mtx
+./biblios ../matrices/5.mtx
+cd /ellos/
 make
-./biblios matrices\A_matrix.mtx
-./biblios matrices\Andrews.mtx
-./biblios matrices\PGPgiantcompo_coord.mtx
-./biblios matrices\soc-sign-bitcoin-alpha_nodeid.mtx
-./biblios matrices\sx-mathoverflow_A2Q.mtx
+./biblios ../matrices/A_matrix.mtx
+./biblios ../matrices/1.mtx
+./biblios ../matrices/2.mtx
+./biblios ../matrices/3.mtx
+./biblios ../matrices/4.mtx
+./biblios ../matrices/5.mtxbi
