@@ -133,6 +133,8 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 
 
     /*Paralelice a partir de aquí*/
+    auto non_parallel_time = std::chrono::high_resolution_clock::now();
+
 
 
     /* Obtener el máximo nivel */
@@ -253,6 +255,9 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     int n_warps = ii;
 
     /*Termine aquí*/
+    auto end_non_parallel_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> non_parallel_time_dur = end_non_parallel_time - non_parallel_time;
+    std::cout << "Tiempo de parte no paralela: " << non_parallel_time_dur.count() << " segundos" << std::endl;
 
 
     CUDA_CHK( cudaFree(d_niveles) ) 

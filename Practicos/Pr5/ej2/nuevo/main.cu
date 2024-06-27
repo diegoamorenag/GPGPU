@@ -207,6 +207,10 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
 
     CUDA_CHK(cudaMemcpy(levels, d_levels, n * sizeof(int), cudaMemcpyDeviceToHost));
 
+    /*Paralelice a partir de aquí*/
+    auto parallel_time = std::chrono::high_resolution_clock::now();
+
+
     int* d_input = nullptr;
     int* d_output = nullptr;
 
@@ -349,6 +353,13 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
     CUDA_CHK(cudaMemcpy(n_warps, d_out, sizeof(int), cudaMemcpyDeviceToHost));
 
     int sol = n_warps[0];
+
+    /*Termine aquí*/
+    auto end_parallel_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> parallel_time_dur = end_parallel_time - parallel_time;
+    std::cout << "Tiempo de parte paralela: " << parallel_time_dur.count() << " segundos" << std::endl;
+
+
 
     CUDA_CHK(cudaFree(d_levels));
     CUDA_CHK(cudaFree(d_is_solved));
