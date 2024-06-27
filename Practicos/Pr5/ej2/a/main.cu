@@ -720,14 +720,8 @@ int main(int argc, char** argv)
     cudaMemcpy(Val_d, csrValL_tmp, nnzL * sizeof(VALUE_TYPE), cudaMemcpyHostToDevice);
 
     int * iorder  = (int *) calloc(n,sizeof(int));
-
-    // Correct usage of CUDA event creation and timing measurement
-
-// Variables for events
 cudaEvent_t start, stop;
 float elapsedTime;
-
-
 CUDA_CHK(cudaEventCreate(&start));
 CUDA_CHK(cudaEventCreate(&stop));
 CUDA_CHK(cudaEventRecord(start, 0));
@@ -737,9 +731,7 @@ CUDA_CHK(cudaEventSynchronize(stop));
 CUDA_CHK(cudaEventElapsedTime(&elapsedTime, start, stop));
 CUDA_CHK(cudaEventDestroy(start));
 CUDA_CHK(cudaEventDestroy(stop));
-printf("Time for ordenar_filasNuestro: %f ms\n", elapsedTime);
-
-    printf("Time for ordenar_filas Nuestro: %f ms\n", elapsedTime);
+printf("Time for ordenar_filas Nuestro: %f ms\n", elapsedTime);
     printf("Number of warps: %i\n",nwarps);
     for(int i =0; i<n && i<20;i++)
         printf("Iorder[%i] = %i\n",i,iorder[i]);
