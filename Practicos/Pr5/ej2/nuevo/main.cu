@@ -191,58 +191,35 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     for (int y = 0; y < n; ++y) {
         std::cout << "niveles[" << y << "]: " << niveles[y] << std::endl;
     }
-   // Debug output to delineate sections of code
-    std::cout << "------------------------------------------DEBUG: 2---------------------------------------------\n";
-    
-    // Pointers for device memory
-    int *deviceInput = nullptr, *deviceOutput = nullptr;
-    
-    // Allocate host memory for the maximum result
-    auto hostMax = std::make_unique<int[]>(1);
-    
-    // Allocate device memory
-    cudaMalloc(&deviceInput, n * sizeof(int));
-    cudaMalloc(&deviceOutput, sizeof(int));
-    
-    // Transfer data from host to device
-    cudaMemcpy(deviceInput, niveles, n * sizeof(int), cudaMemcpyHostToDevice);
-    
-    // Prepare for reduction operation
-    void* tempStorage = nullptr;
-    size_t tempStorageSize = 0;
-    
-    // Determine temporary storage requirements
-    cub::DeviceReduce::Max(nullptr, tempStorageSize, deviceInput, deviceOutput, n);
-    
-    // Allocate temporary storage
-    cudaMalloc(&tempStorage, tempStorageSize);
-    
-    // Perform the maximum reduction
-    cub::DeviceReduce::Max(tempStorage, tempStorageSize, deviceInput, deviceOutput, n);
-    
-    // Retrieve the maximum value from device to host
-    cudaMemcpy(hostMax.get(), deviceOutput, sizeof(int), cudaMemcpyDeviceToHost);
-    
-    // Retrieve the maximum level from the array
-    int maxLevel = hostMax[0];
-    
-    // Allocate and transfer row pointer data from device to host
-    auto hostRowPtrL = std::make_unique<int[]>(n + 1);
-    cudaMemcpy(hostRowPtrL.get(), RowPtrL, (n + 1) * sizeof(int), cudaMemcpyDeviceToHost);
-    
-    // Allocate memory for vector counts
-    auto vectors = std::make_unique<int[]>(7 * maxLevel);
-    auto vectorSizes = std::make_unique<int[]>(n);
-    
-    // Print the row pointers for debugging
-    for (int i = 0; i < n + 1; i++) {
-        std::cout << "RowPtrL_h[" << i << "]: " << hostRowPtrL[i] << std::endl;
+    printf("------------------------------------------DEBUG: 2---------------------------------------------\n");
+    int* device_output = nullptr;
+    int* device_input = nullptr;
+    int* nLevsArr = new int[1];
+
+    CUDA_CHK(cudaMalloc(&device_output, 1 * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&device_input, n * sizeof(int)));
+    CUDA_CHK(cudaMemcpy(device_input, niveles, n * sizeof(int), cudaMemcpyHostToDevice));
+
+    size_t tmp_bytes = 0;
+    void* tmp_storage = nullptr;
+    CUDA_CHK(cub::DeviceReduce::Max(tmp_storage, tmp_bytes, device_input, device_output, n));  // GPUassert: invalid device function example.cu
+    cudaMalloc(&tmp_storage, tmp_bytes);
+    CUDA_CHK(cub::DeviceReduce::Max(tmp_storage, tmp_bytes, device_input, device_output, n));
+    CUDA_CHK(cudaMemcpy(nLevsArr, device_output, sizeof(int), cudaMemcpyDeviceToHost));
+
+    int nLevs = nLevsArr[0];
+
+    int * RowPtrL_h = (int *) malloc( (n+1) * sizeof(int) );
+    CUDA_CHK( cudaMemcpy(RowPtrL_h, RowPtrL, (n+1) * sizeof(int), cudaMemcpyDeviceToHost) )
+
+    int * ivects = (int *) calloc( 7*nLevs, sizeof(int) );
+    int * ivect_size  = (int *) calloc(n,sizeof(int));
+
+    for (int y = 0; y < n+1; y++) {
+        printf("RowPtrL_h[%d]: %d\n", y, RowPtrL_h[y]);
     }
-    
-    // Debug output to delineate sections of code
-    std::cout << "------------------------------------------DEBUG: 3---------------------------------------------\n"; 
-    
-    
+    printf("------------------------------------------DEBUG: 3---------------------------------------------\n");
+
     int* index;
     int* index2;
     index = (int*)malloc(n*sizeof(int));
@@ -274,20 +251,20 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     CUDA_CHK(cudaMemset(d_ivects, 0, 7 * nLevs * sizeof(int)));
     
     // Determine temporary device storage requirements
-    d_temp_storage = nullptr;
-    temp_storage_bytes = 0;
+    tmp_storage = nullptr;
+    tmp_bytes = 0;
 
     cub::DeviceHistogram::HistogramEven(
-    d_temp_storage, temp_storage_bytes,
+    tmp_storage, tmp_bytes,
     d_itr, d_ivects, num_levels,
     lower_level, upper_level, n);
 
     // Allocate temporary storage
-    CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
+    CUDA_CHK(cudaMalloc(&tmp_storage, tmp_bytes));
 
     // Compute histograms
     cub::DeviceHistogram::HistogramEven(
-    d_temp_storage, temp_storage_bytes,
+    tmp_storage, tmp_bytes,
     d_itr, d_ivects, num_levels,
     lower_level, upper_level, n);
 
@@ -306,18 +283,18 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 
     int length = 7 * nLevs;
 
-    in = nullptr;
-    out = nullptr;
+    device_input = nullptr;
+    device_output = nullptr;
 
-    CUDA_CHK(cudaMalloc(&in, length * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&out, length * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(in, ivects, length * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMalloc(&device_input, length * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&device_output, length * sizeof(int)));
+    CUDA_CHK(cudaMemcpy(device_input, ivects, length * sizeof(int), cudaMemcpyHostToDevice));
 
-    d_temp_storage = nullptr;
-    temp_storage_bytes = 0;
-    CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, in, out, length));  // GPUassert: invalid device function example.cu
-    cudaMalloc(&d_temp_storage, temp_storage_bytes);
-    CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, in, out, length));
+    tmp_storage = nullptr;
+    tmp_bytes = 0;
+    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, length));  // GPUassert: invalid device function example.cu
+    cudaMalloc(&tmp_storage, tmp_bytes);
+    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, out, length));
 
     CUDA_CHK(cudaMemcpy(ivects, out, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost));
 
@@ -338,14 +315,14 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     CUDA_CHK(cudaMemcpy(d_keys_in, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHK(cudaMemcpy(d_values_in, index, n * sizeof(int), cudaMemcpyHostToDevice));
 
-    d_temp_storage = nullptr;
-    temp_storage_bytes = 0;
-    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes,
+    tmp_storage = nullptr;
+    tmp_bytes = 0;
+    cub::DeviceRadixSort::SortPairs(tmp_storage, tmp_bytes,
         d_keys_in, d_keys_out, d_values_in, d_values_out, n);
 
-    CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
+    CUDA_CHK(cudaMalloc(&tmp_storage, tmp_bytes));
 
-    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes,
+    cub::DeviceRadixSort::SortPairs(tmp_storage, tmp_bytes,
         d_keys_in, d_keys_out, d_values_in, d_values_out, n);
 
     CUDA_CHK(cudaMemcpy(iorder, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
@@ -383,14 +360,14 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     CUDA_CHK(cudaMemcpy(d_in, itr4aux, 7*nLevs * sizeof(int), cudaMemcpyHostToDevice));
 
     // Determine temporary device storage requirements
-    d_temp_storage = nullptr;
-    temp_storage_bytes = 0;
-    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
+    tmp_storage = nullptr;
+    tmp_bytes = 0;
+    cub::DeviceReduce::Sum(tmp_storage, tmp_bytes, d_in, d_out, num);
     CUDA_CHK(cudaDeviceSynchronize());
 
-    CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
+    CUDA_CHK(cudaMalloc(&tmp_storage, tmp_bytes));
 
-    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
+    cub::DeviceReduce::Sum(tmp_storage, tmp_bytes, d_in, d_out, num);
     CUDA_CHK(cudaDeviceSynchronize());
 
     int n_warps[1];
@@ -509,8 +486,8 @@ int main(int argc, char** argv)
     int* csrColIdxA_tmp = (int*)malloc(nnzA_mtx_report * sizeof(int));
     VALUE_TYPE* csrValA_tmp = (VALUE_TYPE*)malloc(nnzA_mtx_report * sizeof(VALUE_TYPE));
 
-    /* NOTE: when reading in doubles, ANSI C requires the use of the "l"  */
-    /*   specifier as in "%lg", "%lf", "%le", otherwise errors will occur */
+    /* NOTE: when reading device_input doubles, ANSI C requires the use of the "l"  */
+    /*   specifier as device_input "%lg", "%lf", "%le", otherwise errors will occur */
     /*  (ANSI C X3.159-1989, Sec. 4.9.6.2, p. 136 lines 13-15)            */
 
     for (int i = 0; i < nnzA_mtx_report; i++)
