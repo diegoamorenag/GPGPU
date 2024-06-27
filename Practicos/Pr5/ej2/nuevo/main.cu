@@ -738,7 +738,7 @@ int main(int argc, char** argv)
     cudaMemcpy(ColIdxL_d, csrColIdxL_tmp, nnzL * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(Val_d, csrValL_tmp, nnzL * sizeof(VALUE_TYPE), cudaMemcpyHostToDevice);
 
-    *iorder  = (int *) calloc(n,sizeof(int));
+    iorder  = (int *) calloc(n,sizeof(int));
 
     nwarps = ordenar_filas(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
 
