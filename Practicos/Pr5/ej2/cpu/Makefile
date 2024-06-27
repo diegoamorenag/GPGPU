@@ -23,7 +23,7 @@ CUDA_INSTALL_PATH = /usr/local/cuda
 #MKLROOT = /opt/intel/mkl
 MKLROOT = /home/gpgpu/software/mkl
 #includes
-CUB= /clusteruy/home/gpgpu7/cub/cub
+CUB= /clusteruy/home/gpgpu10/cub/cub
 
 INCLUDES = -I${CUB} -I$(CUDA_INSTALL_PATH)/include  
         
