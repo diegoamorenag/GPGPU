@@ -17,7 +17,7 @@ static inline void print_cuda_state(cudaError_t code){
 __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 	const int* __restrict__ col_idx,
 	volatile int* is_solved, int n,
-	unsigned int* niveles) {
+	unsigned int* levels) {
 	extern volatile __shared__ int s_mem[];
 
 	if(threadIdx.x==0&&blockIdx.x==0) printf("%i\n", WARP_PER_BLOCK);
@@ -63,7 +63,7 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 				myvar = is_solved[colidx];
 
 				if (myvar) {
-					my_level = max(my_level, niveles[colidx]);
+					my_level = max(my_level, levels[colidx]);
 				}
 			}
 		}
@@ -85,7 +85,7 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 
 		s_info[local_warp_id] = 1 + my_level;
 		s_is_solved[local_warp_id] = 1;
-		niveles[wrp] = 1 + my_level;
+		levels[wrp] = 1 + my_level;
 
 		__threadfence();
 
@@ -184,82 +184,79 @@ struct TransAsignWarp {
 
 
 int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorder) {
-    int* niveles = (int*)malloc(n * sizeof(int));
-    unsigned int* d_niveles;
+    int* levels = (int*)malloc(n * sizeof(int));
+    unsigned int* d_levels;
     int* d_is_solved;
 
-    CUDA_CHK(cudaMalloc((void**)&d_niveles, n * sizeof(unsigned int)));
+    CUDA_CHK(cudaMalloc((void**)&d_levels, n * sizeof(unsigned int)));
     CUDA_CHK(cudaMalloc((void**)&d_is_solved, n * sizeof(int)));
 
-    int num_threads = WARP_PER_BLOCK * WARP_SIZE;
-    int grid = ceil((double)n * WARP_SIZE / (double)(num_threads));
+    int thread_count = WARP_PER_BLOCK * WARP_SIZE;
+    int grid = ceil((double)n * WARP_SIZE / (double)(thread_count));
 
     CUDA_CHK(cudaMemset(d_is_solved, 0, n * sizeof(int)));
-    CUDA_CHK(cudaMemset(d_niveles, 0, n * sizeof(unsigned int)));
+    CUDA_CHK(cudaMemset(d_levels, 0, n * sizeof(unsigned int)));
 
-    kernel_analysis_L<<<grid, num_threads, WARP_PER_BLOCK * (2 * sizeof(int))>>>(RowPtrL, ColIdxL, d_is_solved, n, d_niveles);
+    kernel_analysis_L<<<grid, thread_count, WARP_PER_BLOCK * (2 * sizeof(int))>>>(RowPtrL, ColIdxL, d_is_solved, n, d_levels);
 
-    CUDA_CHK(cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHK(cudaMemcpy(levels, d_levels, n * sizeof(int), cudaMemcpyDeviceToHost));
 
-    int* nLevsArr = new int[1];
     int* d_input = nullptr;
     int* d_output = nullptr;
 
+    int* nLevsArr = new int[1];
+
     CUDA_CHK(cudaMalloc(&d_input, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_output, 1 * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_input, niveles, n * sizeof(int), cudaMemcpyHostToDevice));
+    
+    CUDA_CHK(cudaMemcpy(d_input, levels, n * sizeof(int), cudaMemcpyHostToDevice));
 
     void* d_temp_storage = nullptr;
     size_t temp_storage_bytes = 0;
-
     CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));
     CUDA_CHK(cudaMemcpy(nLevsArr, d_output, sizeof(int), cudaMemcpyDeviceToHost));
 
     int nLevs = nLevsArr[0];
-
     int* RowPtrL_h = (int*)malloc((n + 1) * sizeof(int));
     CUDA_CHK(cudaMemcpy(RowPtrL_h, RowPtrL, (n + 1) * sizeof(int), cudaMemcpyDeviceToHost));
 
     int* ivects = (int*)calloc(7 * nLevs, sizeof(int));
     int* ivect_size = (int*)calloc(n, sizeof(int));
-
     int* index = (int*)malloc(n * sizeof(int));
     int* index2 = (int*)malloc(7 * nLevs * sizeof(int));
+
     for (int i = 0; i < n; i++) {
         index[i] = i;
         index2[i] = i;
     }
+
     for (int i = n; i < 7 * nLevs; i++) {
         index2[i] = i;
     }
 
-    TransNivel transform(niveles, RowPtrL_h);
+    TransNivel transform(levels, RowPtrL_h);
     auto itr = cub::TransformInputIterator<int, TransNivel, int*>(index, transform);
-
     int* d_itr;
     int* d_ivects;
     int num_levels = 7 * nLevs + 1;
     float lower_level = 0;
     float upper_level = 7 * nLevs;
-
     int* itr2 = new int[n * sizeof(int)];
+
     thrust::copy(itr, itr + n, itr2);
 
     CUDA_CHK(cudaMalloc(&d_itr, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_ivects, 7 * nLevs * sizeof(int)));
-
     CUDA_CHK(cudaMemcpy(d_itr, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHK(cudaMemset(d_ivects, 0, 7 * nLevs * sizeof(int)));
 
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
     cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_itr, d_ivects, num_levels, lower_level, upper_level, n);
-
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_itr, d_ivects, num_levels, lower_level, upper_level, n);
-
     CUDA_CHK(cudaMemcpy(ivects, d_ivects, 7 * nLevs * sizeof(int), cudaMemcpyDeviceToHost));
 
     int* ivectsAux = new int[n * sizeof(int)];
@@ -270,8 +267,8 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
     CUDA_CHK(cudaMalloc(&d_output, length * sizeof(int)));
     CUDA_CHK(cudaMemcpy(d_input, ivects, length * sizeof(int), cudaMemcpyHostToDevice));
 
-    d_temp_storage = nullptr;
     temp_storage_bytes = 0;
+    d_temp_storage = nullptr;
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));
@@ -330,7 +327,7 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
 
     int sol = n_warps[0];
 
-    CUDA_CHK(cudaFree(d_niveles));
+    CUDA_CHK(cudaFree(d_levels));
     CUDA_CHK(cudaFree(d_is_solved));
 
     return sol;
