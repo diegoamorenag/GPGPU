@@ -5,6 +5,8 @@
 #include <thrust/device_vector.h>
 #include <thrust/sequence.h>
 #include <thrust/sort.h>
+#include <cuda_runtime.h>
+#include <iostream>
 #define WARP_PER_BLOCK 32
 #define WARP_SIZE 32
 #define CUDA_CHK(call) print_cuda_state(call);
@@ -163,6 +165,10 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
     VALUE_TYPE* Val_d;
 
 int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* iorder){
+    cudaEvent_t start, stop;
+    CUDA_CHK(cudaEventCreate(&start));
+    CUDA_CHK(cudaEventCreate(&stop));
+    CUDA_CHK(cudaEventRecord(start, 0));
     int * niveles;
     niveles = (int*) malloc(n * sizeof(int));
 
@@ -317,6 +323,15 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     int n_warps_value = n_warps[0];
   
     int sol = n_warps[0];
+    CUDA_CHK(cudaEventRecord(stop, 0));
+    CUDA_CHK(cudaEventSynchronize(stop));
+    float elapsedTime;
+    CUDA_CHK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    std::cout << "Elapsed time: " << elapsedTime << " ms\n";
+
+    // Clean up
+    CUDA_CHK(cudaEventDestroy(start));
+    CUDA_CHK(cudaEventDestroy(stop));
     CUDA_CHK( cudaFree(d_niveles) ) 
     CUDA_CHK( cudaFree(d_is_solved) ) 
 
