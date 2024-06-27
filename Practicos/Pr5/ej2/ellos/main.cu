@@ -519,7 +519,7 @@ int main(int argc, char** argv)
     CUDA_CHK(cudaEventElapsedTime(&elapsedTime, start, stop));
     CUDA_CHK(cudaEventDestroy(start));
     CUDA_CHK(cudaEventDestroy(stop));
-    printf("Time for ordenar_filasNuestro: %f ms\n", elapsedTime);
+    printf("Time for ordenar_filas de ellos: %f ms\n", elapsedTime);
     
     printf("Number of warps: %i\n",nwarps);
     for(int i =0; i<n && i<20;i++)
