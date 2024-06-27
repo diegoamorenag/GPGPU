@@ -39,7 +39,6 @@ struct TransformarNiveles {
         else if ( filaNNZ <=  16)
             tamanioArray = 4 ;
         else tamanioArray = 5; 
-
         return 7* lev + tamanioArray;
     }
 };
@@ -66,13 +65,12 @@ struct CalcularWarps {
         if (vectorI [i] != 0) {
             int r  = i  % 7;
             int  filaNNZ = (r < 0) ? r + 7 : r;
-
-            if (filaNNZ == 6) {
+            if ( filaNNZ == 5){
+                return vectorI[i];
+            } else if (filaNNZ == 6) {
                 int a = vectorI[i] / 32;
                  if (vectorI[ i] % 32  != 0)  a++;
                 return a; 
-            } else if ( filaNNZ == 5) {
-                return vectorI[i];
             } else {
                 int cant  = vectorI[i] *  pow( 2 , filaNNZ + 1);
                 int a = cant / 32 ;
@@ -165,9 +163,7 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
     VALUE_TYPE* Val_d;
 
 int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* iorder){
-    
     int * niveles;
-
     niveles = (int*) malloc(n * sizeof(int));
 
     unsigned int * d_niveles;
@@ -183,7 +179,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     CUDA_CHK( cudaMemset(d_is_solved, 0, n * sizeof(int)) )
     CUDA_CHK( cudaMemset(d_niveles, 0, n * sizeof(unsigned int)) )
 
-
     kernel_analysis_L<<< grid , num_threads, WARP_PER_BLOCK * (2*sizeof(int)) >>>( RowPtrL, 
                                                                                    ColIdxL, 
                                                                                    d_is_solved, 
@@ -193,38 +188,61 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     CUDA_CHK( cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost) )
 
     printf("------------------------------------------DEBUG: 1---------------------------------------------\n");
-    for (int y = 0; y < n; y++) {
-        printf("niveles[%d]: %d\n", y, niveles[y]);
+    for (int y = 0; y < n; ++y) {
+        std::cout << "niveles[" << y << "]: " << niveles[y] << std::endl;
     }
-    int* nLevsArr = new int[1];
-
-    int* d_input = nullptr;
-    int* d_output = nullptr;
-
-    CUDA_CHK(cudaMalloc(&d_input, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_output, 1 * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_input, niveles, n * sizeof(int), cudaMemcpyHostToDevice));
-
-    void* d_temp_storage = nullptr;
-    size_t temp_storage_bytes = 0;
-    CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));  // GPUassert: invalid device function example.cu
-    cudaMalloc(&d_temp_storage, temp_storage_bytes);
-    CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));
-    CUDA_CHK(cudaMemcpy(nLevsArr, d_output, sizeof(int), cudaMemcpyDeviceToHost));
-
-    int nLevs = nLevsArr[0];
-
-    int * RowPtrL_h = (int *) malloc( (n+1) * sizeof(int) );
-    CUDA_CHK( cudaMemcpy(RowPtrL_h, RowPtrL, (n+1) * sizeof(int), cudaMemcpyDeviceToHost) )
-
-    int * ivects = (int *) calloc( 7*nLevs, sizeof(int) );
-    int * ivect_size  = (int *) calloc(n,sizeof(int));
-
-    for (int y = 0; y < n+1; y++) {
-        printf("RowPtrL_h[%d]: %d\n", y, RowPtrL_h[y]);
+   // Debug output to delineate sections of code
+    std::cout << "------------------------------------------DEBUG: 2---------------------------------------------\n";
+    
+    // Pointers for device memory
+    int *deviceInput = nullptr, *deviceOutput = nullptr;
+    
+    // Allocate host memory for the maximum result
+    auto hostMax = std::make_unique<int[]>(1);
+    
+    // Allocate device memory
+    cudaMalloc(&deviceInput, n * sizeof(int));
+    cudaMalloc(&deviceOutput, sizeof(int));
+    
+    // Transfer data from host to device
+    cudaMemcpy(deviceInput, niveles, n * sizeof(int), cudaMemcpyHostToDevice);
+    
+    // Prepare for reduction operation
+    void* tempStorage = nullptr;
+    size_t tempStorageSize = 0;
+    
+    // Determine temporary storage requirements
+    cub::DeviceReduce::Max(nullptr, tempStorageSize, deviceInput, deviceOutput, n);
+    
+    // Allocate temporary storage
+    cudaMalloc(&tempStorage, tempStorageSize);
+    
+    // Perform the maximum reduction
+    cub::DeviceReduce::Max(tempStorage, tempStorageSize, deviceInput, deviceOutput, n);
+    
+    // Retrieve the maximum value from device to host
+    cudaMemcpy(hostMax.get(), deviceOutput, sizeof(int), cudaMemcpyDeviceToHost);
+    
+    // Retrieve the maximum level from the array
+    int maxLevel = hostMax[0];
+    
+    // Allocate and transfer row pointer data from device to host
+    auto hostRowPtrL = std::make_unique<int[]>(n + 1);
+    cudaMemcpy(hostRowPtrL.get(), RowPtrL, (n + 1) * sizeof(int), cudaMemcpyDeviceToHost);
+    
+    // Allocate memory for vector counts
+    auto vectors = std::make_unique<int[]>(7 * maxLevel);
+    auto vectorSizes = std::make_unique<int[]>(n);
+    
+    // Print the row pointers for debugging
+    for (int i = 0; i < n + 1; i++) {
+        std::cout << "RowPtrL_h[" << i << "]: " << hostRowPtrL[i] << std::endl;
     }
-    printf("------------------------------------------DEBUG: 3---------------------------------------------\n");
-
+    
+    // Debug output to delineate sections of code
+    std::cout << "------------------------------------------DEBUG: 3---------------------------------------------\n"; 
+    
+    
     int* index;
     int* index2;
     index = (int*)malloc(n*sizeof(int));
@@ -288,20 +306,20 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 
     int length = 7 * nLevs;
 
-    d_input = nullptr;
-    d_output = nullptr;
+    in = nullptr;
+    out = nullptr;
 
-    CUDA_CHK(cudaMalloc(&d_input, length * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_output, length * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_input, ivects, length * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMalloc(&in, length * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&out, length * sizeof(int)));
+    CUDA_CHK(cudaMemcpy(in, ivects, length * sizeof(int), cudaMemcpyHostToDevice));
 
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
-    CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));  // GPUassert: invalid device function example.cu
+    CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, in, out, length));  // GPUassert: invalid device function example.cu
     cudaMalloc(&d_temp_storage, temp_storage_bytes);
-    CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));
+    CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, in, out, length));
 
-    CUDA_CHK(cudaMemcpy(ivects, d_output, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHK(cudaMemcpy(ivects, out, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost));
 
     for (int y = 0; y < 7*nLevs; y++) {
         printf("ivects[%d]: %d\n", y, ivects[y]);
