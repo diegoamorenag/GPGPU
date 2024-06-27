@@ -508,7 +508,8 @@ int main(int argc, char** argv)
 
     int * iorder  = (int *) calloc(n,sizeof(int));
 
-    
+    cudaEvent_t start, stop;
+    float elapsedTime;
     CUDA_CHK(cudaEventCreate(&start));
     CUDA_CHK(cudaEventCreate(&stop));
     CUDA_CHK(cudaEventRecord(start, 0));
