@@ -233,11 +233,11 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     float lowlevel = 0,uplevel = 7*nLevs; 
     thrust::copy(itr, itr + n, itr2);
 
-    CUDA_CHK(cudaMalloc(&ditr, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_ivects, 7*nLevs * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&ditr, n * sizeof(int)));
 
-    CUDA_CHK(cudaMemcpy(ditr, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHK(cudaMemset(d_ivects, 0, 7*nLevs * sizeof(int)));
+    CUDA_CHK(cudaMemcpy(ditr, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
     tmp_storage = nullptr;
     tmp_bytes = 0;
 
