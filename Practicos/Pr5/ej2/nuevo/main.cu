@@ -281,36 +281,29 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     }
     printf("------------------------------------------DEBUG: 5---------------------------------------------\n");
     
-    int  *dValuesIn = nullptr, *dValuesOut = nullptr,*dKeeysOut = nullptr, *dKeysIn = nullptr;
+    int  *dVIn = nullptr, *dVOut = nullptr,*dKOut = nullptr, *dKIn = nullptr;
 
-    CUDA_CHK(cudaMalloc(&dValuesOut, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&dValuesIn, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&dKeeysOut, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&dKeysIn, n * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(dValuesIn, x, n * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHK(cudaMemcpy(dKeysIn, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMalloc(&dVOut, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&dVIn, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&dKOut, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&dKIn, n * sizeof(int)));
+    CUDA_CHK(cudaMemcpy(dVIn, x, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(dKIn, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
 
     tmp_storage = nullptr,tmp_bytes = 0;
     cub::DeviceRadixSort::SortPairs(tmp_storage, tmp_bytes,
-        dKeysIn, dKeeysOut, dValuesIn, dValuesOut, n);
+        dKIn, dKOut, dVIn, dVOut, n);
     CUDA_CHK(cudaMalloc(&tmp_storage, tmp_bytes));
     cub::DeviceRadixSort::SortPairs(tmp_storage, tmp_bytes,
-        dKeysIn, dKeeysOut, dValuesIn, dValuesOut, n);
-    CUDA_CHK(cudaMemcpy(iorder, dValuesOut, n * sizeof(int), cudaMemcpyDeviceToHost));
+        dKIn, dKOut, dVIn, dVOut, n);
+    CUDA_CHK(cudaMemcpy(iorder, dVOut, n * sizeof(int), cudaMemcpyDeviceToHost));
 
     TransformarTamanio transform2(iorder, itr2);
-    cub::TransformInputIterator<int, TransformarTamanio, int*> itr3(x, transform2);    
-    thrust::copy(itr3, itr3 + n, ivect_size);
+    
+    cub::TransformInputIterator< int, TransformarTamanio ,  int*> itr3 (x, transform2);    
+    
+     thrust::copy(itr3, itr3 + n, ivect_size);
 
-    for (int  y = 0;  y < n;  y++) {
-        printf("iorder[%d]: %d\n",  y, iorder[ y]);
-    }
-    for (int  y = 0;  y < n;  y++) {
-        printf("ivect_size[%d]: %d\n",  y, ivect_size[ y]);
-    }
-    for (int  y = 0;  y < 7*nLevs;  y++) {
-        printf("ivects[%d]: %d\n",  y, ivects[ y]);
-    }
     printf("------------------------------------------DEBUG: 6---------------------------------------------\n");
 
     int ii = 1;
@@ -323,24 +316,22 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     thrust::copy(itr4, itr4 + 7*nLevs, itr4aux);
 
     int num = 7*nLevs;
-    int *d_in;          // [8, 6, 7, 5, 3, 0, 9]
-    int *d_out;         // [-]
+    int *d_in;          
+    int *d_out;         
 
-    CUDA_CHK(cudaMalloc(&d_in, 7*nLevs * sizeof(int)));
+     CUDA_CHK(cudaMalloc(&d_in, 7*nLevs * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_out, sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_in, itr4aux, 7*nLevs * sizeof(int), cudaMemcpyHostToDevice));
+     CUDA_CHK(cudaMemcpy(d_in, itr4aux, 7*nLevs * sizeof(int), cudaMemcpyHostToDevice));
 
     // Determine temporary device storage requirements
     tmp_storage = nullptr;
     tmp_bytes = 0;
     cub::DeviceReduce::Sum(tmp_storage, tmp_bytes, d_in, d_out, num);
-    CUDA_CHK(cudaDeviceSynchronize());
-
-    CUDA_CHK(cudaMalloc(&tmp_storage, tmp_bytes));
+     CUDA_CHK(cudaDeviceSynchronize());
+     CUDA_CHK(cudaMalloc(&tmp_storage, tmp_bytes));
 
     cub::DeviceReduce::Sum(tmp_storage, tmp_bytes, d_in, d_out, num);
     CUDA_CHK(cudaDeviceSynchronize());
-
     int n_warps[1];
     CUDA_CHK(cudaMemcpy(n_warps, d_out, sizeof(int), cudaMemcpyDeviceToHost));
 
