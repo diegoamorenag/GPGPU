@@ -1,11 +1,6 @@
 #include "mmio.h"
 #include <cub/cub.cuh>
 #include <thrust/copy.h> 
-#include <thrust/copy.h>
-#include <thrust/transform.h>
-#include <thrust/device_vector.h>
-#include <thrust/sequence.h>
-#include <thrust/sort.h>
 
 
 #define WARP_PER_BLOCK 32
@@ -14,59 +9,66 @@
 #define MAX(A,B)        (((A)>(B))?(A):(B))
 #define MIN(A,B)        (((A)<(B))?(A):(B))
 
+
+
+
 static inline void print_cuda_state(cudaError_t code){
+
    if (code != cudaSuccess) printf("\ncuda error: %s\n", cudaGetErrorString(code));
+   
 }
 
-struct Trans_niveles {
-    int* levels;
+struct GPGPUTransform {
+    int* niveles;
     int* rowptr;
 
-    Trans_niveles(int* levels, int* rowptr) : levels(levels), rowptr(rowptr) {}
+    GPGPUTransform(int* niveles, int* rowptr) : niveles(niveles), rowptr(rowptr) {}
 
     __host__ __device__ __forceinline__
     int operator()(const int &i) const {
-        int level = levels[i] - 1;
-        int nnz_row = rowptr[i + 1] - rowptr[i] - 1;
-        int vector_size;
+        int lev = niveles[i]-1;
+        int nnz_row = rowptr[i+1]-rowptr[i]-1;
+        int vect_size;
 
         if (nnz_row == 0)
-            vector_size = 6;
+            vect_size = 6;
         else if (nnz_row == 1)
-            vector_size = 0;
+            vect_size = 0;
         else if (nnz_row <= 2)
-            vector_size = 1;
+            vect_size = 1;
         else if (nnz_row <= 4)
-            vector_size = 2;
+            vect_size = 2;
         else if (nnz_row <= 8)
-            vector_size = 3;
+            vect_size = 3;
         else if (nnz_row <= 16)
-            vector_size = 4;
-        else
-            vector_size = 5;
+            vect_size = 4;
+        else vect_size = 5;
 
-        return 7 * level + vector_size;
+        return 7*lev+vect_size;
     }
 };
 
-struct Trans_mapear {
+
+struct GPGPUTransform2 {
     int* itr2;
     int* iorder;
 
-    Trans_mapear(int* itr2, int* iorder) : itr2(itr2), iorder(iorder) {}
+    GPGPUTransform2(int* itr2, int* iorder) : itr2(itr2), iorder(iorder) {}
 
     __host__ __device__ __forceinline__
     int operator()(const int &i) const {
         int r = itr2[iorder[i]] % 7;
         int nnz_row = (r < 0) ? r + 7 : r;
-        return (nnz_row == 6) ? 0 : pow(2, nnz_row);
+
+        return ( nnz_row == 6)? 0 : pow(2,nnz_row);;
     }
 };
 
-struct Trans_asignar_warps {
+
+struct GPGPUTransform3 {
     int* ivectsAux;
 
-    Trans_asignar_warps(int* ivectsAux) : ivectsAux(ivectsAux) {}
+    GPGPUTransform3(int* ivectsAux) : ivectsAux(ivectsAux) {}
 
     __host__ __device__ __forceinline__
     int operator()(const int &i) const {
@@ -76,20 +78,22 @@ struct Trans_asignar_warps {
 
             if (nnz_row == 6) {
                 int a = ivectsAux[i] / 32;
-                if (ivectsAux[i] % 32 != 0) a++;
+                if (ivectsAux[i] % 32  != 0) a++;
                 return a;
             } else if (nnz_row == 5) {
                 return ivectsAux[i];
             } else {
-                int count = ivectsAux[i] * pow(2, nnz_row + 1);
-                int a = count / 32;
-                if (count % 32 != 0) a++;
+                int cant_ncv = ivectsAux[i] * pow(2, nnz_row + 1);
+                int a = cant_ncv / 32;
+                if (cant_ncv % 32  != 0) a++;
                 return a;
             }
         }
+        
         return 0;
     }
 };
+
 
 
 __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
@@ -175,203 +179,357 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
     VALUE_TYPE* Val_d;
 
 
-int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorder) {
-auto start = std::chrono::high_resolution_clock::now();
-
-    int* levels = (int*)malloc(n * sizeof(int));
-    int* row_order = (int*)malloc(n * sizeof(int));
-
-    int* d_unsolved;
-    unsigned int* d_levels;
+int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* iorder){
     
-    CUDA_CHK(cudaMalloc((void**)&d_levels, n * sizeof(unsigned int)));
-    CUDA_CHK(cudaMalloc((void**)&d_unsolved, n * sizeof(int)));
+    int * niveles;
+
+    niveles = (int*) malloc(n * sizeof(int));
+
+    unsigned int * d_niveles;
+    int * d_is_solved;
     
-    int threads_per_block = WARP_PER_BLOCK * WARP_SIZE;
-    int blocks_per_grid = ceil((double)n * WARP_SIZE / (double)(threads_per_block));
+    CUDA_CHK( cudaMalloc((void**) &(d_niveles) , n * sizeof(unsigned int)) )
+    CUDA_CHK( cudaMalloc((void**) &(d_is_solved) , n * sizeof(int)) )
+    
+    int num_threads = WARP_PER_BLOCK * WARP_SIZE;
 
-    CUDA_CHK(cudaMemset(d_levels, 0, n * sizeof(unsigned int)));
-    CUDA_CHK(cudaMemset(d_unsolved, 0, n * sizeof(int)));
+    int grid = ceil ((double)n*WARP_SIZE / (double)(num_threads));
 
-    int shared_mem_size = WARP_PER_BLOCK * (2 * sizeof(int));
+    CUDA_CHK( cudaMemset(d_is_solved, 0, n * sizeof(int)) )
+    CUDA_CHK( cudaMemset(d_niveles, 0, n * sizeof(unsigned int)) )
 
-    auto start_kernel = std::chrono::high_resolution_clock::now();
-    kernel_analysis_L<<<blocks_per_grid, threads_per_block, shared_mem_size>>>(RowPtrL, ColIdxL, d_unsolved, n, d_levels);
-    auto end_kernel = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> kernel_duration = end_kernel - start_kernel;
-    std::cout << "Tiempo de ejecucion del kernel: " << kernel_duration.count() << " segundos." << std::endl;
 
-    auto start_copy = std::chrono::high_resolution_clock::now();
-    CUDA_CHK(cudaMemcpy(levels, d_levels, n * sizeof(int), cudaMemcpyDeviceToHost));
-    auto end_copy = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> copy_duration = end_copy - start_copy;
-    std::cout << "Tiempo de copia: " << copy_duration.count() << " segundos." << std::endl;
+    kernel_analysis_L<<< grid , num_threads, WARP_PER_BLOCK * (2*sizeof(int)) >>>( RowPtrL, 
+                                                                                   ColIdxL, 
+                                                                                   d_is_solved, 
+                                                                                   n, 
+                                                                                   d_niveles);
+
+    CUDA_CHK( cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost) )
+
+
+    /*Paralelice a partir de aquí*/
+
+
+    /* Obtener el máximo nivel */
+
+    // int nLevs = niveles[0];
+    // for (int i = 1; i < n; ++i)
+    // {
+    //     nLevs = MAX(nLevs, niveles[i]);
+    // }
+
+    printf("------------------------------------------DEBUG: 1---------------------------------------------\n");
+    for (int y = 0; y < n; y++) {
+        printf("niveles[%d]: %d\n", y, niveles[y]);
+    }
+    printf("------------------------------------------DEBUG: 2---------------------------------------------\n");
+
+    int* nLevsArr = new int[1];
 
     int* d_input = nullptr;
     int* d_output = nullptr;
-    int* max_level_holder = new int[1];
 
     CUDA_CHK(cudaMalloc(&d_input, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_output, 1 * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_input, levels, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(d_input, niveles, n * sizeof(int), cudaMemcpyHostToDevice));
 
     void* d_temp_storage = nullptr;
     size_t temp_storage_bytes = 0;
-
-    auto start_reduce = std::chrono::high_resolution_clock::now();
-    CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));
+    CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));  // GPUassert: invalid device function example.cu
     cudaMalloc(&d_temp_storage, temp_storage_bytes);
     CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));
-    auto end_reduce = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> reduce_duration = end_reduce - start_reduce;
-    std::cout << "Tiempo del reduce: " << reduce_duration.count() << " segundos." << std::endl;
+    CUDA_CHK(cudaMemcpy(nLevsArr, d_output, sizeof(int), cudaMemcpyDeviceToHost));
 
-    CUDA_CHK(cudaMemcpy(max_level_holder, d_output, sizeof(int), cudaMemcpyDeviceToHost));
-    int max_levels = max_level_holder[0];
+    int nLevs = nLevsArr[0];
 
-    int* host_RowPtrL = (int*)malloc((n + 1) * sizeof(int));
-    CUDA_CHK(cudaMemcpy(host_RowPtrL, RowPtrL, (n + 1) * sizeof(int), cudaMemcpyDeviceToHost));
+    int * RowPtrL_h = (int *) malloc( (n+1) * sizeof(int) );
+    CUDA_CHK( cudaMemcpy(RowPtrL_h, RowPtrL, (n+1) * sizeof(int), cudaMemcpyDeviceToHost) )
 
-    int* vector_counts = (int*)calloc(7 * max_levels, sizeof(int));
-    int* vector_sizes = (int*)calloc(n, sizeof(int));
+    int * ivects = (int *) calloc( 7*nLevs, sizeof(int) );
+    int * ivect_size  = (int *) calloc(n,sizeof(int));
 
-    int* idx = (int*)malloc(n * sizeof(int));
-    int* idx2 = (int*)malloc(7 * max_levels * sizeof(int));
-    for (int i = 0; i < n; i++) {
-        idx[i] = i;
-        idx2[i] = i;
+
+    for (int y = 0; y < n+1; y++) {
+        printf("RowPtrL_h[%d]: %d\n", y, RowPtrL_h[y]);
     }
-    for (int i = n; i < 7 * max_levels; i++) {
-        idx2[i] = i;
+    printf("------------------------------------------DEBUG: 3---------------------------------------------\n");
+
+    // Contar el número de filas en cada nivel y clase de equivalencia de tamaño
+
+    // for(int i = 0; i < n; i++ ){
+    //     // El vector de niveles es 1-based y quiero niveles en 0-based
+    //     int lev = niveles[i]-1;
+    //     int nnz_row = RowPtrL_h[i+1]-RowPtrL_h[i]-1;
+    //     int vect_size;
+
+    //     if (nnz_row == 0)
+    //         vect_size = 6;
+    //     else if (nnz_row == 1)
+    //         vect_size = 0;
+    //     else if (nnz_row <= 2)
+    //         vect_size = 1;
+    //     else if (nnz_row <= 4)
+    //         vect_size = 2;
+    //     else if (nnz_row <= 8)
+    //         vect_size = 3;
+    //     else if (nnz_row <= 16)
+    //         vect_size = 4;
+    //     else vect_size = 5;
+
+    //     ivects[7*lev+vect_size]++;
+    // }
+
+    int* index;
+    int* index2;
+    index = (int*)malloc(n*sizeof(int));
+    index2 = (int*)malloc(7*nLevs*sizeof(int));
+    for (int i = 0; i < n; i++){
+        index[i] = i;
+        index2[i] = i;
     }
+    for (int i = n; i < 7*nLevs; i++){
+        index2[i] = i;
+    }    
 
-    Trans_niveles classify(levels, host_RowPtrL);
-    auto transformed_idx = cub::TransformInputIterator<int, Trans_niveles, int*>(idx, classify);
+    GPGPUTransform transform(niveles, RowPtrL_h);
+    auto itr = cub::TransformInputIterator<int, GPGPUTransform, int*>(index, transform);
 
-    int* d_transformed_idx;
-    int* d_vector_counts;
-    int num_bins = 7 * max_levels + 1;
-    float lower_bound = 0;
-    float upper_bound = 7 * max_levels;
+    int* d_itr;      // e.g., [2.2, 6.1, 7.1, 2.9, 3.5, 0.3, 2.9, 2.1, 6.1, 999.5]
+    int* d_ivects;    // e.g., [ -, -, -, -, -, -]
+    int num_levels = 7 * nLevs + 1;     // e.g., 7       (seven level boundaries for six bins)
+    float lower_level = 0;    // e.g., 0.0     (lower sample value boundary of lowest bin)
+    float upper_level = 7 * nLevs;    // e.g., 12.0    (upper sample value boundary of upper bin)
 
-    int* transformed_idx_copy = new int[n * sizeof(int)];
-    thrust::copy(transformed_idx, transformed_idx + n, transformed_idx_copy);
+    int* itr2 = new int[n * sizeof(int)];
+    thrust::copy(itr, itr + n, itr2);
 
-    CUDA_CHK(cudaMalloc(&d_transformed_idx, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_vector_counts, 7 * max_levels * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&d_itr, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&d_ivects, 7 * nLevs * sizeof(int)));
 
-    CUDA_CHK(cudaMemcpy(d_transformed_idx, transformed_idx_copy, n * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHK(cudaMemset(d_vector_counts, 0, 7 * max_levels * sizeof(int)));
-
+    CUDA_CHK(cudaMemcpy(d_itr, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemset(d_ivects, 0, 7 * nLevs * sizeof(int)));
+    
+    // Determine temporary device storage requirements
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
 
-    auto start_histogram = std::chrono::high_resolution_clock::now();
-    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_transformed_idx, d_vector_counts, num_bins, lower_bound, upper_bound, n);
+    cub::DeviceHistogram::HistogramEven(
+    d_temp_storage, temp_storage_bytes,
+    d_itr, d_ivects, num_levels,
+    lower_level, upper_level, n);
+
+    // Allocate temporary storage
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
-    cub::DeviceHistogram::HistogramEven(d_temp_storage, temp_storage_bytes, d_transformed_idx, d_vector_counts, num_bins, lower_bound, upper_bound, n);
-    auto end_histogram = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> histogram_duration = end_histogram - start_histogram;
-    std::cout << "Tiempo del histograma: " << histogram_duration.count() << " segundos." << std::endl;
 
-    CUDA_CHK(cudaMemcpy(vector_counts, d_vector_counts, 7 * max_levels * sizeof(int), cudaMemcpyDeviceToHost));    
+    // Compute histograms
+    cub::DeviceHistogram::HistogramEven(
+    d_temp_storage, temp_storage_bytes,
+    d_itr, d_ivects, num_levels,
+    lower_level, upper_level, n);
 
-    int* vector_counts_copy = new int[n * sizeof(int)];
-    thrust::copy(vector_counts, vector_counts + 7 * max_levels, vector_counts_copy);
+    CUDA_CHK( cudaMemcpy(ivects, d_ivects, 7 * nLevs * sizeof(int), cudaMemcpyDeviceToHost) )
 
-    int length = 7 * max_levels;
+    // for (int i = 0; i < n; i++){
+    //     ivects[itr[i]]++;
+    // }
+
+    int* ivectsAux = new int[n * sizeof(int)];
+    thrust::copy(ivects, ivects + 7 * nLevs, ivectsAux);
+
+    for (int y = 0; y < 7*nLevs; y++) {
+        printf("itr2[%d]: %d\n", y, itr2[y]);
+    }
+    for (int y = 0; y < 7*nLevs; y++) {
+        printf("ivects[%d]: %d\n", y, ivects[y]);
+    }
+    printf("------------------------------------------DEBUG: 4---------------------------------------------\n");
+
+
+    /* Si se hace una suma prefija del vector se obtiene
+    el punto de comienzo de cada par tamaño, nivel en el vector
+    final ordenado */
+    int length = 7 * nLevs;
+	// int old_val, new_val;
+	// old_val = ivects[0];
+	// ivects[0] = 0;
+	// for (int i = 1; i < length; i++)
+	// {
+	// 	new_val = ivects[i];
+	// 	ivects[i] = old_val + ivects[i - 1];
+	// 	old_val = new_val;
+	// }
 
     d_input = nullptr;
     d_output = nullptr;
 
     CUDA_CHK(cudaMalloc(&d_input, length * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_output, length * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_input, vector_counts, length * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(d_input, ivects, length * sizeof(int), cudaMemcpyHostToDevice));
 
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
-
-    auto start_scan = std::chrono::high_resolution_clock::now();
-    CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));
+    CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));  // GPUassert: invalid device function example.cu
     cudaMalloc(&d_temp_storage, temp_storage_bytes);
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));
-    auto end_scan = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> scan_duration = end_scan - start_scan;
-    std::cout << "Tiempo del scan: " << scan_duration.count() << " segundos." << std::endl;
 
-    CUDA_CHK(cudaMemcpy(vector_counts, d_output, 7 * max_levels * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHK(cudaMemcpy(ivects, d_output, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost));
 
-    int* d_keys_in = nullptr;
-    int* d_keys_out = nullptr;
-    int* d_values_in = nullptr;
-    int* d_values_out = nullptr;
+    for (int y = 0; y < 7*nLevs; y++) {
+        printf("ivects[%d]: %d\n", y, ivects[y]);
+    }
+    printf("------------------------------------------DEBUG: 5---------------------------------------------\n");
+    
+
+    /* Usando el offset calculado puedo recorrer la fila y generar un orden
+    utilizando el nivel (idepth) y la clase de tamaño (vect_size) como clave.
+    Esto se hace asignando a cada fila al punto apuntado por el offset e
+    incrementando por 1 luego 
+    iorder(ivects(idepth(j)) + offset(idepth(j))) = j */
+ 
+    // for(int i = 0; i < n; i++ ){
+    //     // 3
+    //     int idepth = niveles[i]-1; // 2
+    //     int nnz_row = RowPtrL_h[i+1]-RowPtrL_h[i]-1; // 2
+    //     int vect_size;
+// 
+    //     if (nnz_row == 0)
+    //         vect_size = 6; 
+    //     else if (nnz_row == 1)
+    //         vect_size = 0;
+    //     else if (nnz_row <= 2)
+    //         vect_size = 1;
+    //     else if (nnz_row <= 4)
+    //         vect_size = 2;
+    //     else if (nnz_row <= 8)
+    //         vect_size = 3;
+    //     else if (nnz_row <= 16)
+    //         vect_size = 4;
+    //     else vect_size = 5;
+// 
+    //     iorder[ ivects[ 7*idepth+vect_size ] ] = i;  // 15 15  3
+    //     ivect_size[ ivects[ 7*idepth+vect_size ] ] = ( vect_size == 6)? 0 : pow(2,vect_size);
+// 
+    //     ivects[ 7*idepth+vect_size ]++;
+    // }
+
+    // SORT BY KEY ?
+
+    int  *d_keys_in = nullptr;
+    int  *d_keys_out = nullptr;
+    int  *d_values_in = nullptr;
+    int  *d_values_out = nullptr;
 
     CUDA_CHK(cudaMalloc(&d_keys_in, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_keys_out, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_values_in, n * sizeof(int)));
     CUDA_CHK(cudaMalloc(&d_values_out, n * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_keys_in, transformed_idx_copy, n * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHK(cudaMemcpy(d_values_in, idx, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(d_keys_in, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(d_values_in, index, n * sizeof(int), cudaMemcpyHostToDevice));
 
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
+    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes,
+        d_keys_in, d_keys_out, d_values_in, d_values_out, n);
 
-    auto start_sort = std::chrono::high_resolution_clock::now();
-    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes, d_keys_in, d_keys_out, d_values_in, d_values_out, n);
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
-    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes, d_keys_in, d_keys_out, d_values_in, d_values_out, n);
-    auto end_sort = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> sort_duration = end_sort - start_sort;
-    std::cout << "Tiempo del sort: " << sort_duration.count() << " segundos." << std::endl;
 
-    CUDA_CHK(cudaMemcpy(row_order, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
+    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes,
+        d_keys_in, d_keys_out, d_values_in, d_values_out, n);
 
-    Trans_mapear map_power(transformed_idx_copy, row_order);
-    cub::TransformInputIterator<int, Trans_mapear, int*> mapped_idx(idx, map_power);
-    thrust::copy(mapped_idx, mapped_idx + n, vector_sizes);
 
-    Trans_asignar_warps assign_warps(vector_counts_copy);
-    cub::TransformInputIterator<int, Trans_asignar_warps, int*> transformed_idx2(idx2, assign_warps);
+    // CUDA_CHK(cudaMemcpy(keys_in, d_keys_out, n * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHK(cudaMemcpy(iorder, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
 
-    int* transformed_idx2_copy = new int[n * sizeof(int)];
-    thrust::copy(transformed_idx2, transformed_idx2 + 7 * max_levels, transformed_idx2_copy);
+    GPGPUTransform2 transform2(itr2, iorder);
+    cub::TransformInputIterator<int, GPGPUTransform2, int*> itr3(index, transform2);
+    thrust::copy(itr3, itr3 + n, ivect_size);
 
-    int* d_input2;
-    int* d_output2;
+    for (int y = 0; y < n; y++) {
+        printf("iorder[%d]: %d\n", y, iorder[y]);
+    }
+    for (int y = 0; y < n; y++) {
+        printf("ivect_size[%d]: %d\n", y, ivect_size[y]);
+    }
+    for (int y = 0; y < 7*nLevs; y++) {
+        printf("ivects[%d]: %d\n", y, ivects[y]);
+    }
+    printf("------------------------------------------DEBUG: 6---------------------------------------------\n");
 
-    CUDA_CHK(cudaMalloc(&d_input2, 7 * max_levels * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_output2, sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_input2, transformed_idx2_copy, 7 * max_levels * sizeof(int), cudaMemcpyHostToDevice));
 
+    /* Recorrer las filas en el orden dado por iorder y asignarlas a warps
+    Dos filas solo pueden ser asignadas a un mismo warp si tienen el mismo 
+    nivel y tamaño y si el warp tiene espacio suficiente */
+    /*Termine aquí*/
+
+    int ii = 1;
+    int filas_warp = 1;
+
+    // for (int ctr = 1; ctr < n; ++ctr)
+    // {
+    //     if( niveles[iorder[ctr]]!=niveles[iorder[ctr-1]] ||
+    //         ivect_size[ctr]!=ivect_size[ctr-1] ||
+    //         filas_warp * ivect_size[ctr] >= 32 ||
+    //         (ivect_size[ctr]==0 && filas_warp == 32) ){
+// 
+    //         filas_warp = 1;
+    //         ii++;
+    //     }else{
+    //         filas_warp++;
+    //     }
+    // }
+
+    GPGPUTransform3 transform3(ivectsAux);
+    cub::TransformInputIterator<int, GPGPUTransform3, int*> itr4(index2, transform3);
+
+    int* itr4aux = new int[n * sizeof(int)];
+    thrust::copy(itr4, itr4 + 7 * nLevs, itr4aux);
+
+    // Declare, allocate, and initialize device-accessible pointers
+    // for input and output
+    int num = 7*nLevs;
+    int *d_in;          // e.g., [8, 6, 7, 5, 3, 0, 9]
+    int *d_out;         // e.g., [-]
+
+    CUDA_CHK(cudaMalloc(&d_in, 7*nLevs * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&d_out, sizeof(int)));
+    CUDA_CHK(cudaMemcpy(d_in, itr4aux, 7*nLevs * sizeof(int), cudaMemcpyHostToDevice));
+
+    // Determine temporary device storage requirements
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
-
-    auto start_reduce_sum = std::chrono::high_resolution_clock::now();
-    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_input2, d_output2, 7 * max_levels);
+    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
     CUDA_CHK(cudaDeviceSynchronize());
+
+    // Allocate temporary storage
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
-    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_input2, d_output2, 7 * max_levels);
+
+    // Run sum-reduction
+    cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
     CUDA_CHK(cudaDeviceSynchronize());
-    auto end_reduce_sum = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> reduce_sum_duration = end_reduce_sum - start_reduce_sum;
-    std::cout << "Tiempo del reduce: " << reduce_sum_duration.count() << " segundos." << std::endl;
 
-    int num_warps[1];
-    CUDA_CHK(cudaMemcpy(num_warps, d_output2, sizeof(int), cudaMemcpyDeviceToHost));
+    int n_warps[1];
+    CUDA_CHK(cudaMemcpy(n_warps, d_out, sizeof(int), cudaMemcpyDeviceToHost));
 
-    int result = num_warps[0];
 
-    CUDA_CHK(cudaFree(d_levels));
-    CUDA_CHK(cudaFree(d_unsolved));
+    for (int y = 0; y < 7*nLevs; y++) {
+        printf("itr4[%d]: %d\n", y, itr4[y]);
+    }
+    printf("n_warps[%d]: %d\n", 0, n_warps[0]);
+    printf("------------------------------------------DEBUG: 6---------------------------------------------\n");
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> total_duration = end - start;
-    std::cout << "Total: " << total_duration.count() << " segundos." << std::endl;
 
-    free(row_order);
+    
+    int sol = n_warps[0];
 
-    return result;
+
+    CUDA_CHK( cudaFree(d_niveles) ) 
+    CUDA_CHK( cudaFree(d_is_solved) ) 
+
+    return sol;
+
 }
+
 
 int main(int argc, char** argv)
 {
@@ -409,6 +567,9 @@ int main(int argc, char** argv)
 
     printf("-------------- %s --------------\n", filename);
 
+
+
+    // read matrix from mtx file
     int ret_code;
     MM_typecode matcode;
     FILE* f;
@@ -416,6 +577,7 @@ int main(int argc, char** argv)
     int nnzA_mtx_report;
     int isInteger = 0, isReal = 0, isPattern = 0, isSymmetric = 0;
 
+    // load matrix
     if ((f = fopen(filename, "r")) == NULL)
         return -1;
 
@@ -625,7 +787,8 @@ int main(int argc, char** argv)
 
     int * iorder  = (int *) calloc(n,sizeof(int));
 
-    int nwarps = ordenar_filas(RowPtrL_d, ColIdxL_d, Val_d, n, iorder);
+    int nwarps = ordenar_filas(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
+
     printf("Number of warps: %i\n",nwarps);
     for(int i =0; i<n && i<20;i++)
         printf("Iorder[%i] = %i\n",i,iorder[i]);

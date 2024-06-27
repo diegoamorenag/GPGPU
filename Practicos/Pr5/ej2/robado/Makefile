@@ -49,7 +49,7 @@ CUDA_LIBS = -L$(CUDA_INSTALL_PATH)/lib  -lcudart -lcuda -lcusparse -lnvidia-ml #
         nvmlPower.cpp \
         test/test.cu \
 
-FILES = mainViejo.cu
+FILES = main.cu
 #FILES = test.cu
 
 make:
