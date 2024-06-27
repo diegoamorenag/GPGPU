@@ -241,30 +241,20 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     tmp_storage = nullptr;
     tmp_bytes = 0;
 
-    cub::DeviceHistogram::HistogramEven(
-    tmp_storage, tmp_bytes,
-    ditr, d_ivects, num_levels,
-    lowlevel, uplevel, n);
+    cub::DeviceHistogram::HistogramEven(tmp_storage, tmp_bytes,ditr, d_ivects, num_levels,lowlevel, uplevel, n);
 
     // Allocate temporary storage
-    CUDA_CHK(cudaMalloc(&tmp_storage, tmp_bytes));
+    CUDA_CHK(cudaMalloc( &tmp_storage,  tmp_bytes));
 
     // Compute histograms
-    cub::DeviceHistogram::HistogramEven(
-    tmp_storage, tmp_bytes,
-    ditr, d_ivects, num_levels,
-    lowlevel, uplevel, n);
-
+    cub::DeviceHistogram::HistogramEven(tmp_storage, tmp_bytes,ditr, d_ivects, num_levels,lowlevel, uplevel, n);
     CUDA_CHK( cudaMemcpy(ivects, d_ivects, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost) )
 
     int* ivectsAux = new int[n * sizeof(int)];
     thrust::copy(ivects, ivects + 7*nLevs, ivectsAux);
-
-    for (int  y = 0;  y < 7*nLevs;  y++) {
-        printf("itr2[%d]: %d\n",  y, itr2[ y]);
-    }
-    for (int  y = 0;  y < 7*nLevs;  y++) {
-        printf("ivects[%d]: %d\n",  y, ivects[ y]);
+    for (int y = 0; y < 7 * nLevs; y++) {
+        printf("itr2[%d]: %d\n", y, itr2[y]);
+        printf("ivects[%d]: %d\n", y, ivects[y]);
     }
     printf("------------------------------------------DEBUG: 4---------------------------------------------\n");
 
@@ -273,13 +263,15 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     device_input = nullptr;
     device_output = nullptr;
 
-    CUDA_CHK(cudaMalloc(&device_input, lar * sizeof(int)));
     CUDA_CHK(cudaMalloc(&device_output, lar * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(device_input, ivects, lar * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMalloc(&device_input, lar * sizeof(int)));
+    CUDA_CHK(cudaMemcpy(device_input, ivects, lar * sizeof(int), 
+        cudaMemcpyHostToDevice));
 
     tmp_storage = nullptr;
     tmp_bytes = 0;
-    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, lar));  // GPUassert: invalid device function example.cu
+    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, 
+        device_input, device_output, lar));    
     cudaMalloc(&tmp_storage, tmp_bytes);
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, lar));
 
