@@ -11,7 +11,7 @@ VALUE_TYPE = double
 
 #NVCC_FLAGS = -Xcompiler -ftree-vectorize -Xcompiler -fopenmp -O3 -w -m64 -gencode=arch=compute_75,code=sm_75 -Xptxas -dlcm=cg #60 para tener warps sincrónicos
 ## Flags para Compilar y Debuggear
-NVCC_FLAGS = -O3 -w -m64 -std=c++11 -gencode=arch=compute_60,code=sm_60 -Xptxas -dlcm=cg #-DTHRUST_IGNORE_CUB_VERSION_CHECK
+NVCC_FLAGS = -O3 -w -m64 -std=c++11 --extended-lambda -gencode=arch=compute_60,code=sm_60 -Xptxas -dlcm=cg #-DTHRUST_IGNORE_CUB_VERSION_CHECK
 #NVCC_FLAGS = -g  -lineinfo -Xcompiler -fopenmp -O3 -w -m64 -gencode=arch=compute_75,code=sm_75 -Xptxas -dlcm=cg #Show line error
 MGPU_FLAGS = --expt-extended-lambda -std=c++11 -use_fast_math #-Xptxas="-v" -lineinfo
 
@@ -23,7 +23,7 @@ CUDA_INSTALL_PATH = /usr/local/cuda
 #MKLROOT = /opt/intel/mkl
 MKLROOT = /home/gpgpu/software/mkl
 #includes
-CUB= /clusteruy/home/gpgpu7/cub/cub
+CUB= /clusteruy/home/gpgpu10/cub/cub
 
 INCLUDES = -I${CUB} -I$(CUDA_INSTALL_PATH)/include  
         
