@@ -296,7 +296,7 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     cudaMalloc(&tmp_storage, tmp_bytes);
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, length));
 
-    CUDA_CHK(cudaMemcpy(ivects, out, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHK(cudaMemcpy(ivects, device_output, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost));
 
     for (int y = 0; y < 7*nLevs; y++) {
         printf("ivects[%d]: %d\n", y, ivects[y]);
@@ -459,7 +459,7 @@ int main(int argc, char** argv)
     if (mm_is_real(matcode)) { isReal = 1;  }
     if (mm_is_integer(matcode)) { isInteger = 1; }
 
-    /* find out size of sparse matrix .... */
+    /* find device_output size of sparse matrix .... */
     ret_code = mm_read_mtx_crd_size(f, &m, &n, &nnzA_mtx_report);
     if (ret_code != 0)
         return -4;
