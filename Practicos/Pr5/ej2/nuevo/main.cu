@@ -188,8 +188,8 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     CUDA_CHK( cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost) )
 
     printf("------------------------------------------DEBUG: 1---------------------------------------------\n");
-    for (int y = 0; y < n; ++y) {
-        std::cout << "niveles[" << y << "]: " << niveles[y] << std::endl;
+    for (int  y = 0;  y < n; ++ y) {
+        std::cout << "niveles[" <<  y << "]: " << niveles[ y] << std::endl;
     }
     printf("------------------------------------------DEBUG: 2---------------------------------------------\n");
     int* device_output = nullptr;
@@ -211,48 +211,45 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     CUDA_CHK( cudaMemcpy(RowPtrL_h, RowPtrL, (n+1) * sizeof(int), cudaMemcpyDeviceToHost) );
 
     int * ivects = (int *) calloc( 7*nLevs, sizeof(int) ), * ivect_size  = (int *) calloc(n,sizeof(int));
-    for (int y = 0; y < n+1; y++) {
-        std::cout << "RowPtrL_h[%d]: %d\n", y, RowPtrL_h[y])::std::endl;
+    for (int  y = 0;  y < n+1;  y++) {
+        std::cout << "RowPtrL_h[%d]: %d\n",  y, RowPtrL_h[ y])::std::endl;
     }
     printf("------------------------------------------DEBUG: 3---------------------------------------------\n");
 
     int* x= (int*)malloc(n*sizeof(int));
-    int* y=(int*)malloc(7*nLevs*sizeof(int));
+    int*  y=(int*)malloc(7*nLevs*sizeof(int));
 
     for (int i = 0; i < n; i++){
         x[i] = i;
-        y[i] = i;
+         y[i] = i;
     }
     for (int i = n; i < 7*nLevs; i++){
-        y[i] = i;
+         y[i] = i;
     }    
 
     TransformarNiveles transform(niveles, RowPtrL_h);
     auto itr = cub::TransformInputIterator<int, TransformarNiveles, int*>(x, transform);
 
-    int* d_itr;      // [2.2, 6.1, 7.1, 2.9, 3.5, 0.3, 2.9, 2.1, 6.1, 999.5]
-    int* d_ivects;    // [ -, -, -, -, -, -]
-    int num_levels = 7 * nLevs + 1;     // 7       (seven level boundaries for six bins)
-    float lower_level = 0;    // 0.0     (lower sample value boundary of lowest bin)
-    float upper_level = 7 * nLevs;    // 12.0    (upper sample value boundary of upper bin)
-
+    int* ditr;      
+    int* d_ivects;   
+    int num_levels = 7*nLevs + 1;
+    float lowlevel = 0;
+    float uplevel = 7*nLevs; 
     int* itr2 = new int[n * sizeof(int)];
     thrust::copy(itr, itr + n, itr2);
 
-    CUDA_CHK(cudaMalloc(&d_itr, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_ivects, 7 * nLevs * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&ditr, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&d_ivects, 7*nLevs * sizeof(int)));
 
-    CUDA_CHK(cudaMemcpy(d_itr, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHK(cudaMemset(d_ivects, 0, 7 * nLevs * sizeof(int)));
-    
-    // Determine temporary device storage requirements
+    CUDA_CHK(cudaMemcpy(ditr, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemset(d_ivects, 0, 7*nLevs * sizeof(int)));
     tmp_storage = nullptr;
     tmp_bytes = 0;
 
     cub::DeviceHistogram::HistogramEven(
     tmp_storage, tmp_bytes,
-    d_itr, d_ivects, num_levels,
-    lower_level, upper_level, n);
+    ditr, d_ivects, num_levels,
+    lowlevel, uplevel, n);
 
     // Allocate temporary storage
     CUDA_CHK(cudaMalloc(&tmp_storage, tmp_bytes));
@@ -260,41 +257,41 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     // Compute histograms
     cub::DeviceHistogram::HistogramEven(
     tmp_storage, tmp_bytes,
-    d_itr, d_ivects, num_levels,
-    lower_level, upper_level, n);
+    ditr, d_ivects, num_levels,
+    lowlevel, uplevel, n);
 
-    CUDA_CHK( cudaMemcpy(ivects, d_ivects, 7 * nLevs * sizeof(int), cudaMemcpyDeviceToHost) )
+    CUDA_CHK( cudaMemcpy(ivects, d_ivects, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost) )
 
     int* ivectsAux = new int[n * sizeof(int)];
-    thrust::copy(ivects, ivects + 7 * nLevs, ivectsAux);
+    thrust::copy(ivects, ivects + 7*nLevs, ivectsAux);
 
-    for (int y = 0; y < 7*nLevs; y++) {
-        printf("itr2[%d]: %d\n", y, itr2[y]);
+    for (int  y = 0;  y < 7*nLevs;  y++) {
+        printf("itr2[%d]: %d\n",  y, itr2[ y]);
     }
-    for (int y = 0; y < 7*nLevs; y++) {
-        printf("ivects[%d]: %d\n", y, ivects[y]);
+    for (int  y = 0;  y < 7*nLevs;  y++) {
+        printf("ivects[%d]: %d\n",  y, ivects[ y]);
     }
     printf("------------------------------------------DEBUG: 4---------------------------------------------\n");
 
-    int length = 7 * nLevs;
+    int lar = 7*nLevs;
 
     device_input = nullptr;
     device_output = nullptr;
 
-    CUDA_CHK(cudaMalloc(&device_input, length * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&device_output, length * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(device_input, ivects, length * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMalloc(&device_input, lar * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&device_output, lar * sizeof(int)));
+    CUDA_CHK(cudaMemcpy(device_input, ivects, lar * sizeof(int), cudaMemcpyHostToDevice));
 
     tmp_storage = nullptr;
     tmp_bytes = 0;
-    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, length));  // GPUassert: invalid device function example.cu
+    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, lar));  // GPUassert: invalid device function example.cu
     cudaMalloc(&tmp_storage, tmp_bytes);
-    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, length));
+    CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, lar));
 
     CUDA_CHK(cudaMemcpy(ivects, device_output, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost));
 
-    for (int y = 0; y < 7*nLevs; y++) {
-        printf("ivects[%d]: %d\n", y, ivects[y]);
+    for (int  y = 0;  y < 7*nLevs;  y++) {
+        printf("ivects[%d]: %d\n",  y, ivects[ y]);
     }
     printf("------------------------------------------DEBUG: 5---------------------------------------------\n");
     
@@ -326,14 +323,14 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     cub::TransformInputIterator<int, TransformarTamanio, int*> itr3(x, transform2);    
     thrust::copy(itr3, itr3 + n, ivect_size);
 
-    for (int y = 0; y < n; y++) {
-        printf("iorder[%d]: %d\n", y, iorder[y]);
+    for (int  y = 0;  y < n;  y++) {
+        printf("iorder[%d]: %d\n",  y, iorder[ y]);
     }
-    for (int y = 0; y < n; y++) {
-        printf("ivect_size[%d]: %d\n", y, ivect_size[y]);
+    for (int  y = 0;  y < n;  y++) {
+        printf("ivect_size[%d]: %d\n",  y, ivect_size[ y]);
     }
-    for (int y = 0; y < 7*nLevs; y++) {
-        printf("ivects[%d]: %d\n", y, ivects[y]);
+    for (int  y = 0;  y < 7*nLevs;  y++) {
+        printf("ivects[%d]: %d\n",  y, ivects[ y]);
     }
     printf("------------------------------------------DEBUG: 6---------------------------------------------\n");
 
@@ -341,10 +338,10 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     int filas_warp = 1;
 
     CalcularWarps transform3(ivectsAux);
-    cub::TransformInputIterator<int, CalcularWarps, int*> itr4(y, transform3);
+    cub::TransformInputIterator<int, CalcularWarps, int*> itr4( y, transform3);
 
     int* itr4aux = new int[n * sizeof(int)];
-    thrust::copy(itr4, itr4 + 7 * nLevs, itr4aux);
+    thrust::copy(itr4, itr4 + 7*nLevs, itr4aux);
 
     int num = 7*nLevs;
     int *d_in;          // [8, 6, 7, 5, 3, 0, 9]
@@ -368,8 +365,8 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     int n_warps[1];
     CUDA_CHK(cudaMemcpy(n_warps, d_out, sizeof(int), cudaMemcpyDeviceToHost));
 
-    for (int y = 0; y < 7*nLevs; y++) {
-        printf("itr4[%d]: %d\n", y, itr4[y]);
+    for (int  y = 0;  y < 7*nLevs;  y++) {
+        printf("itr4[%d]: %d\n",  y, itr4[ y]);
     }
     printf("n_warps[%d]: %d\n", 0, n_warps[0]);
     printf("------------------------------------------DEBUG: 6---------------------------------------------\n");
