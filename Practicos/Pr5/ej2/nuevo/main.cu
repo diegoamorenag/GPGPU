@@ -202,12 +202,11 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 
     size_t tmp_bytes = 0;
     void* tmp_storage = nullptr;
-    CUDA_CHK(cub::DeviceReduce::Max(tmp_storage, tmp_bytes, device_input, device_output, n));  // GPUassert: invalid device function example.cu
-    cudaMalloc(&tmp_storage, tmp_bytes);
-    CUDA_CHK(cub::DeviceReduce::Max(tmp_storage, tmp_bytes, device_input, device_output, n));
-    CUDA_CHK(cudaMemcpy(nLevsArr, device_output, sizeof(int), cudaMemcpyDeviceToHost));
-    int nLevs = nLevsArr[0];
-    int * RowPtrL_h = (int *) malloc( (n+1) * sizeof(int) );
+    CUDA_CHK( cub::DeviceReduce::Max( tmp_storage, tmp_bytes, device_input, device_output, n)); 
+    cudaMalloc( &tmp_storage, tmp_bytes);
+    CUDA_CHK( cub::DeviceReduce::Max(tmp_storage, tmp_bytes, device_input, device_output, n));
+    CUDA_CHK( cudaMemcpy( nLevsArr, device_output, sizeof(int), cudaMemcpyDeviceToHost));
+    int nLevs = nLevsArr[0],* RowPtrL_h = (int *) malloc( (n+1) * sizeof(int) );
     CUDA_CHK( cudaMemcpy(RowPtrL_h, RowPtrL, (n+1) * sizeof(int), cudaMemcpyDeviceToHost) );
 
     int * ivects = (int *) calloc( 7*nLevs, sizeof(int) ), * ivect_size  = (int *) calloc(n,sizeof(int));
@@ -230,12 +229,8 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     TransformarNiveles transform(niveles, RowPtrL_h);
     auto itr = cub::TransformInputIterator<int, TransformarNiveles, int*>(x, transform);
 
-    int* ditr;      
-    int* d_ivects;   
-    int num_levels = 7*nLevs + 1;
-    float lowlevel = 0;
-    float uplevel = 7*nLevs; 
-    int* itr2 = new int[n * sizeof(int)];
+    int* ditr,*d_ivects, num_levels = 7*nLevs + 1,* itr2 = new int[n * sizeof(int)];
+    float lowlevel = 0,uplevel = 7*nLevs; 
     thrust::copy(itr, itr + n, itr2);
 
     CUDA_CHK(cudaMalloc(&ditr, n * sizeof(int)));
