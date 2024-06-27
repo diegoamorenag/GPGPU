@@ -5,8 +5,8 @@
 #define MAX(A,B)        (((A)>(B))?(A):(B))
 #define MIN(A,B)        (((A)<(B))?(A):(B))
 
-
-
+#include <thrust/copy.h> 
+#include <cub/cub.cuh>
 
 static inline void print_cuda_state(cudaError_t code){
 
@@ -99,7 +99,8 @@ __global__ void kernel_analysis_L(const int* __restrict__ row_ptr,
 
 
 int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* iorder){
-    
+    auto start_total = std::chrono::high_resolution_clock::now();
+
     int * niveles;
 
     niveles = (int*) malloc(n * sizeof(int));
@@ -117,12 +118,16 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     CUDA_CHK( cudaMemset(d_is_solved, 0, n * sizeof(int)) )
     CUDA_CHK( cudaMemset(d_niveles, 0, n * sizeof(unsigned int)) )
 
-
+    auto start_kernel_analysis = std::chrono::high_resolution_clock::now();
     kernel_analysis_L<<< grid , num_threads, WARP_PER_BLOCK * (2*sizeof(int)) >>>( RowPtrL, 
                                                                                    ColIdxL, 
                                                                                    d_is_solved, 
                                                                                    n, 
                                                                                    d_niveles);
+
+    auto end_kernel_analysis = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> kernel_analysis_duration = end_kernel_analysis - start_kernel_analysis;
+    std::cout << "Tiempo de kernel: " << kernel_analysis_duration.count() << " segundos" << std::endl;
 
     CUDA_CHK( cudaMemcpy(niveles, d_niveles, n * sizeof(int), cudaMemcpyDeviceToHost) )
 
@@ -174,6 +179,8 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     /* Si se hace una suma prefija del vector se obtiene
     el punto de comienzo de cada par tamaño, nivel en el vector
     final ordenado */
+    auto start_scan = std::chrono::high_resolution_clock::now();
+
     int length = 7 * nLevs;
 	int old_val, new_val;
 	old_val = ivects[0];
@@ -184,6 +191,10 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 		ivects[i] = old_val + ivects[i - 1];
 		old_val = new_val;
 	}
+    auto end_scan = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> scan_duration = end_scan - start_scan;
+    std::cout << "Tiempo de escaneo: " << scan_duration.count() << " segundos" << std::endl;
+
 
     /* Usando el offset calculado puedo recorrer la fila y generar un orden
     utilizando el nivel (idepth) y la clase de tamaño (vect_size) como clave.
@@ -245,7 +256,11 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 
 
     CUDA_CHK( cudaFree(d_niveles) ) 
-    CUDA_CHK( cudaFree(d_is_solved) ) 
+    CUDA_CHK( cudaFree(d_is_solved) )
+
+    auto end_total = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> total_duration = end_total - start_total;
+    std::cout << "Tiempo total de ejecucion: " << total_duration.count() << " segundos" << std::endl;
 
     return n_warps;
 

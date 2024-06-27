@@ -184,6 +184,7 @@ struct TransAsignWarp {
 
 
 int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorder) {
+    auto start_total = std::chrono::high_resolution_clock::now();
     int* levels = (int*)malloc(n * sizeof(int));
     unsigned int* d_levels;
     int* d_is_solved;
@@ -196,8 +197,13 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
 
     CUDA_CHK(cudaMemset(d_is_solved, 0, n * sizeof(int)));
     CUDA_CHK(cudaMemset(d_levels, 0, n * sizeof(unsigned int)));
-
+    
+    auto start_kernel_analysis = std::chrono::high_resolution_clock::now();
     kernel_analysis_L<<<grid, thread_count, WARP_PER_BLOCK * (2 * sizeof(int))>>>(RowPtrL, ColIdxL, d_is_solved, n, d_levels);
+    auto end_kernel_analysis = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> kernel_analysis_duration = end_kernel_analysis - start_kernel_analysis;
+    std::cout << "Tiempo de kernel: " << kernel_analysis_duration.count() << " segundos" << std::endl;
+
 
     CUDA_CHK(cudaMemcpy(levels, d_levels, n * sizeof(int), cudaMemcpyDeviceToHost));
 
@@ -210,13 +216,17 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
     CUDA_CHK(cudaMalloc(&d_output, 1 * sizeof(int)));
     
     CUDA_CHK(cudaMemcpy(d_input, levels, n * sizeof(int), cudaMemcpyHostToDevice));
-
+    
+    auto start_device_reduce = std::chrono::high_resolution_clock::now();
     void* d_temp_storage = nullptr;
     size_t temp_storage_bytes = 0;
     CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     CUDA_CHK(cub::DeviceReduce::Max(d_temp_storage, temp_storage_bytes, d_input, d_output, n));
     CUDA_CHK(cudaMemcpy(nLevsArr, d_output, sizeof(int), cudaMemcpyDeviceToHost));
+    auto end_device_reduce = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> device_reduce_duration = end_device_reduce - start_device_reduce;
+    std::cout << "Tiempo de reduccion: " << device_reduce_duration.count() << " segundos" << std::endl;
 
     int nLevs = nLevsArr[0];
     int* RowPtrL_h = (int*)malloc((n + 1) * sizeof(int));
@@ -267,11 +277,16 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
     CUDA_CHK(cudaMalloc(&d_output, length * sizeof(int)));
     CUDA_CHK(cudaMemcpy(d_input, ivects, length * sizeof(int), cudaMemcpyHostToDevice));
 
+    auto start_scan = std::chrono::high_resolution_clock::now();
     temp_storage_bytes = 0;
     d_temp_storage = nullptr;
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, length));
+    auto end_scan = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> scan_duration = end_scan - start_scan;
+    std::cout << "Tiempo de escaneo: " << scan_duration.count() << " segundos" << std::endl;
+
 
     CUDA_CHK(cudaMemcpy(ivects, d_output, 7 * nLevs * sizeof(int), cudaMemcpyDeviceToHost));
 
@@ -287,11 +302,15 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
     CUDA_CHK(cudaMemcpy(d_keys_in, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHK(cudaMemcpy(d_values_in, index, n * sizeof(int), cudaMemcpyHostToDevice));
 
+    auto start_sort = std::chrono::high_resolution_clock::now();
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
     cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes, d_keys_in, d_keys_out, d_values_in, d_values_out, n);
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes, d_keys_in, d_keys_out, d_values_in, d_values_out, n);
+    auto end_sort = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> sort_duration = end_sort - start_sort;
+    std::cout << "Tiempo para ordenar: " << sort_duration.count() << " segundos" << std::endl;
 
     CUDA_CHK(cudaMemcpy(iorder, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
 
@@ -313,10 +332,14 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
     CUDA_CHK(cudaMalloc(&d_out, sizeof(int)));
     CUDA_CHK(cudaMemcpy(d_in, itr4aux, 7 * nLevs * sizeof(int), cudaMemcpyHostToDevice));
 
+    auto start_reduce_sum = std::chrono::high_resolution_clock::now();
     d_temp_storage = nullptr;
     temp_storage_bytes = 0;
     cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
     CUDA_CHK(cudaDeviceSynchronize());
+    auto end_reduce_sum = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> reduce_sum_duration = end_reduce_sum - start_reduce_sum;
+    std::cout << "Tiempo de reduccion de suma: " << reduce_sum_duration.count() << " segundos" << std::endl;
 
     CUDA_CHK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     cub::DeviceReduce::Sum(d_temp_storage, temp_storage_bytes, d_in, d_out, num);
@@ -329,6 +352,10 @@ int ordenar_filas(int* RowPtrL, int* ColIdxL, VALUE_TYPE* Val, int n, int* iorde
 
     CUDA_CHK(cudaFree(d_levels));
     CUDA_CHK(cudaFree(d_is_solved));
+
+    auto end_total = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> total_duration = end_total - start_total;
+    std::cout << "Tiempo total de ejecucion: " << total_duration.count() << " segundos" << std::endl;
 
     return sol;
 }
