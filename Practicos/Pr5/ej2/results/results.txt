@@ -1,0 +1,368 @@
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/A_matrix.mtx --------------
+input matrix is symmetric = false
+input matrix A: ( 18, 18 ) nnz = 31
+A's unit-lower triangular L: ( 18, 18 ) nnz = 31
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas Nuestro: 2.322176 ms
+Number of warps: 6
+Iorder[0] = 0
+Iorder[1] = 5
+Iorder[2] = 6
+Iorder[3] = 7
+Iorder[4] = 8
+Iorder[5] = 9
+Iorder[6] = 10
+Iorder[7] = 11
+Iorder[8] = 12
+Iorder[9] = 13
+Iorder[10] = 14
+Iorder[11] = 16
+Iorder[12] = 1
+Iorder[13] = 2
+Iorder[14] = 15
+Iorder[15] = 3
+Iorder[16] = 17
+Iorder[17] = 4
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/A_matrix.mtx --------------
+input matrix is symmetric = false
+input matrix A: ( 18, 18 ) nnz = 31
+A's unit-lower triangular L: ( 18, 18 ) nnz = 31
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas de ellos: 1.913152 ms
+Number of warps: 6
+Iorder[0] = 0
+Iorder[1] = 5
+Iorder[2] = 6
+Iorder[3] = 7
+Iorder[4] = 8
+Iorder[5] = 9
+Iorder[6] = 10
+Iorder[7] = 11
+Iorder[8] = 12
+Iorder[9] = 13
+Iorder[10] = 14
+Iorder[11] = 16
+Iorder[12] = 1
+Iorder[13] = 2
+Iorder[14] = 15
+Iorder[15] = 3
+Iorder[16] = 17
+Iorder[17] = 4
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/1.mtx --------------
+input matrix is symmetric = true
+input matrix A: ( 8000, 8000 ) nnz = 32000
+A's unit-lower triangular L: ( 8000, 8000 ) nnz = 24000
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas Nuestro: 7.825984 ms
+Number of warps: 1228
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 80
+Iorder[3] = 2
+Iorder[4] = 160
+Iorder[5] = 81
+Iorder[6] = 3
+Iorder[7] = 240
+Iorder[8] = 82
+Iorder[9] = 161
+Iorder[10] = 4
+Iorder[11] = 320
+Iorder[12] = 83
+Iorder[13] = 162
+Iorder[14] = 241
+Iorder[15] = 5
+Iorder[16] = 400
+Iorder[17] = 84
+Iorder[18] = 163
+Iorder[19] = 242
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/1.mtx --------------
+input matrix is symmetric = true
+input matrix A: ( 8000, 8000 ) nnz = 32000
+A's unit-lower triangular L: ( 8000, 8000 ) nnz = 24000
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas de ellos: 8.052320 ms
+Number of warps: 753
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 80
+Iorder[3] = 2
+Iorder[4] = 160
+Iorder[5] = 81
+Iorder[6] = 3
+Iorder[7] = 240
+Iorder[8] = 82
+Iorder[9] = 161
+Iorder[10] = 4
+Iorder[11] = 320
+Iorder[12] = 83
+Iorder[13] = 162
+Iorder[14] = 241
+Iorder[15] = 5
+Iorder[16] = 400
+Iorder[17] = 84
+Iorder[18] = 163
+Iorder[19] = 242
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/2.mtx --------------
+input matrix is symmetric = true
+input matrix A: ( 9000, 9000 ) nnz = 36000
+A's unit-lower triangular L: ( 9000, 9000 ) nnz = 27000
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas Nuestro: 7.513248 ms
+Number of warps: 1355
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 100
+Iorder[3] = 2
+Iorder[4] = 200
+Iorder[5] = 101
+Iorder[6] = 3
+Iorder[7] = 300
+Iorder[8] = 102
+Iorder[9] = 201
+Iorder[10] = 4
+Iorder[11] = 400
+Iorder[12] = 103
+Iorder[13] = 202
+Iorder[14] = 301
+Iorder[15] = 5
+Iorder[16] = 500
+Iorder[17] = 104
+Iorder[18] = 203
+Iorder[19] = 302
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/2.mtx --------------
+input matrix is symmetric = true
+input matrix A: ( 9000, 9000 ) nnz = 36000
+A's unit-lower triangular L: ( 9000, 9000 ) nnz = 27000
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas de ellos: 6.609888 ms
+Number of warps: 828
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 100
+Iorder[3] = 2
+Iorder[4] = 200
+Iorder[5] = 101
+Iorder[6] = 3
+Iorder[7] = 300
+Iorder[8] = 102
+Iorder[9] = 201
+Iorder[10] = 4
+Iorder[11] = 400
+Iorder[12] = 103
+Iorder[13] = 202
+Iorder[14] = 301
+Iorder[15] = 5
+Iorder[16] = 500
+Iorder[17] = 104
+Iorder[18] = 203
+Iorder[19] = 302
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/3.mtx --------------
+input matrix is symmetric = true
+input matrix A: ( 10000, 10000 ) nnz = 40000
+A's unit-lower triangular L: ( 10000, 10000 ) nnz = 30000
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas Nuestro: 8.423840 ms
+Number of warps: 1485
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 100
+Iorder[3] = 2
+Iorder[4] = 200
+Iorder[5] = 101
+Iorder[6] = 3
+Iorder[7] = 300
+Iorder[8] = 102
+Iorder[9] = 201
+Iorder[10] = 4
+Iorder[11] = 400
+Iorder[12] = 103
+Iorder[13] = 202
+Iorder[14] = 301
+Iorder[15] = 5
+Iorder[16] = 500
+Iorder[17] = 104
+Iorder[18] = 203
+Iorder[19] = 302
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/3.mtx --------------
+input matrix is symmetric = true
+input matrix A: ( 10000, 10000 ) nnz = 40000
+A's unit-lower triangular L: ( 10000, 10000 ) nnz = 30000
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas de ellos: 7.430112 ms
+Number of warps: 891
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 100
+Iorder[3] = 2
+Iorder[4] = 200
+Iorder[5] = 101
+Iorder[6] = 3
+Iorder[7] = 300
+Iorder[8] = 102
+Iorder[9] = 201
+Iorder[10] = 4
+Iorder[11] = 400
+Iorder[12] = 103
+Iorder[13] = 202
+Iorder[14] = 301
+Iorder[15] = 5
+Iorder[16] = 500
+Iorder[17] = 104
+Iorder[18] = 203
+Iorder[19] = 302
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/4.mtx --------------
+input matrix is symmetric = true
+input matrix A: ( 2000, 2000 ) nnz = 41906
+A's unit-lower triangular L: ( 2000, 2000 ) nnz = 21953
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas Nuestro: 9.536672 ms
+Number of warps: 2000
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 2
+Iorder[3] = 3
+Iorder[4] = 4
+Iorder[5] = 5
+Iorder[6] = 6
+Iorder[7] = 7
+Iorder[8] = 8
+Iorder[9] = 9
+Iorder[10] = 10
+Iorder[11] = 11
+Iorder[12] = 12
+Iorder[13] = 13
+Iorder[14] = 14
+Iorder[15] = 15
+Iorder[16] = 16
+Iorder[17] = 17
+Iorder[18] = 18
+Iorder[19] = 19
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/4.mtx --------------
+input matrix is symmetric = true
+input matrix A: ( 2000, 2000 ) nnz = 41906
+A's unit-lower triangular L: ( 2000, 2000 ) nnz = 21953
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas de ellos: 8.845920 ms
+Number of warps: 2000
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 2
+Iorder[3] = 3
+Iorder[4] = 4
+Iorder[5] = 5
+Iorder[6] = 6
+Iorder[7] = 7
+Iorder[8] = 8
+Iorder[9] = 9
+Iorder[10] = 10
+Iorder[11] = 11
+Iorder[12] = 12
+Iorder[13] = 13
+Iorder[14] = 14
+Iorder[15] = 15
+Iorder[16] = 16
+Iorder[17] = 17
+Iorder[18] = 18
+Iorder[19] = 19
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/5.mtx --------------
+input matrix is symmetric = false
+input matrix A: ( 11380, 11380 ) nnz = 39206
+A's unit-lower triangular L: ( 11380, 11380 ) nnz = 30922
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas Nuestro: 3.104160 ms
+Number of warps: 1322
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 2
+Iorder[3] = 3
+Iorder[4] = 4
+Iorder[5] = 5
+Iorder[6] = 6
+Iorder[7] = 7
+Iorder[8] = 8
+Iorder[9] = 9
+Iorder[10] = 10
+Iorder[11] = 11
+Iorder[12] = 12
+Iorder[13] = 13
+Iorder[14] = 14
+Iorder[15] = 15
+Iorder[16] = 16
+Iorder[17] = 17
+Iorder[18] = 18
+Iorder[19] = 19
+Bye!
+---------------------------------------------------------------------------------------------
+PRECISION = 64-bit Double Precision
+-------------- ../matrices/5.mtx --------------
+input matrix is symmetric = false
+input matrix A: ( 11380, 11380 ) nnz = 39206
+A's unit-lower triangular L: ( 11380, 11380 ) nnz = 30922
+---------------------------------------------------------------------------------------------
+32
+Time for ordenar_filas de ellos: 2.367744 ms
+Number of warps: 931
+Iorder[0] = 0
+Iorder[1] = 1
+Iorder[2] = 2
+Iorder[3] = 3
+Iorder[4] = 4
+Iorder[5] = 5
+Iorder[6] = 6
+Iorder[7] = 7
+Iorder[8] = 8
+Iorder[9] = 9
+Iorder[10] = 10
+Iorder[11] = 11
+Iorder[12] = 12
+Iorder[13] = 13
+Iorder[14] = 14
+Iorder[15] = 15
+Iorder[16] = 16
+Iorder[17] = 17
+Iorder[18] = 18
+Iorder[19] = 19
+Bye!
