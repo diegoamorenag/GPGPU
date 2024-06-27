@@ -212,7 +212,7 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
 
     int * ivects = (int *) calloc( 7*nLevs, sizeof(int) ), * ivect_size  = (int *) calloc(n,sizeof(int));
     for (int  y = 0;  y < n+1;  y++) {
-        std::cout << "RowPtrL_h[%d]: %d\n",  y, RowPtrL_h[ y])::std::endl;
+        std::cout << "RowPtrL_h[%d]: %d\n",  y, RowPtrL_h[ y])std::std::endl;
     }
     printf("------------------------------------------DEBUG: 3---------------------------------------------\n");
 
