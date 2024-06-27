@@ -508,8 +508,19 @@ int main(int argc, char** argv)
 
     int * iorder  = (int *) calloc(n,sizeof(int));
 
+    cudaEvent_t start, stop;
+    float elapsedTime;
+    CUDA_CHK(cudaEventCreate(&start));
+    CUDA_CHK(cudaEventCreate(&stop));
+    CUDA_CHK(cudaEventRecord(start, 0));
     int nwarps = ordenar_filas(RowPtrL_d,ColIdxL_d,Val_d,n,iorder);
-
+    CUDA_CHK(cudaEventRecord(stop, 0));
+    CUDA_CHK(cudaEventSynchronize(stop));
+    CUDA_CHK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    CUDA_CHK(cudaEventDestroy(start));
+    CUDA_CHK(cudaEventDestroy(stop));
+    printf("Time for ordenar_filas de ellos: %f ms\n", elapsedTime);
+    
     printf("Number of warps: %i\n",nwarps);
     for(int i =0; i<n && i<20;i++)
         printf("Iorder[%i] = %i\n",i,iorder[i]);
