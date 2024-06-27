@@ -274,7 +274,6 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
         device_input, device_output, lar));    
     cudaMalloc(&tmp_storage, tmp_bytes);
     CUDA_CHK(cub::DeviceScan::ExclusiveSum(tmp_storage, tmp_bytes, device_input, device_output, lar));
-
     CUDA_CHK(cudaMemcpy(ivects, device_output, 7*nLevs * sizeof(int), cudaMemcpyDeviceToHost));
 
     for (int  y = 0;  y < 7*nLevs;  y++) {
@@ -282,29 +281,22 @@ int ordenar_filas( int* RowPtrL, int* ColIdxL, VALUE_TYPE * Val, int n, int* ior
     }
     printf("------------------------------------------DEBUG: 5---------------------------------------------\n");
     
-    int  *d_keys_in = nullptr;
-    int  *d_keys_out = nullptr;
-    int  *d_values_in = nullptr;
-    int  *d_values_out = nullptr;
+    int  *dValuesIn = nullptr, *dValuesOut = nullptr,*dKeeysOut = nullptr, *dKeysIn = nullptr;
 
-    CUDA_CHK(cudaMalloc(&d_keys_in, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_keys_out, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_values_in, n * sizeof(int)));
-    CUDA_CHK(cudaMalloc(&d_values_out, n * sizeof(int)));
-    CUDA_CHK(cudaMemcpy(d_keys_in, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHK(cudaMemcpy(d_values_in, x, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMalloc(&dValuesOut, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&dValuesIn, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&dKeeysOut, n * sizeof(int)));
+    CUDA_CHK(cudaMalloc(&dKeysIn, n * sizeof(int)));
+    CUDA_CHK(cudaMemcpy(dValuesIn, x, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHK(cudaMemcpy(dKeysIn, itr2, n * sizeof(int), cudaMemcpyHostToDevice));
 
-    tmp_storage = nullptr;
-    tmp_bytes = 0;
+    tmp_storage = nullptr,tmp_bytes = 0;
     cub::DeviceRadixSort::SortPairs(tmp_storage, tmp_bytes,
-        d_keys_in, d_keys_out, d_values_in, d_values_out, n);
-
+        dKeysIn, dKeeysOut, dValuesIn, dValuesOut, n);
     CUDA_CHK(cudaMalloc(&tmp_storage, tmp_bytes));
-
     cub::DeviceRadixSort::SortPairs(tmp_storage, tmp_bytes,
-        d_keys_in, d_keys_out, d_values_in, d_values_out, n);
-
-    CUDA_CHK(cudaMemcpy(iorder, d_values_out, n * sizeof(int), cudaMemcpyDeviceToHost));
+        dKeysIn, dKeeysOut, dValuesIn, dValuesOut, n);
+    CUDA_CHK(cudaMemcpy(iorder, dValuesOut, n * sizeof(int), cudaMemcpyDeviceToHost));
 
     TransformarTamanio transform2(iorder, itr2);
     cub::TransformInputIterator<int, TransformarTamanio, int*> itr3(x, transform2);    
