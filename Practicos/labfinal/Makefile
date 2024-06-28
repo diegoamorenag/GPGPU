@@ -1,4 +1,4 @@
-all:all: blur
+all: blur
 
 blur: main.o blur.o
     nvcc -arch=sm_60 main.o blur.o -o blur -O3 -L/usr/X11R6/lib -lm -lpthread -lX11 -lnvToolsExt
