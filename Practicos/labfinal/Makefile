@@ -7,7 +7,7 @@ main.o: main.cpp
 	nvcc -arch=sm_60 -Xptxas -dc main.cpp -o main.o -O3 -lX11
 
 blur.o: blur.cu
-	nvcc -arch=sm_60 -Xptxas -dc blur.cu -o blur.o -O3 -lX11
+	nvcc -arch=sm_60 -Xptxas blur.cu -o blur.o -O3 -lX11
 
 clean:
 	rm -f blur main.o blur.o
