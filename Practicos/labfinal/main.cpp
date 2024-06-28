@@ -3,7 +3,6 @@
 #include <sys/time.h>
 #include "cuda.h"
 #include "cuda_runtime.h"
-
 #include "CImg.h"
 
 using namespace cimg_library;
@@ -12,7 +11,7 @@ void filtro_mediana_gpu(float * img_in, float * img_out, int width, int height, 
 
 }
 void filtro_mediana_cpu(float * img_in, float * img_out, int width, int height, int W){
-	
+
 }
     
 int main(int argc, char** argv){
