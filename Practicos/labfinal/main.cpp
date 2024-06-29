@@ -40,10 +40,10 @@ int main(int argc, char **argv)
 	float elapsed = 0;
 
 	filtro_mediana_cpu(img_matrix, img_out_matrix, image.width(), image.height(), 3);
-	image_out.save(resultsPathCPU);
+	image_out.save(resultsPathCPU.c_str());
 
 	filtro_mediana_gpu(img_matrix, img_out_matrix, image.width(), image.height(), 3);
-	image_out.save(resultsPathGPU);
+	image_out.save(resultsPathGPU.c_str());
 
 	return 0;
 }
