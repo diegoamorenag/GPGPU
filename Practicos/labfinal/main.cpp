@@ -5,14 +5,28 @@
 #include "radixSort.h"
 #include "cuda.h"
 #include "cuda_runtime.h"
-#include "CImg.h"
-
 
 using namespace std;
 using namespace cimg_library;
 
 void filtro_mediana_gpu(float *img_in, float *img_out, int width, int height, int W);
 void filtro_mediana_cpu(float *img_in, float *img_out, int width, int height, int W);
+int testSplitCPU() {
+    float data[] = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};
+    int n = 1;  // Bit a analizar
+    int numElements = sizeof(data) / sizeof(data[0]);
+    float output[numElements];
+
+    splitCPU(data, output, n, numElements);
+
+    std::cout << "Array after split on bit " << n << ":\n";
+    for (int i = 0; i < numElements; i++) {
+        std::cout << output[i] << " ";
+    }
+    std::cout << "\n";
+
+    return 0;
+}
 
 int main(int argc, char **argv)
 {
@@ -44,6 +58,6 @@ int main(int argc, char **argv)
 
 	filtro_mediana_gpu(img_matrix, img_out_matrix, image.width(), image.height(), 3);
 	image_out.save(resultsPathGPU.c_str());
-
+	int a = testSplitCPU();
 	return 0;
 }
