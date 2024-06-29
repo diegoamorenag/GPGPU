@@ -15,8 +15,8 @@ void filtro_mediana_cpu(float *img_in, float *img_out, int width, int height, in
 int main(int argc, char **argv)
 {
 	const char *path;
-	string resultsPathCPU;
-	string resultsPathGPU;
+	std::string resultsPathCPU;
+	std::string resultsPathGPU;
 
 	if (argc < 2)
 	{
