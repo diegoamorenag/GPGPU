@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <sys/time.h>
 #include "radixSort.h"
 #include "cuda.h"
 #include "cuda_runtime.h"
 #include "CImg.h"
+
 
 using namespace std;
 using namespace cimg_library;
