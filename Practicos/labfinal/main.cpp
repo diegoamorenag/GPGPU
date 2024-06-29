@@ -5,6 +5,8 @@
 #include "radixSort.h"
 #include "cuda.h"
 #include "cuda_runtime.h"
+#include "CImg.h"
+
 
 using namespace std;
 using namespace cimg_library;
@@ -58,6 +60,6 @@ int main(int argc, char **argv)
 
 	filtro_mediana_gpu(img_matrix, img_out_matrix, image.width(), image.height(), 3);
 	image_out.save(resultsPathGPU.c_str());
-	int a = testSplitCPU();
+	testSplitCPU();
 	return 0;
 }
