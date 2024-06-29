@@ -28,8 +28,8 @@ int main(int argc, char **argv)
 	else
 	{
 		path = argv[argc - 1];
-		resultsPathCPU = "results/" + argv[argc - 1] + "output_cpu.ppm";
-		resultsPathGPU = "results/" + argv[argc - 1] + "output_gpu.ppm";
+		resultsPathCPU = "results/" + std::string(argv[argc - 1]) + "output_cpu.ppm";
+		resultsPathGPU = "results/" + std::string(argv[argc - 1]) + "output_gpu.ppm";
 	}
 
 	CImg<float> image(path);
