@@ -10,6 +10,9 @@ main.o: main.cpp
 blur.o: blur.cu
 	nvcc -arch=sm_60 -c blur.cu -o blur.o -O3
 
+radixSort.o: radixSort.cpp
+    nvcc -arch=sm_60 -c radixSort.cpp -o radixSort.o -O3
+	
 clean:
 	rm -f blur main.o blur.o dlink.o
 
