@@ -7,27 +7,29 @@
 #include "cuda_runtime.h"
 #include "CImg.h"
 
-
 using namespace std;
 using namespace cimg_library;
 
 void filtro_mediana_gpu(float *img_in, float *img_out, int width, int height, int W);
 void filtro_mediana_cpu(float *img_in, float *img_out, int width, int height, int W);
-int testSplitCPU() {
-    float data[] = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};
-    int n = 1;  // Bit a analizar
-    int numElements = sizeof(data) / sizeof(data[0]);
-    float output[numElements];
 
-    splitCPU(data, output, n, numElements);
+int testSplitCPU()
+{
+	float data[] = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};
+	int n = 1; // Bit a analizar
+	int numElements = sizeof(data) / sizeof(data[0]);
+	float output[numElements];
 
-    std::cout << "Array after split on bit " << n << ":\n";
-    for (int i = 0; i < numElements; i++) {
-        std::cout << output[i] << " ";
-    }
-    std::cout << "\n";
+	splitCPU(data, output, n, numElements);
 
-    return 0;
+	printf("Array after split on bit %d:\n", n);
+	for (int i = 0; i < numElements; i++)
+	{
+		printf("%f ", output[i]);
+	}
+	printf("\n");
+
+	return 0;
 }
 
 int main(int argc, char **argv)
