@@ -29,7 +29,7 @@ int testSplitCPU()
 	int numElements = sizeof(data) / sizeof(data[0]);
 	for (int i = 32; i >0 ; i--)
 	{
-		printf("Iteracion: %d:------------------\n\n",i );
+		printf("bit: %d:------------------\n\n",i );
 		for (int bitAOrdenar = 0; bitAOrdenar < numElements; bitAOrdenar++)
 		{
 			float value = output[bitAOrdenar];
