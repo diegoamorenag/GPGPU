@@ -1,5 +1,7 @@
 #include "radixSort.h"
 #include <vector>
+#include <iostream>
+#include <cstdio>
 
 void exclusiveScanCPU(const float *input, float *output, int numElements)
 {
@@ -15,21 +17,38 @@ void exclusiveScanCPU(const float *input, float *output, int numElements)
 
 void splitCPU(const float *input, float *output, int n, int numElements) {
     std::vector<float> e(numElements);
+    std::vector<float> scanResults(numElements);
+
+    // Debug: Print input values and their binary representation
+    printf("Input values and their binary representations:\n");
     for (int i = 0; i < numElements; i++) {
         int intValue = static_cast<int>(input[i]);
         e[i] = static_cast<float>(~(intValue >> n) & 1);
+        printf("Input[%d] = %f, IntValue = %d, Bit[%d] = %f\n", i, input[i], intValue, n, e[i]);
     }
-    std::vector<float> scanResults(numElements);
+
+    // Perform exclusive scan
     exclusiveScanCPU(e.data(), scanResults.data(), numElements);
+
+    // Debug: Print results of exclusive scan
+    printf("Results of exclusive scan:\n");
+    for (int i = 0; i < numElements; i++) {
+        printf("ScanResults[%d] = %f\n", i, scanResults[i]);
+    }
+
+    // Calculate total number of false (0 bit values)
     int totalFalses = static_cast<int>(scanResults[numElements - 1] + (((static_cast<int>(input[numElements - 1]) >> n) & 1) == 0 ? 1 : 0));
+    printf("Total falses: %d\n", totalFalses);
+
+    // Assign outputs based on calculated indices
     for (int i = 0; i < numElements; i++) {
         int intValue = static_cast<int>(input[i]);
         if ((intValue >> n) & 1) {
-            // Índice para los elementos con b = 1
             output[int(i - scanResults[i] + totalFalses)] = input[i];
+            printf("Output[%d] = Input[%d] = %f (1-bit)\n", int(i - scanResults[i] + totalFalses), i, input[i]);
         } else {
-            // Índice para los elementos con b = 0
             output[int(scanResults[i])] = input[i];
+            printf("Output[%d] = Input[%d] = %f (0-bit)\n", int(scanResults[i]), i, input[i]);
         }
     }
 }
