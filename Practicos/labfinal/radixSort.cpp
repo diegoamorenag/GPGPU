@@ -37,7 +37,7 @@ void splitCPU(const float *input, float *output, int n, int numElements)
         memcpy(&bits, &value, sizeof(value));
         std::bitset<32> binary(bits);
         printf("Binario: %s\n", binary.to_string().c_str());
-        printf("Input[%d] = %f, IntValue = %d, Bit[%d] = %f\n", i, input[i], intValue, n, e[i]);
+        printf("Input[%d] = %f, IntValue = %d, Bit[%d] = %d\n", i, input[i], intValue, n, e[i]);
     }
     // Perform exclusive scan
     exclusiveScanCPU(e.data(), scanResults.data(), numElements);
