@@ -10,7 +10,7 @@ $(OUTDIR)/main.o: main.cpp
 	nvcc -arch=sm_60 -c main.cpp -o $(OUTDIR)/main.o -O3
 
 $(OUTDIR)/blur.o: blur.cu
-	nvcc -arch=sm_60 -c blur.cu -o $(OUTDIR)blur.o -O3
+	nvcc -arch=sm_60 -c blur.cu -o $(OUTDIR)/blur.o -O3
 
 $(OUTDIR)/radixSort.o: radixSort.cpp
 	nvcc -arch=sm_60 -c radixSort.cpp -o $(OUTDIR)/radixSort.o -O3
