@@ -19,20 +19,20 @@ void printFloatInBinary(float value)
 	unsigned int bits;
 	memcpy(&bits, &value, sizeof(value));
 	std::bitset<32> binary(bits);
-	printf("Binary: %s\n", binary.to_string().c_str());
+	printf(" Binario: %s\n", binary.to_string().c_str());
 }
 
 int testSplitCPU()
 {
 	float data[] = {3.42, 1.47, 4.98, 1.6, 5.32, 9.65, 2.42, 6.84, 5.88, 3.12, 5.1};
-	float output[11];
+	float output[11]= {0,0,0,0,0,0,0,0,0,0,0};
 	int numElements = sizeof(data) / sizeof(data[0]);
 	for (int i = 0; i < 32; i++)
 	{
 		for (int bitAOrdenar = 0; bitAOrdenar < numElements; bitAOrdenar++)
 		{
 			float value = output[bitAOrdenar];
-			printf("%f ", value);
+			printf("float: %f ", value);
 			printFloatInBinary(value);
 		}
 		splitCPU(data, output, i, numElements);
