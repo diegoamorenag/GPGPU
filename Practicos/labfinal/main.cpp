@@ -26,7 +26,7 @@ int testSplitCPU()
 {
 	float data[] = {3.4237, 1.472, 4.98, 1.6, 5.32, 9.65, 2.42, 6.84, 5.88, 3.123, 5.1};
 	int numElements = sizeof(data) / sizeof(data[0]);
-	float output[numElements];
+	float output[11];
 	for (int i = 0; i < 32; i++)
 	{
 		for (int bitAOrdenar = 0; bitAOrdenar < numElements; bitAOrdenar++)
