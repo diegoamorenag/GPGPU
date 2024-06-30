@@ -24,7 +24,7 @@ void printFloatInBinary(float value)
 
 int testSplitCPU()
 {
-	float data[] = {3.42, 1.47, 4.98, 1.6, 5.32, 9.65, 2.42, 6.84, 5.88, 3.12, 5.1};
+	float data[] = {3.42, 1.47, 2.42, 6.84, 5.88, 3.12, 5.1};
 	float output[11]= {0,0,0,0,0,0,0,0,0,0,0};
 	int numElements = sizeof(data) / sizeof(data[0]);
 	for (int i = 32; i >0 ; i--)
