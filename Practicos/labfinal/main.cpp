@@ -24,22 +24,20 @@ void printFloatInBinary(float value)
 
 int testSplitCPU()
 {
-	float data[] = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5};
-	int n = 1; // Bit a analizar
+	float data[] = {3.4237, 1.472, 4.98, 1.6, 5.32, 9.65, 2.42, 6.84, 5.88, 3.123, 5.1};
 	int numElements = sizeof(data) / sizeof(data[0]);
 	float output[numElements];
-
-	splitCPU(data, output, n, numElements);
-
-	printf("Array after split on bit %d:\n", n);
-	for (int i = 0; i < numElements; i++)
+	for (int i = 0; i < 32; i++)
 	{
-		float value = output[i];
-		printf("%f ", value);
-		printFloatInBinary(value);
+		for (int bitAOrdenar = 0; bitAOrdenar < numElements; bitAOrdenar++)
+		{
+			float value = output[bitAOrdenar];
+			printf("%f ", value);
+			printFloatInBinary(value);
+		}
+		splitCPU(data, output, i, numElements);
+		data = output;
 	}
-	printf("\n");
-
 	return 0;
 }
 
