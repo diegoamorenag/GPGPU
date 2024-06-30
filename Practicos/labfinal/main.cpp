@@ -25,8 +25,8 @@ void printFloatInBinary(float value)
 int testSplitCPU()
 {
 	float data[] = {3.4237, 1.472, 4.98, 1.6, 5.32, 9.65, 2.42, 6.84, 5.88, 3.123, 5.1};
-	int numElements = sizeof(data) / sizeof(data[0]);
 	float output[11];
+	int numElements = sizeof(data) / sizeof(data[0]);
 	for (int i = 0; i < 32; i++)
 	{
 		for (int bitAOrdenar = 0; bitAOrdenar < numElements; bitAOrdenar++)
@@ -36,7 +36,10 @@ int testSplitCPU()
 			printFloatInBinary(value);
 		}
 		splitCPU(data, output, i, numElements);
-		data = output;
+		for (int j = 0; j < numElements; j++)
+		{
+			data[j] = output[j];
+		}
 	}
 	return 0;
 }
