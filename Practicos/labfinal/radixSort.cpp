@@ -10,6 +10,7 @@
 #include <vector>
 #include <iostream>
 #include "radixSort.h"
+
 void exclusiveScanCPU(const float *input, float *output, int numElements)
 {
     if (numElements > 0)
@@ -22,22 +23,23 @@ void exclusiveScanCPU(const float *input, float *output, int numElements)
     }
 }
 
-void splitCPU(const float *input, float *output, int n, int numElements)
+void splitCPU(const byte *input, byte *output, int n, int numElements)
 {
-    std::vector<float> e(numElements);
-    std::vector<float> scanResults(numElements);
+    std::vector<byte> e(numElements);
+    std::vector<byte> scanResults(numElements);
 
-    printf("Input values and their binary representations:\n");
     for (int i = 0; i < numElements; i++)
     {
-        float value = input[i];
-        int intValue = static_cast<int>(input[i]);
-        e[i] = static_cast<float>(~(intValue >> n) & 1);
+        byte value = input[i];
+        memcpy(&bits, &value, sizeof(value));
+        std::bitset<32> binary(bits);
+        printf(bits);;
+        int intValue = static_cast<int> (input[i]);
+        printf(~(intValue >> n) & 1);
+        e[i] = static_cast<byte>(~(intValue >> n) & 1);
         unsigned int bits;
         memcpy(&bits, &value, sizeof(value));
         std::bitset<32> binary(bits);
-        printf("Binario: %s\n", binary.to_string().c_str());
-        printf("Input[%d] = %f, IntValue = %d, Bit[%d] = %d\n", i, input[i], intValue, n, e[i]);
     }
     // Perform exclusive scan
     exclusiveScanCPU(e.data(), scanResults.data(), numElements);
@@ -73,6 +75,23 @@ void radixSortCPU(const float *input, float *output, int numElements)
 
 void exclusiveScanGPU(const float *input, float *output, int numElements)
 {
+    float *d_input = nullptr;
+    float *d_output = nullptr;
+    cudaMalloc(&d_input, numElements * sizeof(int));
+    cudaMalloc(&d_output, numElements * sizeof(int));
+    cudaMemcpy(d_input, input.data(), numElements * sizeof(int), cudaMemcpyHostToDevice);
+
+    void *d_temp_storage = nullptr;
+    size_t temp_storage_bytes = 0;
+    cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, n);
+    cudaMalloc(&d_temp_storage, temp_storage_bytes);
+    cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, n);
+
+    cudaMemcpy(output.data(), d_output, numElements * sizeof(int), cudaMemcpyDeviceToHost);
+
+    cudaFree(d_input);
+    cudaFree(d_output);
+    cudaFree(d_temp_storage);
 }
 
 void splitGPU(const int *input, int *output, int n)

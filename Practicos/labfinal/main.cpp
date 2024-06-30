@@ -24,10 +24,10 @@ void printFloatInBinary(float value)
 
 int testSplitCPU()
 {
-	float data[] = {3.42, 1.47, 2.42, 6.84, 5.88, 3.12, 5.1};
-	float output[11]= {0,0,0,0,0,0,0,0,0,0,0};
+	byte data[] = {3.42, 1.47, 2.42, 6.84, 5.88, 3.12, 5.1};
+	byte output[11]= {0,0,0,0,0,0,0,0,0,0,0};
 	int numElements = sizeof(data) / sizeof(data[0]);
-	for (int i = 31; i >=0 ; i--)
+	for (int i = 7; i >=0 ; i--)
 	{
 		printf("bit: %d:------------------\n\n",i );
 		for (int bitAOrdenar = 0; bitAOrdenar < numElements; bitAOrdenar++)
