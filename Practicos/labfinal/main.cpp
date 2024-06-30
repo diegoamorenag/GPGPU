@@ -6,12 +6,21 @@
 #include "cuda.h"
 #include "cuda_runtime.h"
 #include "CImg.h"
+#include <bitset>
 
 using namespace std;
 using namespace cimg_library;
 
 void filtro_mediana_gpu(float *img_in, float *img_out, int width, int height, int W);
 void filtro_mediana_cpu(float *img_in, float *img_out, int width, int height, int W);
+
+void printFloatInBinary(float value)
+{
+	unsigned int bits;
+	memcpy(&bits, &value, sizeof(value));
+	std::bitset<32> binary(bits);
+	printf("Binary: %s\n", binary.to_string().c_str());
+}
 
 int testSplitCPU()
 {
@@ -25,7 +34,9 @@ int testSplitCPU()
 	printf("Array after split on bit %d:\n", n);
 	for (int i = 0; i < numElements; i++)
 	{
-		printf("%f ", output[i]);
+		float value = output[i];
+		printf("%f ", value);
+		printFloatInBinary(value);
 	}
 	printf("\n");
 
