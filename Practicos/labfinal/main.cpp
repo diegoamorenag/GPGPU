@@ -45,7 +45,7 @@ int testSplitCPU()
 	return 0;
 }
 
-int main(int argc, /*char **argv*/)
+int main(int argc/*, char **argv*/)
 {
 	//const char *path;
 	//std::string resultsPathCPU;
