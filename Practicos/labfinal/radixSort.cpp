@@ -3,6 +3,10 @@
 #include <iostream>
 #include <cstdio>
 #include <bitset>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+#include <sys/time.h>
 
 void exclusiveScanCPU(const float *input, float *output, int numElements)
 {
