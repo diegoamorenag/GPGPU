@@ -15,18 +15,13 @@ void exclusiveScanCPU(const float *input, float *output, int numElements)
 
 void splitCPU(const float *input, float *output, int n, int numElements) {
     std::vector<float> e(numElements);
-
     for (int i = 0; i < numElements; i++) {
         int intValue = static_cast<int>(input[i]);
         e[i] = static_cast<float>(~(intValue >> n) & 1);
     }
     std::vector<float> scanResults(numElements);
-    // 2. Llamar a exclusiveScanCPU para realizar la suma prefija exclusiva
     exclusiveScanCPU(e.data(), scanResults.data(), numElements);
-
-    // Determinar el total de falses (total de ceros)
     int totalFalses = static_cast<int>(scanResults[numElements - 1] + (((static_cast<int>(input[numElements - 1]) >> n) & 1) == 0 ? 1 : 0));
-    // 3. Calcular los índices de los elementos en el arreglo de salida
     for (int i = 0; i < numElements; i++) {
         int intValue = static_cast<int>(input[i]);
         if ((intValue >> n) & 1) {

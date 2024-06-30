@@ -29,6 +29,7 @@ int testSplitCPU()
 	int numElements = sizeof(data) / sizeof(data[0]);
 	for (int i = 0; i < 32; i++)
 	{
+		printf("------------------\n\n");
 		for (int bitAOrdenar = 0; bitAOrdenar < numElements; bitAOrdenar++)
 		{
 			float value = output[bitAOrdenar];
@@ -40,41 +41,40 @@ int testSplitCPU()
 		{
 			data[j] = output[j];
 		}
-		printf("------------------");
 	}
 	return 0;
 }
 
-int main(int argc, char **argv)
+int main(int argc, /*char **argv*/)
 {
-	const char *path;
-	std::string resultsPathCPU;
-	std::string resultsPathGPU;
-
-	if (argc < 2)
-	{
-		printf("Debe ingresar el nombre del archivo\n");
-		return 0;
-	}
-	else
-	{
-		path = argv[argc - 1];
-		resultsPathCPU = "results/" + std::string(argv[argc - 1]) + "output_cpu.ppm";
-		resultsPathGPU = "results/" + std::string(argv[argc - 1]) + "output_gpu.ppm";
-	}
-
-	CImg<float> image(path);
-	CImg<float> image_out(image.width(), image.height(), 1, 1, 0);
-
-	float *img_matrix = image.data();
-	float *img_out_matrix = image_out.data();
-	float elapsed = 0;
-
-	filtro_mediana_cpu(img_matrix, img_out_matrix, image.width(), image.height(), 3);
-	image_out.save(resultsPathCPU.c_str());
-
-	filtro_mediana_gpu(img_matrix, img_out_matrix, image.width(), image.height(), 3);
-	image_out.save(resultsPathGPU.c_str());
+	//const char *path;
+	//std::string resultsPathCPU;
+	//std::string resultsPathGPU;
+//
+	//if (argc < 2)
+	//{
+	//	printf("Debe ingresar el nombre del archivo\n");
+	//	return 0;
+	//}
+	//else
+	//{
+	//	path = argv[argc - 1];
+	//	resultsPathCPU = "results/" + std::string(argv[argc - 1]) + "output_cpu.ppm";
+	//	resultsPathGPU = "results/" + std::string(argv[argc - 1]) + "output_gpu.ppm";
+	//}
+//
+	//CImg<float> image(path);
+	//CImg<float> image_out(image.width(), image.height(), 1, 1, 0);
+//
+	//float *img_matrix = image.data();
+	//float *img_out_matrix = image_out.data();
+	//float elapsed = 0;
+//
+	//filtro_mediana_cpu(img_matrix, img_out_matrix, image.width(), image.height(), 3);
+	//image_out.save(resultsPathCPU.c_str());
+//
+	//filtro_mediana_gpu(img_matrix, img_out_matrix, image.width(), image.height(), 3);
+	//image_out.save(resultsPathGPU.c_str());
 	testSplitCPU();
 	return 0;
 }
