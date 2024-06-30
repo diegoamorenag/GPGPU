@@ -3,10 +3,10 @@
 #include <string>
 #include <sys/time.h>
 #include "radixSort.h"
+#include <bitset>
 #include "cuda.h"
 #include "cuda_runtime.h"
 #include "CImg.h"
-#include <bitset>
 
 using namespace std;
 using namespace cimg_library;
