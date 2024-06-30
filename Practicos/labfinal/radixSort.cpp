@@ -4,6 +4,7 @@
 #include <sys/time.h>
 #include "radixSort.h"
 #include <bitset>
+#include <cub/cub.cuh>
 #include "cuda.h"
 #include "cuda_runtime.h"
 #include "CImg.h"

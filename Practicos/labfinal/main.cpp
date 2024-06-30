@@ -32,7 +32,7 @@ int testSplitCPU()
 		printf("bit: %d:------------------\n\n",i );
 		for (int bitAOrdenar = 0; bitAOrdenar < numElements; bitAOrdenar++)
 		{
-			float value = output[bitAOrdenar];
+			byte value = output[bitAOrdenar];
 			printf("float: %f ", value);
 			printFloatInBinary(value);
 		}
