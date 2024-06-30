@@ -40,6 +40,7 @@ int testSplitCPU()
 		{
 			data[j] = output[j];
 		}
+		printf("------------------"s);
 	}
 	return 0;
 }
