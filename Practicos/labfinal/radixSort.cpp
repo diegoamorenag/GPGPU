@@ -11,7 +11,7 @@
 #include <iostream>
 #include "radixSort.h"
 
-void exclusiveScanCPU(const float *input, float *output, int numElements)
+void exclusiveScanCPU(const byte *input, byte *output, int numElements)
 {
     if (numElements > 0)
     {
@@ -34,10 +34,10 @@ void splitCPU(const byte *input, byte *output, int n, int numElements)
         memcpy(&bits, &value, sizeof(value));
         std::bitset<32> binary(bits);
         printf(bits);;
-        int intValue = static_cast<int> (input[i]);
+        byte intValue = static_cast<int> (input[i]);
         printf(~(intValue >> n) & 1);
         e[i] = static_cast<byte>(~(intValue >> n) & 1);
-        unsigned int bits;
+        unsigned byte bits;
         memcpy(&bits, &value, sizeof(value));
         std::bitset<32> binary(bits);
     }
@@ -69,7 +69,8 @@ void splitCPU(const byte *input, byte *output, int n, int numElements)
     }
 }
 
-void radixSortCPU(const float *input, float *output, int numElements)
+void radixSortCPU(const 
+float *input, float *output, int numElements)
 {
 }
 
