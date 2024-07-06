@@ -75,6 +75,31 @@ float *input, float *output, int numElements)
 {
 }
 
+int testSplitCPU()
+{
+	byte data[] = {3.42, 1.47, 2.42, 6.84, 5.88, 3.12, 5.1};
+	byte output[11]= {0,0,0,0,0,0,0,0,0,0,0};
+	int numElements = sizeof(data) / sizeof(data[0]);
+	for (int i = 7; i >=0 ; i--)
+	{
+		printf("bit: %d:------------------\n\n",i );
+		for (int bitAOrdenar = 0; bitAOrdenar < numElements; bitAOrdenar++)
+		{
+			byte value = output[bitAOrdenar];
+			printf("float: %f ", value);
+			printFloatInBinary(value);
+		}
+		splitCPU(data, output, i, numElements);
+		for (int j = 0; j < numElements; j++)
+		{
+			data[j] = output[j];
+		}
+	}
+	return 0;
+}
+
+
+
 void exclusiveScanGPU(const float *input, float *output, int numElements)
 {
     float *d_input = nullptr;
