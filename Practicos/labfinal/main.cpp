@@ -4,9 +4,9 @@
 #include <sys/time.h>
 #include "radixSort.h"
 #include <bitset>
-#include "cuda.h"
-#include "cuda_runtime.h"
-#include "CImg.h"
+//#include "cuda.h"
+//#include "cuda_runtime.h"
+//#include "CImg.h"
 
 using namespace std;
 using namespace cimg_library;
@@ -25,7 +25,8 @@ float calcular_mediana(float *ventana, int size) {
         return ventana[size/2];
     }
 }
-
+void filtro_mediana_cpu(float *img_in, float *img_out, int width, int height, int W);
+/*
 void filtro_mediana_cpu(float *img_in, float *img_out, int width, int height, int W) {
     int half_W = W / 2;
     int ventana_size = W * W;
@@ -49,7 +50,7 @@ void filtro_mediana_cpu(float *img_in, float *img_out, int width, int height, in
     }
     free(ventana);
 }
-
+*/
 void printFloatInBinary(float value)
 {
 	unsigned int bits;
