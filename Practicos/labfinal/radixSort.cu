@@ -10,7 +10,7 @@
 #include <vector>
 #include <iostream>
 #include "radixSort.h"
-
+#include <cub/cub.cuh>
 
 void exclusiveScanGPU(const float *input, float *output, int numElements)
 {
