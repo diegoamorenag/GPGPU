@@ -12,6 +12,20 @@ using namespace std;
 using namespace cimg_library;
 
 void filtro_mediana_gpu(float *img_in, float *img_out, int width, int height, int W);
+
+int compare(const void *a, const void *b) {
+    return (*(float*)a - *(float*)b);
+}
+
+float calcular_mediana(float *ventana, int size) {
+    qsort(ventana, size, sizeof(float), compare);
+    if (size % 2 == 0) {
+        return (ventana[size/2 - 1] + ventana[size/2]) / 2.0;
+    } else {
+        return ventana[size/2];
+    }
+}
+
 void filtro_mediana_cpu(float *img_in, float *img_out, int width, int height, int W) {
     int half_W = W / 2;
     int ventana_size = W * W;
@@ -21,24 +35,18 @@ void filtro_mediana_cpu(float *img_in, float *img_out, int width, int height, in
         for (int x = 0; x < width; x++) {
             int count = 0;
 
-            // Recorrer la ventana W x W
             for (int wy = -half_W; wy <= half_W; wy++) {
                 for (int wx = -half_W; wx <= half_W; wx++) {
                     int nx = x + wx;
                     int ny = y + wy;
-
-                    // Verificar límites de la imagen
                     if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
                         ventana[count++] = img_in[ny * width + nx];
                     }
                 }
             }
-
-            // Calcular la mediana y asignarla al pixel de salida
             img_out[y * width + x] = calcular_mediana(ventana, count);
         }
     }
-
     free(ventana);
 }
 
