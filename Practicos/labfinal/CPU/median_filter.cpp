@@ -22,7 +22,7 @@ PGMImage readPGM(const std::string& filename) {
     PGMImage img;
     std::string line;
     std::getline(file, line);
-    //bool isTypeP5 = line != "P5";
+    printf("25");//bool isTypeP5 = line != "P5";
     //bool isTypeP2 = line != "P2";
     //if (line != "P5" && line != "P2") {
         //throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
