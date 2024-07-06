@@ -94,7 +94,6 @@ __global__ void medianFilterKernel(unsigned char* input, unsigned char* output, 
                 }
             }
         }
-
         sortWindow(window, windowSize);
         output[y * width + x] = window[(windowSize * windowSize) / 2]; // Selecciona la mediana
     }
