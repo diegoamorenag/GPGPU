@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <string>
 #include <sstream>
+#include <chrono>
+#include <numeric>
+#include <cmath>
 
 struct PGMImage {
     int width;
@@ -85,6 +88,16 @@ PGMImage applyMedianFilter(const PGMImage& input, int windowSize) {
     }
     return output;
 }
+// Función para calcular la media
+double calculateMean(const std::vector<double>& times) {
+    return std::accumulate(times.begin(), times.end(), 0.0) / times.size();
+}
+
+// Función para calcular la desviación estándar
+double calculateStdDev(const std::vector<double>& times, double mean) {
+    double squareSum = std::inner_product(times.begin(), times.end(), times.begin(), 0.0);
+    return std::sqrt(squareSum / times.size() - mean * mean);
+}
 
 int main(int argc, char* argv[]) {
     if (argc != 4) {
@@ -103,9 +116,29 @@ int main(int argc, char* argv[]) {
 
     try {
         PGMImage img = readPGM(inputFilename);
-        PGMImage filtered = applyMedianFilter(img, windowSize);
-        writePGM(outputFilename, filtered);
+        std::vector<double> executionTimes;
+
+        for (int i = 0; i < 100; ++i) {
+            auto start = std::chrono::high_resolution_clock::now();
+            
+            PGMImage filtered = applyMedianFilter(img, windowSize);
+            
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> duration = end - start;
+            executionTimes.push_back(duration.count());
+
+            if (i == 0) {
+                writePGM(outputFilename, filtered);
+            }
+        }
+
+        double mean = calculateMean(executionTimes);
+        double stdDev = calculateStdDev(executionTimes, mean);
+
         std::cout << "Filtro mediana aplicado exitosamente. Resultado guardado en " << outputFilename << std::endl;
+        std::cout << "Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:" << std::endl;
+        std::cout << "Media: " << mean << std::endl;
+        std::cout << "Desviación estándar: " << stdDev << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;

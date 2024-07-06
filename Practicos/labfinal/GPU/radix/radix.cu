@@ -10,7 +10,6 @@
 #include <cmath>
 #include <numeric>
 #include <algorithm>
-#include <cub/cub.cuh> // Include CUB library
 
 struct PGMImage {
     int width;
@@ -60,9 +59,36 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
 
-// Kernel para aplicar el filtro de mediana usando memoria compartida
+// Radix sort implementation for unsigned char (8-bit integers)
+__device__ void radixSort(unsigned char* arr, int n) {
+    unsigned char output[256];  // Assuming window size is at most 16x16 = 256
+    int count[256] = {0};
+
+    // Count occurrences of each digit
+    for (int i = 0; i < n; i++) {
+        count[arr[i]]++;
+    }
+
+    // Compute cumulative count
+    for (int i = 1; i < 256; i++) {
+        count[i] += count[i - 1];
+    }
+
+    // Build the output array
+    for (int i = n - 1; i >= 0; i--) {
+        output[count[arr[i]] - 1] = arr[i];
+        count[arr[i]]--;
+    }
+
+    // Copy the output array to original array
+    for (int i = 0; i < n; i++) {
+        arr[i] = output[i];
+    }
+}
+
+// Kernel for applying median filter using shared memory and radix sort
 template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
-__global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* output, int width, int height) {
+__global__ void medianFilterRadixKernel(unsigned char* input, unsigned char* output, int width, int height) {
     __shared__ unsigned char sharedMem[BLOCK_DIM_Y + WINDOW_SIZE - 1][BLOCK_DIM_X + WINDOW_SIZE - 1];
 
     int tx = threadIdx.x;
@@ -72,7 +98,7 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
     int x = bx + tx;
     int y = by + ty;
 
-    // Cargar datos en memoria compartida
+    // Load data into shared memory
     for (int dy = ty; dy < BLOCK_DIM_Y + WINDOW_SIZE - 1; dy += BLOCK_DIM_Y) {
         for (int dx = tx; dx < BLOCK_DIM_X + WINDOW_SIZE - 1; dx += BLOCK_DIM_X) {
             int globalX = bx + dx - WINDOW_SIZE / 2;
@@ -88,7 +114,7 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
 
     __syncthreads();
 
-    // Aplicar el filtro de mediana
+    // Apply median filter
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;
@@ -99,42 +125,18 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
             }
         }
 
-        // Sort the window using CUB's RadixSort outside the kernel
+        radixSort(window, WINDOW_SIZE * WINDOW_SIZE);
         output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];
     }
 }
 
-__global__ void extractWindows(unsigned char* input, unsigned char* windows, int width, int height, int windowSize) {
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-    int bx = blockIdx.x * blockDim.x;
-    int by = blockIdx.y * blockDim.y;
-    int x = bx + tx;
-    int y = by + ty;
-
-    int windowHalf = windowSize / 2;
-
-    if (x < width && y < height) {
-        int idx = 0;
-        for (int wy = -windowHalf; wy <= windowHalf; wy++) {
-            for (int wx = -windowHalf; wx <= windowHalf; wx++) {
-                int nx = min(max(x + wx, 0), width - 1);
-                int ny = min(max(y + wy, 0), height - 1);
-                windows[(y * width + x) * windowSize * windowSize + idx++] = input[ny * width + nx];
-            }
-        }
-    }
-}
-
-// Función para aplicar el filtro de mediana en la GPU y medir el tiempo
+// Function to apply median filter on GPU and measure time
 float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSize) {
-    unsigned char *d_input, *d_output, *d_windows;
+    unsigned char *d_input, *d_output;
     size_t size = input.width * input.height * sizeof(unsigned char);
-    size_t windowSizeBytes = input.width * input.height * windowSize * windowSize * sizeof(unsigned char);
 
     cudaMalloc(&d_input, size);
     cudaMalloc(&d_output, size);
-    cudaMalloc(&d_windows, windowSizeBytes);
     cudaMemcpy(d_input, input.data.data(), size, cudaMemcpyHostToDevice);
 
     const int BLOCK_DIM_X = 16;
@@ -147,40 +149,25 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     cudaEventCreate(&stop);
     cudaEventRecord(start);
 
-    // Extract windows
-    extractWindows<<<gridSize, blockSize>>>(d_input, d_windows, input.width, input.height, windowSize);
-
-    // Allocate temporary storage for CUB's RadixSort
-    unsigned char* d_temp_storage = NULL;
-    size_t temp_storage_bytes = 0;
-    cub::DeviceRadixSort::SortKeys(d_temp_storage, temp_storage_bytes, d_windows, d_windows, windowSize * windowSize);
-    cudaMalloc(&d_temp_storage, temp_storage_bytes);
-
-    // Sort windows in parallel using CUB's RadixSort
-    cub::DeviceRadixSort::SortKeys(d_temp_storage, temp_storage_bytes, d_windows, d_windows, windowSize * windowSize);
-
-    // Free temporary storage
-    cudaFree(d_temp_storage);
-
-    // Apply median filter kernel
+    // Launch appropriate kernel based on window size
     switch (windowSize) {
         case 3:
-            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 3><<<gridSize, blockSize>>>(d_windows, d_output, input.width, input.height);
+            medianFilterRadixKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 3><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         case 5:
-            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 5><<<gridSize, blockSize>>>(d_windows, d_output, input.width, input.height);
+            medianFilterRadixKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 5><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         case 7:
-            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 7><<<gridSize, blockSize>>>(d_windows, d_output, input.width, input.height);
+            medianFilterRadixKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 7><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         case 9:
-            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 9><<<gridSize, blockSize>>>(d_windows, d_output, input.width, input.height);
+            medianFilterRadixKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 9><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         case 11:
-            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 11><<<gridSize, blockSize>>>(d_windows, d_output, input.width, input.height);
+            medianFilterRadixKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 11><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         default:
-            throw std::runtime_error("Tamaño de ventana no soportado");
+            throw std::runtime_error("Unsupported window size");
     }
 
     cudaEventRecord(stop);
@@ -193,7 +180,6 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
 
     cudaFree(d_input);
     cudaFree(d_output);
-    cudaFree(d_windows);
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 
