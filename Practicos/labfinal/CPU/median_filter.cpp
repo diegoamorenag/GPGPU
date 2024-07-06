@@ -1,13 +1,60 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <algorithm>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
+#include <string>
+#include <sstream>
+
+struct PGMImage {
+    int width;
+    int height;
+    int max_val;
+    std::vector<unsigned char> data;
+};
+
+// Función para leer una imagen PGM
+PGMImage readPGM(const std::string& filename) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("No se pudo abrir el archivo: " + filename);
+    }
+
+    PGMImage img;
+    std::string line;
+    std::getline(file, line);
+    if (line != "P5") {
+        throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
+    }
+
+    // Saltar comentarios
+    while (std::getline(file, line)) {
+        if (line[0] != '#') break;
+    }
+
+    std::istringstream iss(line);
+    iss >> img.width >> img.height;
+    file >> img.max_val;
+    file.ignore(); // Saltar el carácter de nueva línea
+
+    img.data.resize(img.width * img.height);
+    file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
+
+    return img;
+}
+
+// Función para escribir una imagen PGM
+void writePGM(const std::string& filename, const PGMImage& img) {
+    std::ofstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("No se pudo crear el archivo: " + filename);
+    }
+
+    file << "P5\n" << img.width << " " << img.height << "\n" << img.max_val << "\n";
+    file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
+}
 
 // Función para aplicar el filtro mediana a un pixel
-unsigned char medianFilter(unsigned char* img, int width, int height, int x, int y, int windowSize) {
+unsigned char medianFilter(const PGMImage& img, int x, int y, int windowSize) {
     std::vector<unsigned char> window;
     int halfWindow = windowSize / 2;
 
@@ -16,10 +63,10 @@ unsigned char medianFilter(unsigned char* img, int width, int height, int x, int
             int nx = x + wx;
             int ny = y + wy;
             
-            if (nx < 0 || nx >= width || ny < 0 || ny >= height) {
+            if (nx < 0 || nx >= img.width || ny < 0 || ny >= img.height) {
                 window.push_back(0);
             } else {
-                window.push_back(img[ny * width + nx]);
+                window.push_back(img.data[ny * img.width + nx]);
             }
         }
     }
@@ -29,18 +76,19 @@ unsigned char medianFilter(unsigned char* img, int width, int height, int x, int
 }
 
 // Función principal para aplicar el filtro mediana a toda la imagen
-void applyMedianFilter(unsigned char* input, unsigned char* output, int width, int height, int windowSize) {
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            output[y * width + x] = medianFilter(input, width, height, x, y, windowSize);
+PGMImage applyMedianFilter(const PGMImage& input, int windowSize) {
+    PGMImage output = input;
+    for (int y = 0; y < input.height; ++y) {
+        for (int x = 0; x < input.width; ++x) {
+            output.data[y * input.width + x] = medianFilter(input, x, y, windowSize);
         }
-        std::cout << "Progreso: " << (y * 100) / height << "%" << std::endl;
     }
+    return output;
 }
 
 int main(int argc, char* argv[]) {
     if (argc != 4) {
-        std::cerr << "Uso: " << argv[0] << " <imagen_entrada> <imagen_salida> <tamaño_ventana>" << std::endl;
+        std::cerr << "Uso: " << argv[0] << " <imagen_entrada.pgm> <imagen_salida.pgm> <tamaño_ventana>" << std::endl;
         return 1;
     }
 
@@ -49,36 +97,19 @@ int main(int argc, char* argv[]) {
     int windowSize = std::atoi(argv[3]);
 
     if (windowSize % 2 == 0) {
-        std::cerr << "El tamano de la ventana debe ser impar." << std::endl;
+        std::cerr << "El tamaño de la ventana debe ser impar." << std::endl;
         return 1;
     }
 
-    int width, height, channels;
-    unsigned char* img = stbi_load(inputFilename, &width, &height, &channels, 1);
-
-    if (!img) {
-        std::cerr << "Error al cargar la imagen." << std::endl;
+    try {
+        PGMImage img = readPGM(inputFilename);
+        PGMImage filtered = applyMedianFilter(img, windowSize);
+        writePGM(outputFilename, filtered);
+        std::cout << "Filtro mediana aplicado exitosamente. Resultado guardado en " << outputFilename << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
-
-    std::cout << "Imagen cargada exitosamente." << std::endl;
-    std::cout << "Dimensiones: " << width << "x" << height << std::endl;
-
-    unsigned char* output = new unsigned char[width * height];
-
-    applyMedianFilter(img, output, width, height, windowSize);
-
-    if (!stbi_write_png(outputFilename, width, height, 1, output, width)) {
-        std::cerr << "Error al guardar la imagen." << std::endl;
-        stbi_image_free(img);
-        delete[] output;
-        return 1;
-    }
-
-    std::cout << "Filtro mediana aplicado exitosamente. Resultado guardado en " << outputFilename << std::endl;
-
-    stbi_image_free(img);
-    delete[] output;
 
     return 0;
 }
