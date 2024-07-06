@@ -98,7 +98,7 @@ int main(int argc, char **argv)
         float *img_out_matrix_cpu = image_out_cpu.data();
 
         // Aplicar el filtro de mediana en CPU
-        filtro_mediana_cpu(img_matrix, img_out_matrix_cpu, width, height, W);
+        filtro_mediana_cpu(img_matrix, img_out_matrix_cpu, image.width(), image.height(), W);
 
         // Generar el path para el archivo de salida CPU
         std::string resultsPathCPU = "results/" + std::to_string(W) + "/" + filename + "_output_cpu.ppm";
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
         float *img_out_matrix_gpu = image_out_gpu.data();
 
         // Aplicar el filtro de mediana en GPU
-        filtro_mediana_gpu(img_matrix, img_out_matrix_gpu, width, height, W);
+        filtro_mediana_gpu(img_matrix, img_out_matrix_gpu, image.width(), image.height(), W);
 
         // Generar el path para el archivo de salida GPU
         std::string resultsPathGPU = "results/" + std::to_string(W) + "/" + filename + "_output_gpu.ppm";
