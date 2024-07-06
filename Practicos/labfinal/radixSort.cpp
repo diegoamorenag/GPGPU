@@ -11,7 +11,7 @@
 #include <iostream>
 #include "radixSort.h"
 
-void exclusiveScanCPU(const byte *input, byte *output, int numElements)
+void exclusiveScanCPU(const float *input, float *output, int numElements)
 {
     if (numElements > 0)
     {
@@ -23,14 +23,14 @@ void exclusiveScanCPU(const byte *input, byte *output, int numElements)
     }
 }
 
-void splitCPU(const byte *input, byte *output, int n, int numElements)
+void splitCPU(const float *input, float *output, int n, int numElements)
 {
-    std::vector<byte> e(numElements);
-    std::vector<byte> scanResults(numElements);
+    std::vector<float> e(numElements);
+    std::vector<float> scanResults(numElements);
 
     for (int i = 0; i < numElements; i++)
     {
-        byte value = input[i];
+        float value = input[i];
         memcpy(&bits, &value, sizeof(value));
         std::bitset<32> binary(bits);
         printf(bits);;
