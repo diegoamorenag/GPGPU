@@ -59,32 +59,6 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
 
-// Radix sort implementation for unsigned char (8-bit integers)
-__device__ void radixSort(unsigned char* arr, int n) {
-    unsigned char output[256];  // Assuming window size is at most 16x16 = 256
-    int count[256] = {0};
-
-    // Count occurrences of each digit
-    for (int i = 0; i < n; i++) {
-        count[arr[i]]++;
-    }
-
-    // Compute cumulative count
-    for (int i = 1; i < 256; i++) {
-        count[i] += count[i - 1];
-    }
-
-    // Build the output array
-    for (int i = n - 1; i >= 0; i--) {
-        output[count[arr[i]] - 1] = arr[i];
-        count[arr[i]]--;
-    }
-
-    // Copy the output array to original array
-    for (int i = 0; i < n; i++) {
-        arr[i] = output[i];
-    }
-}
 __device__ unsigned int getBit(unsigned char value, int bitPosition) {
     return (value >> bitPosition) & 1;
 }
@@ -130,39 +104,57 @@ __global__ void checkIfSorted(unsigned char* input, int* isSorted, int n) {
     }
 }
 
-void radixSort(unsigned char* d_input, unsigned char* d_output, int n) {
-    int* d_flags;
-    int* d_prefixSum;
-    int* d_isSorted;
-    cudaMalloc(&d_flags, n * sizeof(int));
-    cudaMalloc(&d_prefixSum, n * sizeof(int));
-    cudaMalloc(&d_isSorted, sizeof(int));
-
-    int blockSize = 256;
-    int gridSize = (n + blockSize - 1) / blockSize;
-
+__device__ void radixSort(unsigned char* input, unsigned char* output, int n) {
+    // Variables locales para el dispositivo
+    int flags[256];  // Asumimos un tamaño máximo de ventana de 16x16
+    int prefixSum[256];
+    
     for (int bit = 0; bit < 8; ++bit) {
-        computeFlags<<<gridSize, blockSize>>>(d_input, d_flags, n, bit);
-        thrust::exclusive_scan(thrust::device, d_flags, d_flags + n, d_prefixSum);
-
-        radixSortStep<<<gridSize, blockSize>>>(d_input, d_output, d_prefixSum, n, bit);
-
+        // Compute flags
+        for (int i = 0; i < n; ++i) {
+            flags[i] = !getBit(input[i], bit);
+        }
+        
+        // Compute prefix sum (simple implementation for device)
+        prefixSum[0] = 0;
+        for (int i = 1; i < n; ++i) {
+            prefixSum[i] = prefixSum[i-1] + flags[i-1];
+        }
+        
+        // Perform radix sort step
+        for (int i = 0; i < n; ++i) {
+            unsigned int b = getBit(input[i], bit);
+            int position;
+            if (b == 0) {
+                position = prefixSum[i];
+            } else {
+                position = i - prefixSum[i] + prefixSum[n-1];
+            }
+            output[position] = input[i];
+        }
+        
         // Swap input and output
-        unsigned char* temp = d_input;
-        d_input = d_output;
-        d_output = temp;
-
-        // Check if sorted
-        int isSorted = 1;
-        cudaMemcpy(d_isSorted, &isSorted, sizeof(int), cudaMemcpyHostToDevice);
-        checkIfSorted<<<gridSize, blockSize>>>(d_input, d_isSorted, n);
-        cudaMemcpy(&isSorted, d_isSorted, sizeof(int), cudaMemcpyDeviceToHost);
+        unsigned char* temp = input;
+        input = output;
+        output = temp;
+        
+        // Check if sorted (simple implementation for device)
+        bool isSorted = true;
+        for (int i = 0; i < n - 1; ++i) {
+            if (input[i] > input[i + 1]) {
+                isSorted = false;
+                break;
+            }
+        }
         if (isSorted) break;
     }
-
-    cudaFree(d_flags);
-    cudaFree(d_prefixSum);
-    cudaFree(d_isSorted);
+    
+    // Ensure the result is in the output array
+    if (input != output) {
+        for (int i = 0; i < n; ++i) {
+            output[i] = input[i];
+        }
+    }
 }
 // Kernel for applying median filter using shared memory and radix sort
 template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
