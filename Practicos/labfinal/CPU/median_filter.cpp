@@ -118,7 +118,7 @@ int main(int argc, char* argv[]) {
         PGMImage img = readPGM(inputFilename);
         std::vector<double> executionTimes;
 
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 10; ++i) {
             auto start = std::chrono::high_resolution_clock::now();
             
             PGMImage filtered = applyMedianFilter(img, windowSize);

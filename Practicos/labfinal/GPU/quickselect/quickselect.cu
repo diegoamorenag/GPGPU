@@ -214,7 +214,7 @@ int main(int argc, char* argv[]) {
         PGMImage img = readPGM(inputFilename);
         PGMImage filtered = img; // Inicializar con la misma estructura
 
-        const int NUM_ITERATIONS = 100;
+        const int NUM_ITERATIONS = 10;
         std::vector<float> times(NUM_ITERATIONS);
 
         for (int i = 0; i < NUM_ITERATIONS; ++i) {

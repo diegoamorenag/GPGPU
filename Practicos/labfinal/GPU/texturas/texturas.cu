@@ -62,33 +62,46 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
 
-// Radix sort implementation for unsigned char (8-bit integers)
-__device__ void radixSort(unsigned char* arr, int n) {
-    unsigned char output[256];  // Assuming window size is at most 16x16 = 256
-    int count[256] = {0};
+__device__ void heapify(unsigned char* window, int n, int i) {
+    int largest = i; // Inicializa largest como raíz
+    int left = 2 * i + 1; // izquierda = 2*i + 1
+    int right = 2 * i + 2; // derecha = 2*i + 2
 
-    // Count occurrences of each digit
-    for (int i = 0; i < n; i++) {
-        count[arr[i]]++;
-    }
+    // Si el hijo izquierdo es más grande que la raíz
+    if (left < n && window[left] > window[largest])
+        largest = left;
 
-    // Compute cumulative count
-    for (int i = 1; i < 256; i++) {
-        count[i] += count[i - 1];
-    }
+    // Si el hijo derecho es más grande que el mayor hasta ahora
+    if (right < n && window[right] > window[largest])
+        largest = right;
 
-    // Build the output array
-    for (int i = n - 1; i >= 0; i--) {
-        output[count[arr[i]] - 1] = arr[i];
-        count[arr[i]]--;
-    }
+    // Si el mayor no es la raíz
+    if (largest != i) {
+        unsigned char swap = window[i];
+        window[i] = window[largest];
+        window[largest] = swap;
 
-    // Copy the output array to original array
-    for (int i = 0; i < n; i++) {
-        arr[i] = output[i];
+        // Recursivamente heapify el subárbol afectado
+        heapify(window, n, largest);
     }
 }
 
+__device__ void heapSort(unsigned char* window, int n) {
+    // Construir heap (reorganizar el arreglo)
+    for (int i = n / 2 - 1; i >= 0; i--)
+        heapify(window, n, i);
+
+    // Uno por uno extraer un elemento del heap
+    for (int i = n - 1; i > 0; i--) {
+        // Mover la raíz actual al final
+        unsigned char temp = window[0];
+        window[0] = window[i];
+        window[i] = temp;
+
+        // Llamar a max heapify en el heap reducido
+        heapify(window, i, 0);
+    }
+}
 
 template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
 __global__ void medianFilterOptimizedKernel(unsigned char* output, int width, int height) {
@@ -109,7 +122,7 @@ __global__ void medianFilterOptimizedKernel(unsigned char* output, int width, in
             }
         }
 
-        radixSort(window, WINDOW_SIZE * WINDOW_SIZE);
+        heapSort(window, WINDOW_SIZE * WINDOW_SIZE);
         output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];
     }
 }
@@ -211,7 +224,7 @@ int main(int argc, char* argv[]) {
         PGMImage img = readPGM(inputFilename);
         PGMImage filtered = img; // Inicializar con la misma estructura
 
-        const int NUM_ITERATIONS = 100;
+        const int NUM_ITERATIONS = 10;
         std::vector<float> times(NUM_ITERATIONS);
 
         for (int i = 0; i < NUM_ITERATIONS; ++i) {

@@ -59,37 +59,22 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
 
-// Radix sort implementation for unsigned char (8-bit integers)
-__device__ void radixSort(unsigned char* arr, int n) {
-    unsigned char output[256];  // Assuming window size is at most 16x16 = 256
-    int count[256] = {0};
-
-    // Count occurrences of each digit
-    for (int i = 0; i < n; i++) {
-        count[arr[i]]++;
-    }
-
-    // Compute cumulative count
-    for (int i = 1; i < 256; i++) {
-        count[i] += count[i - 1];
-    }
-
-    // Build the output array
-    for (int i = n - 1; i >= 0; i--) {
-        output[count[arr[i]] - 1] = arr[i];
-        count[arr[i]]--;
-    }
-
-    // Copy the output array to original array
-    for (int i = 0; i < n; i++) {
-        arr[i] = output[i];
+// Función para ordenar una ventana de píxeles
+__device__ void sortWindow(unsigned char* window, int windowSize) {
+    for (int i = 0; i < windowSize * windowSize - 1; i++) {
+        for (int j = 0; j < windowSize * windowSize - i - 1; j++) {
+            if (window[j] > window[j + 1]) {
+                unsigned char temp = window[j];
+                window[j] = window[j + 1];
+                window[j + 1] = temp;
+            }
+        }
     }
 }
 
-
+// Kernel para aplicar el filtro de mediana usando memoria compartida
 template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
-__global__ void medianFilterOptimizedKernel(const unsigned char* input, unsigned char* output, int width, int height) {
-    // Add padding to avoid bank conflicts (assuming 32 banks)
+__global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* output, int width, int height) {
     __shared__ unsigned char sharedMem[BLOCK_DIM_Y + WINDOW_SIZE - 1][(BLOCK_DIM_X + WINDOW_SIZE - 1) + 1];
 
     int tx = threadIdx.x;
@@ -99,14 +84,14 @@ __global__ void medianFilterOptimizedKernel(const unsigned char* input, unsigned
     int x = bx + tx;
     int y = by + ty;
 
-    // Load data into shared memory with safe global memory access and padding
+    // Cargar datos en memoria compartida
     for (int dy = ty; dy < BLOCK_DIM_Y + WINDOW_SIZE - 1; dy += BLOCK_DIM_Y) {
-        int imgY = by + dy - WINDOW_SIZE / 2;
         for (int dx = tx; dx < BLOCK_DIM_X + WINDOW_SIZE - 1; dx += BLOCK_DIM_X) {
-            int imgX = bx + dx - WINDOW_SIZE / 2;
-            
-            if (imgY >= 0 && imgY < height && imgX >= 0 && imgX < width) {
-                sharedMem[dy][dx] = input[imgY * width + imgX];
+            int globalX = bx + dx - WINDOW_SIZE / 2;
+            int globalY = by + dy - WINDOW_SIZE / 2;
+
+            if (globalX >= 0 && globalX < width && globalY >= 0 && globalY < height) {
+                sharedMem[dy][dx] = input[globalY * width + globalX];
             } else {
                 sharedMem[dy][dx] = 0;
             }
@@ -115,7 +100,7 @@ __global__ void medianFilterOptimizedKernel(const unsigned char* input, unsigned
 
     __syncthreads();
 
-    // Apply median filter
+    // Aplicar el filtro de mediana
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;
@@ -126,12 +111,12 @@ __global__ void medianFilterOptimizedKernel(const unsigned char* input, unsigned
             }
         }
 
-        radixSort(window, WINDOW_SIZE * WINDOW_SIZE);
+        sortWindow(window, WINDOW_SIZE);
         output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];
     }
 }
 
-// Function to apply median filter on GPU and measure time
+// Función para aplicar el filtro de mediana en la GPU y medir el tiempo
 float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSize) {
     unsigned char *d_input, *d_output;
     size_t size = input.width * input.height * sizeof(unsigned char);
@@ -150,25 +135,25 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     cudaEventCreate(&stop);
     cudaEventRecord(start);
 
-    // Launch appropriate kernel based on window size
+    // Lanzar el kernel apropiado según el tamaño de la ventana
     switch (windowSize) {
         case 3:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 3><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
+            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 3><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         case 5:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 5><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
+            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 5><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         case 7:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 7><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
+            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 7><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         case 9:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 9><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
+            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 9><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         case 11:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 11><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
+            medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 11><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         default:
-            throw std::runtime_error("Unsupported window size");
+            throw std::runtime_error("Tamaño de ventana no soportado");
     }
 
     cudaEventRecord(stop);
@@ -183,13 +168,6 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     cudaFree(d_output);
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
-
-    // Check for CUDA errors
-    cudaError_t error = cudaGetLastError();
-    if (error != cudaSuccess) {
-        std::cerr << "CUDA error: " << cudaGetErrorString(error) << std::endl;
-        return -1.0f;  // Indicate error
-    }
 
     return milliseconds;
 }
@@ -213,7 +191,7 @@ int main(int argc, char* argv[]) {
         PGMImage img = readPGM(inputFilename);
         PGMImage filtered = img; // Inicializar con la misma estructura
 
-        const int NUM_ITERATIONS = 100;
+        const int NUM_ITERATIONS = 10;
         std::vector<float> times(NUM_ITERATIONS);
 
         for (int i = 0; i < NUM_ITERATIONS; ++i) {

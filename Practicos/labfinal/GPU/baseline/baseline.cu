@@ -78,7 +78,7 @@ __global__ void medianFilterKernel(unsigned char* input, unsigned char* output, 
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (x < width && y < height) {
-        unsigned char window[25]; // Asumimos un tamaño máximo de ventana de 5x5
+        unsigned char window[81]; // Asumimos un tamaño máximo de ventana de 5x5
         int idx = 0;
         int halfWindow = windowSize / 2;
 
@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
         PGMImage img = readPGM(inputFilename);
         PGMImage filtered = img; // Inicializar con la misma estructura
 
-        const int NUM_ITERATIONS = 100;
+        const int NUM_ITERATIONS = 10;
         std::vector<float> times(NUM_ITERATIONS);
 
         for (int i = 0; i < NUM_ITERATIONS; ++i) {
