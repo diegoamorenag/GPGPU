@@ -51,7 +51,7 @@ PGMImage readPGM(const char* filename) {
 void writePGM(const char* filename, const PGMImage& img) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
-        throw std::runtime_error("No se pudo crear el archivo: " + filename);
+        throw std::runtime_error(std::string("No se pudo crear el archivo: ") + filename);
     }
 
     file << "P5\n" << img.width << " " << img.height << "\n" << img.max_val << "\n";
