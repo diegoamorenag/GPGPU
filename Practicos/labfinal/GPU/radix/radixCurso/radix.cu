@@ -48,7 +48,7 @@ PGMImage readPGM(const char* filename) {
 }
 
 // Función para escribir una imagen PGM
-void writePGM(const std::string& filename, const PGMImage& img) {
+void writePGM(const char* filename, const PGMImage& img) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
         throw std::runtime_error("No se pudo crear el archivo: " + filename);
