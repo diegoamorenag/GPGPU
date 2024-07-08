@@ -10,6 +10,7 @@
 #include <numeric>
 #include <algorithm>
 using namespace std;
+
 struct PGMImage {
     int width;
     int height;
@@ -17,11 +18,10 @@ struct PGMImage {
     std::vector<unsigned char> data;
 };
 
-// Función para leer una imagen PGM
-PGMImage readPGM(const std::string& filename) {
+PGMImage readPGM(const char* filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
-        throw std::runtime_error("No se pudo abrir el archivo: " + filename);
+        throw std::runtime_error("No se pudo abrir el archivo.");
     }
 
     PGMImage img;
