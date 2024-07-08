@@ -59,90 +59,6 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
 
-<<<<<<< HEAD
-__device__ unsigned int getBit(unsigned char value, int bitPosition) {
-    return (value >> bitPosition) & 1;
-}
-
-__global__ void computeFlags(unsigned char* input, int* flags, int n, int bitPosition) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < n) {
-        flags[idx] = !getBit(input[idx], bitPosition);
-    }
-}
-
-__global__ void radixSortStep(unsigned char* input, unsigned char* output, int* prefixSum, int n, int bitPosition) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < n) {
-        unsigned int bit = getBit(input[idx], bitPosition);
-        int position;
-        if (bit == 0) {
-            position = prefixSum[idx];
-        } else {
-            position = idx - prefixSum[idx] + prefixSum[n-1];
-        }
-        output[position] = input[idx];
-    }
-}
-
-__global__ void checkIfSorted(unsigned char* input, int* isSorted, int n) {
-    __shared__ int localIsSorted;
-    if (threadIdx.x == 0) {
-        localIsSorted = 1;
-    }
-    __syncthreads();
-
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < n - 1) {
-        if (input[idx] > input[idx + 1]) {
-            atomicAnd(&localIsSorted, 0);
-        }
-    }
-    __syncthreads();
-
-    if (threadIdx.x == 0) {
-        atomicAnd(isSorted, localIsSorted);
-    }
-}
-
-void radixSort(unsigned char* d_input, unsigned char* d_output, int n) {
-    int* d_flags;
-    int* d_prefixSum;
-    int* d_isSorted;
-    cudaMalloc(&d_flags, n * sizeof(int));
-    cudaMalloc(&d_prefixSum, n * sizeof(int));
-    cudaMalloc(&d_isSorted, sizeof(int));
-
-    int blockSize = 256;
-    int gridSize = (n + blockSize - 1) / blockSize;
-
-    for (int bit = 0; bit < 8; ++bit) {
-        computeFlags<<<gridSize, blockSize>>>(d_input, d_flags, n, bit);
-        thrust::exclusive_scan(thrust::device, d_flags, d_flags + n, d_prefixSum);
-
-        radixSortStep<<<gridSize, blockSize>>>(d_input, d_output, d_prefixSum, n, bit);
-
-        // Swap input and output
-        unsigned char* temp = d_input;
-        d_input = d_output;
-        d_output = temp;
-
-        // Check if sorted
-        int isSorted = 1;
-        cudaMemcpy(d_isSorted, &isSorted, sizeof(int), cudaMemcpyHostToDevice);
-        checkIfSorted<<<gridSize, blockSize>>>(d_input, d_isSorted, n);
-        cudaMemcpy(&isSorted, d_isSorted, sizeof(int), cudaMemcpyDeviceToHost);
-        if (isSorted) break;
-    }
-
-    cudaFree(d_flags);
-    cudaFree(d_prefixSum);
-    cudaFree(d_isSorted);
-}
-
-template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
-__global__ void medianFilterRadixSortKernel(unsigned char* input, unsigned char* output, int width, int height) {
-=======
 // Radix sort implementation for unsigned char (8-bit integers)
 __device__ void radixSort(unsigned char* arr, int n) {
     unsigned char output[256];  // Assuming window size is at most 16x16 = 256
@@ -173,7 +89,6 @@ __device__ void radixSort(unsigned char* arr, int n) {
 // Kernel for applying median filter using shared memory and radix sort
 template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
 __global__ void medianFilterRadixKernel(unsigned char* input, unsigned char* output, int width, int height) {
->>>>>>> fedeCapo
     __shared__ unsigned char sharedMem[BLOCK_DIM_Y + WINDOW_SIZE - 1][BLOCK_DIM_X + WINDOW_SIZE - 1];
 
     int tx = threadIdx.x;
@@ -183,11 +98,7 @@ __global__ void medianFilterRadixKernel(unsigned char* input, unsigned char* out
     int x = bx + tx;
     int y = by + ty;
 
-<<<<<<< HEAD
-    // Cargar datos en memoria compartida (igual que antes)
-=======
     // Load data into shared memory
->>>>>>> fedeCapo
     for (int dy = ty; dy < BLOCK_DIM_Y + WINDOW_SIZE - 1; dy += BLOCK_DIM_Y) {
         for (int dx = tx; dx < BLOCK_DIM_X + WINDOW_SIZE - 1; dx += BLOCK_DIM_X) {
             int globalX = bx + dx - WINDOW_SIZE / 2;
@@ -203,11 +114,7 @@ __global__ void medianFilterRadixKernel(unsigned char* input, unsigned char* out
 
     __syncthreads();
 
-<<<<<<< HEAD
-    // Aplicar el filtro de mediana usando Radix Sort
-=======
     // Apply median filter
->>>>>>> fedeCapo
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;
@@ -218,23 +125,12 @@ __global__ void medianFilterRadixKernel(unsigned char* input, unsigned char* out
             }
         }
 
-<<<<<<< HEAD
-        // Aplicar Radix Sort a la ventana
-        unsigned char sortedWindow[WINDOW_SIZE * WINDOW_SIZE];
-        radixSort(window, sortedWindow, WINDOW_SIZE * WINDOW_SIZE);
-
-        output[y * width + x] = sortedWindow[(WINDOW_SIZE * WINDOW_SIZE) / 2];
-    }
-}
-
-=======
         radixSort(window, WINDOW_SIZE * WINDOW_SIZE);
         output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];
     }
 }
 
 // Function to apply median filter on GPU and measure time
->>>>>>> fedeCapo
 float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSize) {
     unsigned char *d_input, *d_output;
     size_t size = input.width * input.height * sizeof(unsigned char);
@@ -253,27 +149,6 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     cudaEventCreate(&stop);
     cudaEventRecord(start);
 
-<<<<<<< HEAD
-    // Lanzar el kernel apropiado según el tamaño de la ventana
-    switch (windowSize) {
-        case 3:
-            medianFilterRadixSortKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 3><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
-            break;
-        case 5:
-            medianFilterRadixSortKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 5><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
-            break;
-        case 7:
-            medianFilterRadixSortKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 7><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
-            break;
-        case 9:
-            medianFilterRadixSortKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 9><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
-            break;
-        case 11:
-            medianFilterRadixSortKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 11><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
-            break;
-        default:
-            throw std::runtime_error("Tamaño de ventana no soportado");
-=======
     // Launch appropriate kernel based on window size
     switch (windowSize) {
         case 3:
@@ -293,7 +168,6 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
             break;
         default:
             throw std::runtime_error("Unsupported window size");
->>>>>>> fedeCapo
     }
 
     cudaEventRecord(stop);
@@ -311,33 +185,6 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
 
     return milliseconds;
 }
-<<<<<<< HEAD
-
-__global__ void extractWindows(unsigned char* input, unsigned char* windows, int width, int height, int windowSize) {
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-    int bx = blockIdx.x * blockDim.x;
-    int by = blockIdx.y * blockDim.y;
-    int x = bx + tx;
-    int y = by + ty;
-
-    int windowHalf = windowSize / 2;
-
-    if (x < width && y < height) {
-        int idx = 0;
-        for (int wy = -windowHalf; wy <= windowHalf; wy++) {
-            for (int wx = -windowHalf; wx <= windowHalf; wx++) {
-                int nx = min(max(x + wx, 0), width - 1);
-                int ny = min(max(y + wy, 0), height - 1);
-                windows[(y * width + x) * windowSize * windowSize + idx++] = input[ny * width + nx];
-            }
-        }
-    }
-}
-
-// Función para aplicar el filtro de mediana en la GPU y medir el tiemp
-=======
->>>>>>> fedeCapo
 
 int main(int argc, char* argv[]) {
     if (argc != 4) {
