@@ -6,11 +6,17 @@
 #include <algorithm>
 #include <string>
 #include <sstream>
-
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <stdexcept>
+#include <cuda_runtime.h>
 #include <cmath>
 #include <numeric>
 #include <algorithm>
-
+using namespace std;
 struct PGMImage {
     int width;
     int height;
