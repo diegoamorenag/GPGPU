@@ -1,14 +1,14 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <iostream>
+#include <sstream>
+#include <stdexcept>
 #include <fstream>
 #include <vector>
-#include <algorithm>
 #include <string>
-#include <sstream>
-
 #include <cmath>
 #include <numeric>
+#include <algorithm>
 using namespace std;
 struct PGMImage {
     int width;
