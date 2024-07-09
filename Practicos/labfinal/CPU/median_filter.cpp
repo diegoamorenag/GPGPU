@@ -35,15 +35,12 @@ PGMImage readPGM(const std::string& filename) {
     while (std::getline(file, line)) {
         if (line[0] != '#') break;
     }
-    printf("35");
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
     file.ignore(); // Saltar el carácter de nueva línea
-printf("40");
     img.data.resize(img.width * img.height);
     file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
-printf("43");
     return img;
 }
 
