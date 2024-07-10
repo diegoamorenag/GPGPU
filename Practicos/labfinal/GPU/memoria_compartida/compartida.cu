@@ -59,20 +59,38 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
 
-// Función para ordenar una ventana de píxeles
-__device__ void sortWindow(unsigned char* window, int windowSize) {
-    for (int i = 0; i < windowSize * windowSize - 1; i++) {
-        for (int j = 0; j < windowSize * windowSize - i - 1; j++) {
-            if (window[j] > window[j + 1]) {
-                unsigned char temp = window[j];
-                window[j] = window[j + 1];
-                window[j + 1] = temp;
-            }
+__device__ void radixSortWindow(unsigned char* window, int windowSize) {
+    int count[2], n = windowSize * windowSize;
+    unsigned char temp[25];  // Assuming max windowSize is 5x5
+
+    for (int bit = 0; bit < 8; ++bit) {
+        count[0] = count[1] = 0;
+
+        // Counting occurrences of 0's and 1's in the current bit
+        for (int i = 0; i < n; ++i) {
+            count[(window[i] >> bit) & 1]++;
+        }
+
+        // Compute indices for 0's and 1's
+        int index0 = 0;
+        int index1 = count[0];
+
+        // Distribute elements into the correct position in temp array
+        for (int i = 0; i < n; ++i) {
+            int idx = (window[i] >> bit) & 1;
+            if (idx == 0)
+                temp[index0++] = window[i];
+            else
+                temp[index1++] = window[i];
+        }
+
+        // Copy sorted elements back to the original window array
+        for (int i = 0; i < n; ++i) {
+            window[i] = temp[i];
         }
     }
 }
 
-// Kernel para aplicar el filtro de mediana usando memoria compartida
 template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
 __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* output, int width, int height) {
     __shared__ unsigned char sharedMem[BLOCK_DIM_Y + WINDOW_SIZE - 1][BLOCK_DIM_X + WINDOW_SIZE - 1];
@@ -84,7 +102,7 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
     int x = bx + tx;
     int y = by + ty;
 
-    // Cargar datos en memoria compartida
+    // Load data into shared memory
     for (int dy = ty; dy < BLOCK_DIM_Y + WINDOW_SIZE - 1; dy += BLOCK_DIM_Y) {
         for (int dx = tx; dx < BLOCK_DIM_X + WINDOW_SIZE - 1; dx += BLOCK_DIM_X) {
             int globalX = bx + dx - WINDOW_SIZE / 2;
@@ -100,19 +118,18 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
 
     __syncthreads();
 
-    // Aplicar el filtro de mediana
+    // Sort and find the median
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;
-
         for (int wy = 0; wy < WINDOW_SIZE; wy++) {
             for (int wx = 0; wx < WINDOW_SIZE; wx++) {
                 window[idx++] = sharedMem[ty + wy][tx + wx];
             }
         }
 
-        sortWindow(window, WINDOW_SIZE);
-        output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];
+        radixSortWindow(window, WINDOW_SIZE);
+        output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];  // Median
     }
 }
 
