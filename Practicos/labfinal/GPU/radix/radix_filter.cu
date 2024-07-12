@@ -95,7 +95,6 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
     int x = bx + tx;
     int y = by + ty;
 
-    // Load data into shared memory
     for (int dy = ty; dy < BLOCK_DIM_Y + WINDOW_SIZE - 1; dy += BLOCK_DIM_Y) {
         for (int dx = tx; dx < BLOCK_DIM_X + WINDOW_SIZE - 1; dx += BLOCK_DIM_X) {
             int globalX = bx + dx - WINDOW_SIZE / 2;
@@ -111,7 +110,6 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
 
     __syncthreads();
 
-    // Sort and find the median
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;
@@ -122,7 +120,7 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
         }
 
         radixSortWindow(window, WINDOW_SIZE);
-        output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];  // Median
+        output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];
     }
 }
 

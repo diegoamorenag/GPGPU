@@ -81,24 +81,20 @@ __device__ void heapify(unsigned char* window, int n, int i) {
         window[i] = window[largest];
         window[largest] = swap;
 
-        // Recursivamente heapify el subárbol afectado
+        // Recursivamente heapify
         heapify(window, n, largest);
     }
 }
 
 __device__ void heapSort(unsigned char* window, int n) {
-    // Construir heap (reorganizar el arreglo)
     for (int i = n / 2 - 1; i >= 0; i--)
         heapify(window, n, i);
 
-    // Uno por uno extraer un elemento del heap
     for (int i = n - 1; i > 0; i--) {
-        // Mover la raíz actual al final
         unsigned char temp = window[0];
         window[0] = window[i];
         window[i] = temp;
 
-        // Llamar a max heapify en el heap reducido
         heapify(window, i, 0);
     }
 }
@@ -132,19 +128,16 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     unsigned char *d_output;
     size_t size = input.width * input.height * sizeof(unsigned char);
 
-    // Allocate CUDA array and copy input data
     cudaArray* cuArray;
     cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<unsigned char>();
     cudaMallocArray(&cuArray, &channelDesc, input.width, input.height);
     cudaMemcpyToArray(cuArray, 0, 0, input.data.data(), size, cudaMemcpyHostToDevice);
 
-    // Set texture parameters
     texInput.addressMode[0] = cudaAddressModeClamp;
     texInput.addressMode[1] = cudaAddressModeClamp;
     texInput.filterMode = cudaFilterModePoint;
     texInput.normalized = false;
 
-    // Bind the array to the texture
     cudaBindTextureToArray(texInput, cuArray);
 
     cudaMalloc(&d_output, size);
@@ -159,7 +152,6 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     cudaEventCreate(&stop);
     cudaEventRecord(start);
 
-    // Launch appropriate kernel based on window size
     switch (windowSize) {
         case 3:
             medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 3><<<gridSize, blockSize>>>(d_output, input.width, input.height);
@@ -188,18 +180,16 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
 
     cudaMemcpy(output.data.data(), d_output, size, cudaMemcpyDeviceToHost);
 
-    // Cleanup
     cudaUnbindTexture(texInput);
     cudaFreeArray(cuArray);
     cudaFree(d_output);
     cudaEventDestroy(start);
     cudaEventDestroy(stop);
 
-    // Check for CUDA errors
     cudaError_t error = cudaGetLastError();
     if (error != cudaSuccess) {
         std::cerr << "CUDA error: " << cudaGetErrorString(error) << std::endl;
-        return -1.0f;  // Indicate error
+        return -1.0f;
     }
 
     return milliseconds;

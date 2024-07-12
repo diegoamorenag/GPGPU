@@ -61,21 +61,18 @@ void writePGM(const std::string& filename, const PGMImage& img) {
 
 __device__ void radixSortWindow(unsigned char* window, int windowSize) {
     int count[2], n = windowSize * windowSize;
-    unsigned char temp[25];  // Assuming max windowSize is 5x5
+    unsigned char temp[121]; // 11 * 11
 
     for (int bit = 0; bit < 8; ++bit) {
         count[0] = count[1] = 0;
 
-        // Counting occurrences of 0's and 1's in the current bit
         for (int i = 0; i < n; ++i) {
             count[(window[i] >> bit) & 1]++;
         }
 
-        // Compute indices for 0's and 1's
         int index0 = 0;
         int index1 = count[0];
 
-        // Distribute elements into the correct position in temp array
         for (int i = 0; i < n; ++i) {
             int idx = (window[i] >> bit) & 1;
             if (idx == 0)
@@ -84,7 +81,6 @@ __device__ void radixSortWindow(unsigned char* window, int windowSize) {
                 temp[index1++] = window[i];
         }
 
-        // Copy sorted elements back to the original window array
         for (int i = 0; i < n; ++i) {
             window[i] = temp[i];
         }
@@ -118,7 +114,6 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
 
     __syncthreads();
 
-    // Sort and find the median
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;
@@ -129,7 +124,7 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
         }
 
         radixSortWindow(window, WINDOW_SIZE);
-        output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];  // Median
+        output[y * width + x] = window[(WINDOW_SIZE * WINDOW_SIZE) / 2];
     }
 }
 
