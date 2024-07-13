@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cuda_runtime.h>
+#include <cuda_texture_types.h>
 #include <device_launch_parameters.h>
 #include <fstream>
 #include <iostream>
