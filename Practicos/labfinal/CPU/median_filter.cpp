@@ -1,13 +1,12 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include <algorithm>
-#include <string>
-#include <sstream>
 #include <chrono>
 #include <cmath>
+#include <fstream>
+#include <iostream>
 #include <numeric>
-#include <algorithm>
+#include <sstream>
+#include <string>
+#include <vector>
 
 struct PGMImage {
     int width;
