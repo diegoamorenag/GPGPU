@@ -146,7 +146,8 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     cudaArray* cuArray;
     cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<unsigned char>();
     cudaMallocArray(&cuArray, &channelDesc, input.width, input.height);
-    cudaMemcpyToArray(cuArray, 0, 0, input.data.data(), size, cudaMemcpyHostToDevice);
+    cudaMemcpy2DToArray(cuArray, 0, 0, input.data.data(), input.width * sizeof(unsigned char),
+                    input.width * sizeof(unsigned char), input.height, cudaMemcpyHostToDevice);
 
     cudaResourceDesc resDesc = {};
     resDesc.resType = cudaResourceTypeArray;
