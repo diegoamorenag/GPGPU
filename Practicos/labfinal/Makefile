@@ -24,7 +24,7 @@ TARGETS = $(CPU_DIR)/median_filter \
           $(GPU_DIR)/radixCub/radixCub \
           $(GPU_DIR)/radixCurso/radixCurso \
 		  $(GPU_DIR)/shell/shell
-          $(GPU_DIR)/texturas/texturas \
+		  $(GPU_DIR)/texturas/texturas \
 		  $(GPU_DIR)/thrust_filter/thrust_filter \
 
 # Default target
