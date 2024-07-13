@@ -1,12 +1,3 @@
-# Environment setup
-define setup_env
-    export PATH=$$PATH:/usr/local/cuda-12.1/bin; \
-    export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/usr/local/cuda-12.1/lib64; \
-    source /etc/profile.d/modules.sh; \
-    module load cuda/12.1; \
-    $(1)
-endef
-
 # Routes
 CUB = /clusteruy/home/gpgpu10/cub/cub
 MKLROOT = /home/gpgpu/software/mkl
@@ -37,29 +28,29 @@ all: $(TARGETS)
 
 # CPU target
 $(CPU_DIR)/median_filter: $(CPU_DIR)/median_filter.cpp
-	$(call setup_env,$(CXX) $(CXXFLAGS) -o $@ $<)
+	$(CXX) $(CXXFLAGS) -o $@ $
 
 # GPU targets
 $(GPU_DIR)/baseline/baseline: $(GPU_DIR)/baseline/baseline.cu
-	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+	$(NVCC) $(NVCCFLAGS) -o $@ $
 
 $(GPU_DIR)/memoria_compartida/memoria_compartida: $(GPU_DIR)/memoria_compartida/memoria_compartida.cu
-	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+	$(NVCC) $(NVCCFLAGS) -o $@ $
 
 $(GPU_DIR)/quickselect/quickselect: $(GPU_DIR)/quickselect/quickselect.cu
-	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+	$(NVCC) $(NVCCFLAGS) -o $@ $
 
 $(GPU_DIR)/network/network: $(GPU_DIR)/network/network.cu
-	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+	$(NVCC) $(NVCCFLAGS) -o $@ $
 
 $(GPU_DIR)/radixCub/radixCub: $(GPU_DIR)/radixCub/radixCub.cu
-	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+	$(NVCC) $(NVCCFLAGS) -o $@ $
 
 $(GPU_DIR)/radixCurso/radixCurso: $(GPU_DIR)/radixCurso/radixCurso.cu
-	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+	$(NVCC) $(NVCCFLAGS) -o $@ $
 
 $(GPU_DIR)/texturas/texturas: $(GPU_DIR)/texturas/texturas.cu
-	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+	$(NVCC) $(NVCCFLAGS) -o $@ $
 
 # Clean
 clean:
@@ -67,10 +58,10 @@ clean:
 
 # Run targets
 run_cpu: $(CPU_DIR)/median_filter
-	$(call setup_env,./$(CPU_DIR)/median_filter input.pgm output.pgm 3)
+	./$(CPU_DIR)/median_filter input.pgm output.pgm 3
 
 run_gpu_%: $(GPU_DIR)/%/%
-	$(call setup_env,./$(GPU_DIR)/$*/$* input.pgm output.pgm 3)
+	./$(GPU_DIR)/$*/$* input.pgm output.pgm 3
 
 # Phony targets
 .PHONY: all clean run_cpu rebuild $(addprefix run_gpu_,baseline memoria_compartida network quickselect radixCub radixCurso texturas)
