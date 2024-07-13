@@ -70,6 +70,9 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
 
+// Declaración de la textura
+texture<unsigned char, 2, cudaReadModeElementType> texInput;
+
 __device__ void heapify(unsigned char* window, int n, int i) {
     int largest = i; // Inicializa largest como raíz
     int left = 2 * i + 1; // izquierda = 2*i + 1
