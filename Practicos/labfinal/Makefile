@@ -66,7 +66,7 @@ GPU/texturas/texturas: GPU/texturas/texturas.cu
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/texturas/texturas GPU/texturas/texturas.cu
 
 GPU/thrust_filter/thrust_filter: GPU/thrust_filter/thrust_filter.cu
-	/usr/local/cuda-12.1/bin/nvcc -o GPU/thrust_filter/thrust_filter GPU/thrust_filter/thrust_filter.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/thrust_filter/thrust_filter GPU/thrust_filter/thrust_filter.cu
 
 # Clean
 clean:
