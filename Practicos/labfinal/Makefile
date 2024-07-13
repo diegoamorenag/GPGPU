@@ -16,12 +16,16 @@ GPU_DIR = GPU
 # Targets
 TARGETS = $(CPU_DIR)/median_filter \
           $(GPU_DIR)/baseline/baseline \
+		  $(GPU_DIR)/counting/counting \
           $(GPU_DIR)/memoria_compartida/memoria_compartida \
           $(GPU_DIR)/network/network \
           $(GPU_DIR)/quickselect/quickselect \
+          $(GPU_DIR)/radix_filter/radix_filter \
           $(GPU_DIR)/radixCub/radixCub \
           $(GPU_DIR)/radixCurso/radixCurso \
-          $(GPU_DIR)/texturas/texturas
+		  $(GPU_DIR)/shell/shell
+          $(GPU_DIR)/texturas/texturas \
+		  $(GPU_DIR)/thrust_filter/thrust_filter \
 
 # Default target
 all: $(TARGETS)
@@ -34,23 +38,29 @@ CPU/median_filter: CPU/median_filter.cpp
 GPU/baseline/baseline: GPU/baseline/baseline.cu
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/baseline/baseline GPU/baseline/baseline.cu
 
-GPU/memoria_compartida/memoria_compartida: GPU/memoria_compartida/memoria_compartida.cu
-	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/memoria_compartida/memoria_compartida GPU/memoria_compartida/memoria_compartida.cu
-
 GPU/counting/counting: GPU/counting/counting.cu	
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/counting/counting GPU/counting/counting.cu
 
-GPU/quickselect/quickselect: GPU/quickselect/quickselect.cu
-	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/quickselect/quickselect GPU/quickselect/quickselect.cu
+GPU/memoria_compartida/memoria_compartida: GPU/memoria_compartida/memoria_compartida.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/memoria_compartida/memoria_compartida GPU/memoria_compartida/memoria_compartida.cu
 
 GPU/network/network: GPU/network/network.cu
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/network/network GPU/network/network.cu
+
+GPU/quickselect/quickselect: GPU/quickselect/quickselect.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/quickselect/quickselect GPU/quickselect/quickselect.cu
 
 GPU/radixCub/radixCub: GPU/radixCub/radixCub.cu
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/radixCub/radixCub GPU/radixCub/radixCub.cu
 
 GPU/radixCurso/radixCurso: GPU/radixCurso/radixCurso.cu
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/radixCurso/radixCurso GPU/radixCurso/radixCurso.cu
+
+GPU/radix_filter/radix_filter: GPU/radix_filter/radix_filter.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/radix_filter/radix_filter GPU/radix_filter/radix_filter.cu
+
+GPU/shell/shell: GPU/shell/shell.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/shell/shell GPU/shell/shell.cu
 
 GPU/texturas/texturas: GPU/texturas/texturas.cu
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/texturas/texturas GPU/texturas/texturas.cu
@@ -70,4 +80,4 @@ run_gpu_%: $(GPU_DIR)/%/%
 	./$(GPU_DIR)/$*/$* input.pgm output.pgm 3
 
 # Phony targets
-.PHONY: all clean run_cpu rebuild $(addprefix run_gpu_,baseline counting memoria_compartida network quickselect radixCub radixCurso texturas thrust_filter)
+.PHONY: all clean run_cpu rebuild $(addprefix run_gpu_,baseline counting memoria_compartida network quickselect radixCub radixCurso radix_filter texturas thrust_filter shell)
