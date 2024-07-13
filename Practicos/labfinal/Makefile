@@ -1,9 +1,12 @@
 # Environment setup
-export PATH=$$PATH:/usr/local/cuda-12.1/bin; \
-export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/usr/local/cuda-12.1/lib64; \
-source /etc/profile.d/modules.sh; \
-module load cuda/11.0; \
-$(1)
+define setup_env
+    export PATH=$$PATH:/usr/local/cuda-12.1/bin; \
+    export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/usr/local/cuda-12.1/lib64; \
+    source /etc/profile.d/modules.sh; \
+    module load cuda/11.0; \
+    $(1)
+endef
+
 
 # Compiler settings
 CXX = g++
