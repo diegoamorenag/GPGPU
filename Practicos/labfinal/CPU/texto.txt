@@ -1,0 +1,537 @@
+[gpgpu10@node14 labfinal]$ ./run_algorithms.sh
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_3.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 82.0172
+Desviación estándar: 5.11024
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_5.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 211.899
+Desviación estándar: 5.37853
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_7.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 434.558
+Desviación estándar: 5.23601
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_9.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 807.529
+Desviación estándar: 4.45733
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_11.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 1225.55
+Desviación estándar: 7.65447
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_3.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 2533.22
+Desviación estándar: 26.3192
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_5.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 6651.56
+Desviación estándar: 28.8501
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_7.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 13660.8
+Desviación estándar: 55.8322
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_9.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 25485.5
+Desviación estándar: 105.125
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_11.pgm
+Estadísticas de tiempo de ejecución (ms) para 100 ejecuciones:
+Media: 38650.4
+Desviación estándar: 111.093
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Tiempo promedio: 0.840474 ms
+Desviación estándar: 0.025011 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_3.pgm
+Tiempo promedio: 6.24768 ms
+Desviación estándar: 0.0644531 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_5.pgm
+Tiempo promedio: 23.9877 ms
+Desviación estándar: 0.147199 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_7.pgm
+Tiempo promedio: 45.6621 ms
+Desviación estándar: 19.467 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_9.pgm
+Tiempo promedio: 62.5289 ms
+Desviación estándar: 40.8306 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_11.pgm
+Tiempo promedio: 24.8378 ms
+Desviación estándar: -nan ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_3.pgm
+Tiempo promedio: 77.4468 ms
+Desviación estándar: 52.2862 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_5.pgm
+Tiempo promedio: 193.505 ms
+Desviación estándar: 98.8751 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_7.pgm
+Tiempo promedio: 461.556 ms
+Desviación estándar: 122.216 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_9.pgm
+Tiempo promedio: 972.351 ms
+Desviación estándar: 121.037 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_11.pgm
+Tiempo promedio: 2.66076 ms
+Desviación estándar: 0.00463224 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_3.pgm
+Tiempo promedio: 19.4149 ms
+Desviación estándar: 0.0749349 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_5.pgm
+Tiempo promedio: 50.9809 ms
+Desviación estándar: 21.8905 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_7.pgm
+Tiempo promedio: 84.0238 ms
+Desviación estándar: 55.5027 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_9.pgm
+Tiempo promedio: 139.085 ms
+Desviación estándar: 95.6866 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_11.pgm
+Tiempo promedio: 9.32156 ms
+Desviación estándar: 2.01406 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_3.pgm
+Tiempo promedio: 18.0609 ms
+Desviación estándar: 1.12382 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_5.pgm
+Tiempo promedio: 31.6535 ms
+Desviación estándar: 1.96545 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_7.pgm
+Tiempo promedio: 36.5164 ms
+Desviación estándar: 2.80903 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_9.pgm
+Tiempo promedio: 49.166 ms
+Desviación estándar: 8.48154 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_11.pgm
+Tiempo promedio: 237.358 ms
+Desviación estándar: 15.1876 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_3.pgm
+Tiempo promedio: 471.898 ms
+Desviación estándar: 23.8757 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_5.pgm
+Tiempo promedio: 839.182 ms
+Desviación estándar: 29.5064 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_7.pgm
+Tiempo promedio: 750.877 ms
+Desviación estándar: 53.6237 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_9.pgm
+Tiempo promedio: 1212.07 ms
+Desviación estándar: 55.5225 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_11.pgm
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Tiempo promedio: 0.107843 ms
+Desviación estándar: 0.00161973 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_3.pgm
+Tiempo promedio: 1.10627 ms
+Desviación estándar: 0.010219 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_5.pgm
+Tiempo promedio: 3.64564 ms
+Desviación estándar: 0.909467 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_7.pgm
+Tiempo promedio: 5.37877 ms
+Desviación estándar: 3.81425 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_9.pgm
+Tiempo promedio: 8.4676 ms
+Desviación estándar: 7.01788 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_11.pgm
+Tiempo promedio: 1.32087 ms
+Desviación estándar: 1.04278 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_3.pgm
+Tiempo promedio: 9.14938 ms
+Desviación estándar: 7.79421 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_5.pgm
+Tiempo promedio: 27.0788 ms
+Desviación estándar: 17.6604 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_7.pgm
+Tiempo promedio: 66.189 ms
+Desviación estándar: 29.5025 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_9.pgm
+Tiempo promedio: 141.547 ms
+Desviación estándar: 42.0318 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_11.pgm
+Tiempo promedio: 0.333032 ms
+Desviación estándar: 0.00141307 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_3.pgm
+Tiempo promedio: 2.99681 ms
+Desviación estándar: 1.04469 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_5.pgm
+Tiempo promedio: 5.93728 ms
+Desviación estándar: 4.66804 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_7.pgm
+Tiempo promedio: 10.7151 ms
+Desviación estándar: 8.97354 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_9.pgm
+Tiempo promedio: 19.1425 ms
+Desviación estándar: 14.4817 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_11.pgm
+Tiempo promedio: 0.092096 ms
+Desviación estándar: 0.00452114 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_3.pgm
+Tiempo promedio: 0.234989 ms
+Desviación estándar: 0.00314967 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_5.pgm
+Tiempo promedio: 2.50389 ms
+Desviación estándar: 0.0193965 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_7.pgm
+Tiempo promedio: 10.7827 ms
+Desviación estándar: 0.00676582 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_9.pgm
+Tiempo promedio: 23.8377 ms
+Desviación estándar: 0.0078125 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_11.pgm
+Tiempo promedio: 2.37756 ms
+Desviación estándar: 0.000976562 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_3.pgm
+Tiempo promedio: 6.68266 ms
+Desviación estándar: 0.00276214 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_5.pgm
+Tiempo promedio: 49.555 ms
+Desviación estándar: 26.6874 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_7.pgm
+Tiempo promedio: 107.789 ms
+Desviación estándar: 82.3759 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_9.pgm
+Tiempo promedio: 185.359 ms
+Desviación estándar: 125.206 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_11.pgm
+Tiempo promedio: 0.268339 ms
+Desviación estándar: 0.00296633 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_3.pgm
+Tiempo promedio: 0.73159 ms
+Desviación estándar: 0.00245358 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_5.pgm
+Tiempo promedio: 8.12237 ms
+Desviación estándar: 0.019918 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_7.pgm
+Tiempo promedio: 35.2687 ms
+Desviación estándar: 0.0110485 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_9.pgm
+Tiempo promedio: 55.0756 ms
+Desviación estándar: 25.2101 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_11.pgm
+Tiempo promedio: 1.36563 ms
+Desviación estándar: 0.0138193 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_3.pgm
+Tiempo promedio: 7.30137 ms
+Desviación estándar: 0.0601994 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_5.pgm
+Tiempo promedio: 17.8857 ms
+Desviación estándar: 0.138878 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_7.pgm
+Tiempo promedio: 33.9991 ms
+Desviación estándar: 0.30298 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_9.pgm
+Tiempo promedio: 57.0532 ms
+Desviación estándar: 4.42141 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_11.pgm
+Tiempo promedio: 35.7473 ms
+Desviación estándar: 3.68354 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_3.pgm
+Tiempo promedio: 85.7401 ms
+Desviación estándar: 57.4419 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_5.pgm
+Tiempo promedio: 274.851 ms
+Desviación estándar: 68.9779 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_7.pgm
+Tiempo promedio: 717.006 ms
+Desviación estándar: 40.3423 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_9.pgm
+Tiempo promedio: 1421.13 ms
+Desviación estándar: 28.9547 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_11.pgm
+Tiempo promedio: 4.14019 ms
+Desviación estándar: 0.0115548 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_3.pgm
+Tiempo promedio: 22.8181 ms
+Desviación estándar: 0.0620098 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_5.pgm
+Tiempo promedio: 48.5567 ms
+Desviación estándar: 10.9136 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_7.pgm
+Tiempo promedio: 92.1466 ms
+Desviación estándar: 13.5898 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_9.pgm
+Tiempo promedio: 164.522 ms
+Desviación estándar: 13.8812 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_11.pgm
+Tiempo promedio: 3.49037 ms
+Desviación estándar: 0.0166303 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_3.pgm
+Tiempo promedio: 11.1015 ms
+Desviación estándar: 0.0417987 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_5.pgm
+Tiempo promedio: 24.1254 ms
+Desviación estándar: 0.115878 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_7.pgm
+Tiempo promedio: 38.7018 ms
+Desviación estándar: 6.82583 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_9.pgm
+Tiempo promedio: 48.4469 ms
+Desviación estándar: 21.3247 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_11.pgm
+Tiempo promedio: 58.3422 ms
+Desviación estándar: 35.7893 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_3.pgm
+Tiempo promedio: 117.257 ms
+Desviación estándar: 77.5186 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_5.pgm
+Tiempo promedio: 209.397 ms
+Desviación estándar: 103.993 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_7.pgm
+Tiempo promedio: 346.999 ms
+Desviación estándar: 107.531 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_9.pgm
+Tiempo promedio: 549.372 ms
+Desviación estándar: 99.3292 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_11.pgm
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Tiempo promedio: 7.84833 ms
+Desviación estándar: 1.15953 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_3.pgm
+Tiempo promedio: 14.9907 ms
+Desviación estándar: 1.71984 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_5.pgm
+Tiempo promedio: 13.5032 ms
+Desviación estándar: 4.70144 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_7.pgm
+Tiempo promedio: 21.0963 ms
+Desviación estándar: 5.50151 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_9.pgm
+Tiempo promedio: 31.0947 ms
+Desviación estándar: 6.20104 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_11.pgm
+Tiempo promedio: 232.457 ms
+Desviación estándar: 5.52268 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_3.pgm
+lsTiempo promedio: 457.507 ms
+Desviación estándar: 8.35726 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_5.pgm
+Tiempo promedio: 421.846 ms
+Desviación estándar: 20.6045 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_7.pgm
+Tiempo promedio: 715.331 ms
+Desviación estándar: 20.1114 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_9.pgm
+Tiempo promedio: 1087.25 ms
+Desviación estándar: 22.4805 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_11.pgm
+Tiempo promedio: 24.1346 ms
+Desviación estándar: 1.96468 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_3.pgm
+Tiempo promedio: 45.7551 ms
+Desviación estándar: 3.19507 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_5.pgm
+Tiempo promedio: 39.3593 ms
+Desviación estándar: 9.77559 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_7.pgm
+Tiempo promedio: 65.0496 ms
+Desviación estándar: 11.0934 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_9.pgm
+Tiempo promedio: 97.7251 ms
+Desviación estándar: 12.717 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_11.pgm
+Tiempo promedio: 2.34862 ms
+Desviación estándar: 0.0174146 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_3.pgm
+Tiempo promedio: 5.89264 ms
+Desviación estándar: 3.80025 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_5.pgm
+Tiempo promedio: 9.29463 ms
+Desviación estándar: 6.64948 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_7.pgm
+Tiempo promedio: 13.4076 ms
+Desviación estándar: 9.37766 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_9.pgm
+Tiempo promedio: 21.4349 ms
+Desviación estándar: 12.3992 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_11.pgm
+Tiempo promedio: 19.8426 ms
+Desviación estándar: 11.8167 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_3.pgm
+Tiempo promedio: 91.276 ms
+Desviación estándar: 24.358 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_5.pgm
+Tiempo promedio: 189.784 ms
+Desviación estándar: 33.8193 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_7.pgm
+Tiempo promedio: 314.179 ms
+Desviación estándar: 37.1517 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_9.pgm
+Tiempo promedio: 563.88 ms
+Desviación estándar: 36.7121 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_11.pgm
+Tiempo promedio: 4.88864 ms
+Desviación estándar: 2.59834 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_3.pgm
+Tiempo promedio: 13.0369 ms
+Desviación estándar: 8.71412 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_5.pgm
+Tiempo promedio: 23.7287 ms
+Desviación estándar: 13.5529 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_7.pgm
+Tiempo promedio: 37.3993 ms
+Desviación estándar: 18.2353 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_9.pgm
+Tiempo promedio: 64.2442 ms
+Desviación estándar: 25.2108 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_11.pgm
+Tiempo promedio: 0.894522 ms
+Desviación estándar: 0.00563113 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_3.pgm
+Tiempo promedio: 4.81662 ms
+Desviación estándar: 0.034416 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_5.pgm
+Tiempo promedio: 13.9209 ms
+Desviación estándar: 0.0463841 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_7.pgm
+Tiempo promedio: 27.9053 ms
+Desviación estándar: 0.0773398 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_9.pgm
+Tiempo promedio: 43.4612 ms
+Desviación estándar: 0.122035 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_11.pgm
+Tiempo promedio: 24.8726 ms
+Desviación estándar: 0.0135316 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_3.pgm
+Tiempo promedio: 74.3832 ms
+Desviación estándar: 46.3195 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_5.pgm
+Tiempo promedio: 142.84 ms
+Desviación estándar: 98.6184 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_7.pgm
+Tiempo promedio: 245.709 ms
+Desviación estándar: 127.788 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_9.pgm
+Tiempo promedio: 369.124 ms
+Desviación estándar: 133.992 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_11.pgm
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Error: Formato de archivo no soportado. Solo se admite PGM binario (P5).
+Tiempo promedio: 0.96695 ms
+Desviación estándar: 0.00620521 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_3.pgm
+Tiempo promedio: 5.085 ms
+Desviación estándar: 0.0282022 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_5.pgm
+Tiempo promedio: 15.5241 ms
+Desviación estándar: 0.0770433 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_7.pgm
+Tiempo promedio: 40.2436 ms
+Desviación estándar: 0.155074 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_9.pgm
+Tiempo promedio: 62.1774 ms
+Desviación estándar: 20.6587 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_11.pgm
+Tiempo promedio: 26.6062 ms
+Desviación estándar: 0 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_3.pgm
+Tiempo promedio: 76.5363 ms
+Desviación estándar: 46.5881 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_5.pgm
+Tiempo promedio: 157.052 ms
+Desviación estándar: 91.9587 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_7.pgm
+Tiempo promedio: 406.582 ms
+Desviación estándar: 118.258 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_9.pgm
+Tiempo promedio: 910.717 ms
+Desviación estándar: 103.681 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_11.pgm
+Tiempo promedio: 2.9397 ms
+Desviación estándar: 0.0101956 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_3.pgm
+Tiempo promedio: 14.9299 ms
+Desviación estándar: 0.031974 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_5.pgm
+Tiempo promedio: 45.4374 ms
+Desviación estándar: 0.0698771 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_7.pgm
+Tiempo promedio: 78.8308 ms
+Desviación estándar: 35.5214 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_9.pgm
+Tiempo promedio: 130.665 ms
+Desviación estándar: 53.0145 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_11.pgm
+Tiempo promedio: 282.314 ms
+Desviación estándar: 90.5981 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_3.pgm
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+Tiempo promedio: 186.13 ms
+Desviación estándar: 177.311 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_5.pgm
+Tiempo promedio: 205.34 ms
+Desviación estándar: 112.925 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_7.pgm
+Tiempo promedio: 211.387 ms
+Desviación estándar: 111.16 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_9.pgm
+Tiempo promedio: 214.709 ms
+Desviación estándar: 99.8555 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_11.pgm
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+Tiempo promedio: 506.031 ms
+Desviación estándar: 1518.09 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_3.pgm
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+Tiempo promedio: 937.548 ms
+Desviación estándar: 1876.47 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_5.pgm
+Tiempo promedio: 4516.79 ms
+Desviación estándar: 106.874 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_7.pgm
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+Tiempo promedio: 0 ms
+Desviación estándar: 0 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_9.pgm
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+Tiempo promedio: 0 ms
+Desviación estándar: 0 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_11.pgm
+Tiempo promedio: 583.706 ms
+Desviación estándar: 134.737 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_3.pgm
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+Tiempo promedio: 149.672 ms
+Desviación estándar: 303.632 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_5.pgm
+Tiempo promedio: 544.395 ms
+Desviación estándar: 100.915 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_7.pgm
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+Tiempo promedio: 0 ms
+Desviación estándar: 0 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_9.pgm
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+temporary_buffer::allocate: get_temporary_buffer failed
+Tiempo promedio: 483.194 ms
+Desviación estándar: 268.924 ms
+Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_11.pgm
+[gpgpu10@node14 labfinal]$ ls
