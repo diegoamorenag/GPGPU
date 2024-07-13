@@ -37,6 +37,8 @@ $(GPU_DIR)/baseline/baseline : $(GPU_DIR)/baseline/baseline.cu
     $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
 $(GPU_DIR)/memoria_compartida/memoria_compartida : $(GPU_DIR)/memoria_compartida/compartida.cu
     $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+$(GPU_DIR)/quickselect/quickselect : $(GPU_DIR)/quickselect/quickselect.cu
+    $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
 $(GPU_DIR)/network/network : $(GPU_DIR)/network/network.cu
     $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
 $(GPU_DIR)/radixCub/radixCub : $(GPU_DIR)/radixCub/radixCub.cu
