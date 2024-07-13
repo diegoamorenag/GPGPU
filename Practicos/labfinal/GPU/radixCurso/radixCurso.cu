@@ -1,14 +1,14 @@
+#include <algorithm>
+#include <cmath>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
+#include <fstream>
 #include <iostream>
+#include <numeric>
 #include <sstream>
 #include <stdexcept>
-#include <fstream>
-#include <vector>
 #include <string>
-#include <cmath>
-#include <numeric>
-#include <algorithm>
+#include <vector>
 using namespace std;
 
 struct PGMImage {
