@@ -1,23 +1,44 @@
-OUTDIR = output
+# Compiler settings
+CXX = g++
+NVCC = nvcc
+CXXFLAGS = -Wall -std=c++11 -O2
+NVCCFLAGS = -O2
 
-all: $(OUTDIR) blur
+# Directories
+CPU_DIR = CPU
+GPU_DIR = GPU
 
-blur: $(OUTDIR)/radixSort.o $(OUTDIR)/main.o $(OUTDIR)/blur.o
-	nvcc -arch=sm_60 -dlink $(OUTDIR)/main.o $(OUTDIR)/blur.o -o $(OUTDIR)/dlink.o -O3
-	nvcc -arch=sm_60 -o blur $(OUTDIR)/main.o $(OUTDIR)/blur.o $(OUTDIR)/dlink.o $(OUTDIR)/radixSort.o -O3 -L/usr/X11R6/lib -lm -lpthread -lX11 -lnvToolsExt
+# Targets
+TARGETS = $(CPU_DIR)/median_filter \
+          $(GPU_DIR)/baseline/baseline \
+          $(GPU_DIR)/memoria_compartida/memoria_compartida \
+          $(GPU_DIR)/network/network \
+          $(GPU_DIR)/quickselect/quickselect \
+          $(GPU_DIR)/radixCub/radixCub \
+          $(GPU_DIR)/radixCurso/radixCurso \
+          $(GPU_DIR)/texturas/texturas
 
-$(OUTDIR)/radixSort.o: radixSort.cpp
-	nvcc -arch=sm_60 -c radixSort.cpp -o $(OUTDIR)/radixSort.o -O3
+# Default target
+all: $(TARGETS)
 
-$(OUTDIR)/main.o: main.cpp
-	nvcc -arch=sm_60 -c main.cpp -o $(OUTDIR)/main.o -O3
+# CPU target
+$(CPU_DIR)/median_filter: $(CPU_DIR)/median_filter.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $
 
-$(OUTDIR)/blur.o: blur.cu
-	nvcc -arch=sm_60 -c blur.cu -o $(OUTDIR)/blur.o -O3
+# GPU targets
+$(GPU_DIR)/%/% : $(GPU_DIR)/%/%.cu
+	$(NVCC) $(NVCCFLAGS) -o $@ $
 
-
-
+# Clean
 clean:
-	rm -f blur $(OUTDIR)/*
+	rm -f $(TARGETS)
 
-#nvcc -arch=sm_60 -Xptxas main.cpp blur.cu -o blur -O3 -L/usr/X11R6/lib -lm -lpthread -lX11 -lnvToolsExt
+# Run targets
+run_cpu: $(CPU_DIR)/median_filter
+	./$(CPU_DIR)/median_filter input.pgm output.pgm 3
+
+run_gpu_%: $(GPU_DIR)/%/%
+	./$(GPU_DIR)/$*/$* input.pgm output.pgm 3
+
+# Phony targets
+.PHONY: all clean run_cpu $(addprefix run_gpu_,baseline memoria_compartida network quickselect radixCub radixCurso texturas)

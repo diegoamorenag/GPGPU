@@ -1,33 +1,23 @@
-# Nombre del archivo ejecutable
-TARGET = median_filter
-
-# Compilador
+TARGET = CPU/median_filter
+OUTPUT_FOLDER = CPU/evaluacion
 CXX = g++
 
-# Opciones de compilación
 CXXFLAGS = -Wall -std=c++11 -O2
 
-# Archivos fuente
-SOURCES = median_filter.cpp
+SOURCES = CPU/median_filter.cpp
 
-# Archivos objeto (convertir archivos .cpp a .o)
 OBJECTS = $(SOURCES:.cpp=.o)
 
-# Regla por defecto
 all: $(TARGET)
 
-# Regla para compilar el programa
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-# Regla para compilar los archivos objeto
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-# Regla para limpiar archivos compilados
 clean:
 	rm -f $(OBJECTS) $(TARGET)
 
-# Regla para correr el programa (opcional, para comodidad)
 run: $(TARGET)
 	./$(TARGET) input.pgm output.pgm 3
