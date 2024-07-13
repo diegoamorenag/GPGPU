@@ -4085,9 +4085,9 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
         } else if (WINDOW_SIZE == 7){
             output[y * width + x] = opt_med49(window);
         } else if(WINDOW_SIZE == 9) {
-            output[y * width + x] = opt_med81(window)
+            output[y * width + x] = opt_med81(window);
         } else if( WINDOW_SIZE == 11) {
-            output[y * width + x] = opt_med121(window)
+            output[y * width + x] = opt_med121(window);
         }
     }
 }
