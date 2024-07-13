@@ -1,10 +1,10 @@
-TARGET = CPU/median_filter
-OUTPUT_FOLDER = CPU/evaluacion
+TARGET = median_filter
+OUTPUT_FOLDER = evaluacion
 CXX = g++
 
 CXXFLAGS = -Wall -std=c++11 -O2
 
-SOURCES = CPU/median_filter.cpp
+SOURCES = median_filter.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
