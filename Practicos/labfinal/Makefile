@@ -37,9 +37,8 @@ GPU/baseline/baseline: GPU/baseline/baseline.cu
 GPU/memoria_compartida/memoria_compartida: GPU/memoria_compartida/memoria_compartida.cu
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/memoria_compartida/memoria_compartida GPU/memoria_compartida/memoria_compartida.cu
 
-GPU/counting/counting: GPU/counting/counting.cu
+GPU/counting/counting: GPU/counting/counting.cu	
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/counting/counting GPU/counting/counting.cu
-
 
 GPU/quickselect/quickselect: GPU/quickselect/quickselect.cu
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/quickselect/quickselect GPU/quickselect/quickselect.cu
@@ -71,4 +70,4 @@ run_gpu_%: $(GPU_DIR)/%/%
 	./$(GPU_DIR)/$*/$* input.pgm output.pgm 3
 
 # Phony targets
-.PHONY: all clean run_cpu rebuild $(addprefix run_gpu_,baseline memoria_compartida network quickselect radixCub radixCurso texturas)
+.PHONY: all clean run_cpu rebuild $(addprefix run_gpu_,baseline counting memoria_compartida network quickselect radixCub radixCurso texturas thrust_filter)
