@@ -31,26 +31,26 @@ CPU/median_filter: CPU/median_filter.cpp
 	g++ -Wall -std=c++11 -O2 -o CPU/median_filter CPU/median_filter.cpp
 
 # GPU targets
-$(GPU_DIR)/baseline/baseline: $(GPU_DIR)/baseline/baseline.cu
-	$(NVCC) $(NVCCFLAGS) -o $@ $
+GPU/baseline/baseline: GPU/baseline/baseline.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/baseline/baseline GPU/baseline/baseline.cu
 
-$(GPU_DIR)/memoria_compartida/memoria_compartida: $(GPU_DIR)/memoria_compartida/memoria_compartida.cu
-	$(NVCC) $(NVCCFLAGS) -o $@ $
+GPU/memoria_compartida/memoria_compartida: GPU/memoria_compartida/memoria_compartida.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/memoria_compartida/memoria_compartida GPU/memoria_compartida/memoria_compartida.cu
 
-$(GPU_DIR)/quickselect/quickselect: $(GPU_DIR)/quickselect/quickselect.cu
-	$(NVCC) $(NVCCFLAGS) -o $@ $
+GPU/quickselect/quickselect: GPU/quickselect/quickselect.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/quickselect/quickselect GPU/quickselect/quickselect.cu
 
-$(GPU_DIR)/network/network: $(GPU_DIR)/network/network.cu
-	$(NVCC) $(NVCCFLAGS) -o $@ $
+GPU/network/network: GPU/network/network.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/network/network GPU/network/network.cu
 
-$(GPU_DIR)/radixCub/radixCub: $(GPU_DIR)/radixCub/radixCub.cu
-	$(NVCC) $(NVCCFLAGS) -o $@ $
+GPU/radixCub/radixCub: GPU/radixCub/radixCub.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/radixCub/radixCub GPU/radixCub/radixCub.cu
 
-$(GPU_DIR)/radixCurso/radixCurso: $(GPU_DIR)/radixCurso/radixCurso.cu
-	$(NVCC) $(NVCCFLAGS) -o $@ $
+GPU/radixCurso/radixCurso: GPU/radixCurso/radixCurso.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/radixCurso/radixCurso GPU/radixCurso/radixCurso.cu
 
-$(GPU_DIR)/texturas/texturas: $(GPU_DIR)/texturas/texturas.cu
-	$(NVCC) $(NVCCFLAGS) -o $@ $
+GPU/texturas/texturas: GPU/texturas/texturas.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/texturas/texturas GPU/texturas/texturas.cu
 
 # Clean
 clean:
