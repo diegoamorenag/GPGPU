@@ -35,7 +35,17 @@ $(CPU_DIR)/median_filter: $(CPU_DIR)/median_filter.cpp
 	$(call setup_env,$(CXX) $(CXXFLAGS) -o $@ $<)
 
 # GPU targets
-$(GPU_DIR)/%/% : $(GPU_DIR)/%/%.cu
+$(GPU_DIR)/baseline/baseline : $(GPU_DIR)/baseline/baseline.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+$(GPU_DIR)/memoria_compartida/memoria_compartida : $(GPU_DIR)/memoria_compartida/memoria_compartida.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+$(GPU_DIR)/network/network : $(GPU_DIR)/network/network.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+$(GPU_DIR)/radixCub/radixCub : $(GPU_DIR)/radixCub/radixCub.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+$(GPU_DIR)/radixCurso/radixCurso : $(GPU_DIR)/radixCurso/radixCurso.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+$(GPU_DIR)/texturas/texturas : $(GPU_DIR)/texturas/texturas.cu
 	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
 
 # Clean
