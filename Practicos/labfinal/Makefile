@@ -3,26 +3,26 @@ define setup_env
     export PATH=$$PATH:/usr/local/cuda-12.1/bin; \
     export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/usr/local/cuda-12.1/lib64; \
     source /etc/profile.d/modules.sh; \
-    module load cuda/11.0; \
+    module load cuda/12.1; \
     $(1)
 endef
 
-#routes
-CUB= /clusteruy/home/gpgpu10/cub/cub
+# Routes
+CUB = /clusteruy/home/gpgpu10/cub/cub
 MKLROOT = /home/gpgpu/software/mkl
-CUDA_INSTALL_PATH = /usr/local/cuda
+CUDA_INSTALL_PATH = /usr/local/cuda-12.1
 
 # Compiler settings
 CXX = g++
 NVCC = nvcc
-CXXFLAGS = -Wall -stclead=c++11 -O2
-NVCCFLAGS = -std=c++11 -O2
+CXXFLAGS = -Wall -std=c++11 -O2
+NVCCFLAGS = -std=c++11 -O2 -arch=sm_60 -I$(CUDA_INSTALL_PATH)/include -I$(CUB)
 
 # Directories
 CPU_DIR = CPU
 GPU_DIR = GPU
 
-# Targetsclear
+# Targets
 TARGETS = $(CPU_DIR)/median_filter \
           $(GPU_DIR)/baseline/baseline \
           $(GPU_DIR)/memoria_compartida/memoria_compartida \
@@ -38,29 +38,37 @@ all: $(TARGETS)
 # CPU target
 $(CPU_DIR)/median_filter: $(CPU_DIR)/median_filter.cpp
 	$(call setup_env,$(CXX) $(CXXFLAGS) -o $@ $<)
+
 # GPU targets
-$(GPU_DIR)/baseline/baseline : $(GPU_DIR)/baseline/baseline.cu
-    $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
-$(GPU_DIR)/memoria_compartida/memoria_compartida : $(GPU_DIR)/memoria_compartida/compartida.cu
-    $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
-$(GPU_DIR)/quickselect/quickselect : $(GPU_DIR)/quickselect/quickselect.cu
-    $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
-$(GPU_DIR)/network/network : $(GPU_DIR)/network/network.cu
-    $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
-$(GPU_DIR)/radixCub/radixCub : $(GPU_DIR)/radixCub/radix.cu
-    $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
-$(GPU_DIR)/radixCurso/radixCurso : $(GPU_DIR)/radixCurso/radix.cu
-    $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
-$(GPU_DIR)/texturas/texturas : $(GPU_DIR)/texturas/texturas.cu
-    $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+$(GPU_DIR)/baseline/baseline: $(GPU_DIR)/baseline/baseline.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+
+$(GPU_DIR)/memoria_compartida/memoria_compartida: $(GPU_DIR)/memoria_compartida/memoria_compartida.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+
+$(GPU_DIR)/quickselect/quickselect: $(GPU_DIR)/quickselect/quickselect.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+
+$(GPU_DIR)/network/network: $(GPU_DIR)/network/network.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+
+$(GPU_DIR)/radixCub/radixCub: $(GPU_DIR)/radixCub/radixCub.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+
+$(GPU_DIR)/radixCurso/radixCurso: $(GPU_DIR)/radixCurso/radixCurso.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
+
+$(GPU_DIR)/texturas/texturas: $(GPU_DIR)/texturas/texturas.cu
+	$(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
 
 # Clean
 clean:
-	/bin/rm -f $(TARGETS)
+	rm -f $(TARGETS)
 
 # Run targets
 run_cpu: $(CPU_DIR)/median_filter
 	$(call setup_env,./$(CPU_DIR)/median_filter input.pgm output.pgm 3)
+
 run_gpu_%: $(GPU_DIR)/%/%
 	$(call setup_env,./$(GPU_DIR)/$*/$* input.pgm output.pgm 3)
 
