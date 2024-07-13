@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+using namespace std;
 
 struct PGMImage {
     int width;
