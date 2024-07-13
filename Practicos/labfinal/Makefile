@@ -1,21 +1,21 @@
 # Environment setup
-define setup_env
-    export PATH=$$PATH:/usr/local/cuda-12.1/bin; \
-    export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/usr/local/cuda-12.1/lib64; \
-    source /etc/profile.d/modules.sh; \
-    module load cuda/11.0; \
-    $(1)
-endef
+#define setup_env
+#    export PATH=$$PATH:/usr/local/cuda-12.1/bin; \
+#    export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:/usr/local/cuda-12.1/lib64; \
+#    source /etc/profile.d/modules.sh; \
+#    module load cuda/11.0; \
+#    $(1)
+#endef
 
 # Compiler settings
 CXX = g++
-NVCC = nvcc
+#NVCC = nvcc
 CXXFLAGS = -Wall -std=c++11 -O2
-NVCCFLAGS = -O2
+#NVCCFLAGS = -O2
 
 # Directories
 CPU_DIR = CPU
-GPU_DIR = GPU
+#GPU_DIR = GPU
 
 # Targets
 TARGETS = $(CPU_DIR)/median_filter 
