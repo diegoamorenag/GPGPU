@@ -19,13 +19,13 @@ GPU_DIR = GPU
 
 # Targets
 TARGETS = $(CPU_DIR)/median_filter \
-          $(GPU_DIR)/baseline/baseline \
-          $(GPU_DIR)/memoria_compartida/memoria_compartida \
-          $(GPU_DIR)/network/network \
-          $(GPU_DIR)/quickselect/quickselect \
-          $(GPU_DIR)/radixCub/radixCub \
-          $(GPU_DIR)/radixCurso/radixCurso \
-          $(GPU_DIR)/texturas/texturas
+#          $(GPU_DIR)/baseline/baseline \
+#          $(GPU_DIR)/memoria_compartida/memoria_compartida \
+#          $(GPU_DIR)/network/network \
+#          $(GPU_DIR)/quickselect/quickselect \
+#          $(GPU_DIR)/radixCub/radixCub \
+#          $(GPU_DIR)/radixCurso/radixCurso \
+#          $(GPU_DIR)/texturas/texturas
 
 # Default target
 all: $(TARGETS)
