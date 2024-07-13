@@ -115,7 +115,7 @@ __device__ void heapSort(unsigned char* window, int n) {
 }
 
 template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
-__global__ void medianFilterOptimizedKernel(unsigned char* output, int width, int height) {
+__global__ void medianFilterOptimizedKernel(cudaTextureObject_t texInput, unsigned char* output, int width, int height) {
     int tx = threadIdx.x;
     int ty = threadIdx.y;
     int x = blockIdx.x * BLOCK_DIM_X + tx;
@@ -143,20 +143,24 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     unsigned char *d_output;
     size_t size = input.width * input.height * sizeof(unsigned char);
 
-    // Allocate CUDA array and copy input data
     cudaArray* cuArray;
     cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<unsigned char>();
     cudaMallocArray(&cuArray, &channelDesc, input.width, input.height);
     cudaMemcpyToArray(cuArray, 0, 0, input.data.data(), size, cudaMemcpyHostToDevice);
 
-    // Set texture parameters
-    texInput.addressMode[0] = cudaAddressModeClamp;
-    texInput.addressMode[1] = cudaAddressModeClamp;
-    texInput.filterMode = cudaFilterModePoint;
-    texInput.normalized = false;
+    cudaResourceDesc resDesc = {};
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = cuArray;
 
-    // Bind the array to the texture
-    cudaBindTextureToArray(texInput, cuArray);
+    cudaTextureDesc texDesc = {};
+    texDesc.addressMode[0] = cudaAddressModeClamp;
+    texDesc.addressMode[1] = cudaAddressModeClamp;
+    texDesc.filterMode = cudaFilterModePoint;
+    texDesc.readMode = cudaReadModeElementType;
+    texDesc.normalizedCoords = false;
+
+    cudaTextureObject_t texInput;
+    cudaCreateTextureObject(&texInput, &resDesc, &texDesc, nullptr);
 
     cudaMalloc(&d_output, size);
 
@@ -173,19 +177,19 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     // Launch appropriate kernel based on window size
     switch (windowSize) {
         case 3:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 3><<<gridSize, blockSize>>>(d_output, input.width, input.height);
+            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 3><<<gridSize, blockSize>>>(texInput, d_output, input.width, input.height);
             break;
         case 5:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 5><<<gridSize, blockSize>>>(d_output, input.width, input.height);
+            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 5><<<gridSize, blockSize>>>(texInput, d_output, input.width, input.height);
             break;
         case 7:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 7><<<gridSize, blockSize>>>(d_output, input.width, input.height);
+            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 7><<<gridSize, blockSize>>>(texInput, d_output, input.width, input.height);
             break;
         case 9:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 9><<<gridSize, blockSize>>>(d_output, input.width, input.height);
+            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 9><<<gridSize, blockSize>>>(texInput, d_output, input.width, input.height);
             break;
         case 11:
-            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 11><<<gridSize, blockSize>>>(d_output, input.width, input.height);
+            medianFilterOptimizedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 11><<<gridSize, blockSize>>>(texInput, d_output, input.width, input.height);
             break;
         default:
             throw std::runtime_error("Unsupported window size");
@@ -200,7 +204,7 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     cudaMemcpy(output.data.data(), d_output, size, cudaMemcpyDeviceToHost);
 
     // Cleanup
-    cudaUnbindTexture(texInput);
+    cudaUnbindTextureObject(texInput);
     cudaFreeArray(cuArray);
     cudaFree(d_output);
     cudaEventDestroy(start);
