@@ -41,9 +41,9 @@ $(GPU_DIR)/quickselect/quickselect : $(GPU_DIR)/quickselect/quickselect.cu
     $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
 $(GPU_DIR)/network/network : $(GPU_DIR)/network/network.cu
     $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
-$(GPU_DIR)/radixCub/radixCub : $(GPU_DIR)/radixCub/radixCub.cu
+$(GPU_DIR)/radixCub/radixCub : $(GPU_DIR)/radixCub/radix.cu
     $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
-$(GPU_DIR)/radixCurso/radixCurso : $(GPU_DIR)/radixCurso/radixCurso.cu
+$(GPU_DIR)/radixCurso/radixCurso : $(GPU_DIR)/radixCurso/radix.cu
     $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
 $(GPU_DIR)/texturas/texturas : $(GPU_DIR)/texturas/texturas.cu
     $(call setup_env,$(NVCC) $(NVCCFLAGS) -o $@ $<)
