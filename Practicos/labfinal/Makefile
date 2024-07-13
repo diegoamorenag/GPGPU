@@ -28,8 +28,8 @@ all: $(TARGETS)
 
 # CPU target
 $(CPU_DIR)/median_filter: $(CPU_DIR)/median_filter.cpp
-    @echo "Compiling $<"
-    @echo "Command: $(CXX) $(CXXFLAGS) -o $@ $<"
+	@echo "Compiling $<"
+	@echo "Command: $(CXX) $(CXXFLAGS) -o $@ $<"
     $(CXX) $(CXXFLAGS) -o $@ $
 
 # GPU targets
