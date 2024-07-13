@@ -6,14 +6,9 @@
 #include <iostream>
 #include <numeric>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <vector>
-
-__device__ void swap(unsigned char& a, unsigned char& b) {
-    unsigned char temp = a;
-    a = b;
-    b = temp;
-}
 
 struct PGMImage {
     int width;
@@ -69,6 +64,12 @@ void writePGM(const char* filename, const PGMImage& img) {
 
     file << "P5\n" << img.width << " " << img.height << "\n" << img.max_val << "\n";
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
+}
+
+__device__ void swap(unsigned char& a, unsigned char& b) {
+    unsigned char temp = a;
+    a = b;
+    b = temp;
 }
 
 // Función de partición para quickselect
