@@ -67,4 +67,4 @@ run_gpu_%: $(GPU_DIR)/%/%
 	$(call setup_env,./$(GPU_DIR)/$*/$* input.pgm output.pgm 3)
 
 # Phony targets
-.PHONY: all clean run_cpu $(addprefix run_gpu_,baseline memoria_compartida network quickselect radixCub radixCurso texturas)
+.PHONY: all clean run_cpu rebuild $(addprefix run_gpu_,baseline memoria_compartida network quickselect radixCub radixCurso texturas)
