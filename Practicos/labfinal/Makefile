@@ -30,7 +30,6 @@ all: $(TARGETS)
 CPU/median_filter: CPU/median_filter.cpp
 	g++ -Wall -std=c++11 -O2 -o CPU/median_filter CPU/median_filter.cpp
 
-
 # GPU targets
 $(GPU_DIR)/baseline/baseline: $(GPU_DIR)/baseline/baseline.cu
 	$(NVCC) $(NVCCFLAGS) -o $@ $
