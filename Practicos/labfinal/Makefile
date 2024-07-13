@@ -7,18 +7,22 @@ define setup_env
     $(1)
 endef
 
+#routes
+CUB= /clusteruy/home/gpgpu10/cub/cub
+MKLROOT = /home/gpgpu/software/mkl
+CUDA_INSTALL_PATH = /usr/local/cuda
 
 # Compiler settings
 CXX = g++
 NVCC = nvcc
-CXXFLAGS = -Wall -std=c++11 -O2
+CXXFLAGS = -Wall -stclead=c++11 -O2
 NVCCFLAGS = -std=c++11 -O2
 
 # Directories
 CPU_DIR = CPU
 GPU_DIR = GPU
 
-# Targets
+# Targetsclear
 TARGETS = $(CPU_DIR)/median_filter \
           $(GPU_DIR)/baseline/baseline \
           $(GPU_DIR)/memoria_compartida/memoria_compartida \
