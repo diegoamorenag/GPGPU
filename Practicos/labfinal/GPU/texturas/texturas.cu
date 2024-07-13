@@ -71,7 +71,7 @@ void writePGM(const std::string& filename, const PGMImage& img) {
 }
 
 // Declaración de la textura
-texture<unsigned char, 2, cudaReadModeElementType> texInput;
+//texture<unsigned char, 2, cudaReadModeElementType> texInput;
 
 __device__ void heapify(unsigned char* window, int n, int i) {
     int largest = i; // Inicializa largest como raíz
@@ -120,16 +120,16 @@ __global__ void medianFilterOptimizedKernel(unsigned char* output, int width, in
     int ty = threadIdx.y;
     int x = blockIdx.x * BLOCK_DIM_X + tx;
     int y = blockIdx.y * BLOCK_DIM_Y + ty;
-
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;
-
+        
         for (int wy = -WINDOW_SIZE/2; wy <= WINDOW_SIZE/2; wy++) {
             for (int wx = -WINDOW_SIZE/2; wx <= WINDOW_SIZE/2; wx++) {
                 float u = x + wx + 0.5f;
                 float v = y + wy + 0.5f;
-                window[idx++] = tex2D(texInput, u, v);
+                window[idx++] = tex2D<unsigned char>(texInput, u, v);
+                //window[idx++] = tex2D(texInput, u, v);
             }
         }
 
