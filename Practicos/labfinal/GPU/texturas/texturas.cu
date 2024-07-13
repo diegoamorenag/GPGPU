@@ -11,6 +11,8 @@
 #include <numeric>
 #include <algorithm>
 
+// Declaración de la textura
+texture<unsigned char, 2, cudaReadModeElementType> texInput;
 
 struct PGMImage {
     int width;
@@ -25,27 +27,27 @@ PGMImage readPGM(const std::string& filename) {
     if (!file) {
         throw std::runtime_error("No se pudo abrir el archivo: " + filename);
     }
-    
+
     PGMImage img;
     std::string line;
     std::getline(file, line);
     if (line != "P5") {
         throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
     }
-    
+
     // Saltar comentarios
     while (std::getline(file, line)) {
         if (line[0] != '#') break;
     }
-    
+
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
     file.ignore(); // Saltar el carácter de nueva línea
-    
+
     img.data.resize(img.width * img.height);
     file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
-    
+
     return img;
 }
 
@@ -55,13 +57,10 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     if (!file) {
         throw std::runtime_error("No se pudo crear el archivo: " + filename);
     }
-    
+
     file << "P5\n" << img.width << " " << img.height << "\n" << img.max_val << "\n";
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
-
-// Declaración de la textura
-texture<unsigned char, 2, cudaReadModeElementType> texInput;
 
 __device__ void heapify(unsigned char* window, int n, int i) {
     int largest = i; // Inicializa largest como raíz
