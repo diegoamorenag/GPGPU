@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the directory containing the images and the output base directory
-image_dir="../imagenes"
+image_dir="./imagenes"
 output_dir="./evaluaciones"
 
 # Array of window sizes to use
