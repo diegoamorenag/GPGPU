@@ -1,18 +1,15 @@
+#include <algorithm>
+#include <cmath>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-#include <iostream>
 #include <fstream>
-#include <vector>
-#include <algorithm>
-#include <string>
-#include <sstream>
-
-#include <cmath>
+#include <iostream>
 #include <numeric>
-#include <algorithm>
-
-// Declaración de la textura
-texture<unsigned char, 2, cudaReadModeElementType> texInput;
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+using namespace std;
 
 struct PGMImage {
     int width;
@@ -22,18 +19,20 @@ struct PGMImage {
 };
 
 // Función para leer una imagen PGM
-PGMImage readPGM(const std::string& filename) {
+PGMImage readPGM(const char* filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
-        throw std::runtime_error("No se pudo abrir el archivo: " + filename);
+        throw std::runtime_error("No se pudo abrir el archivo.");
     }
 
     PGMImage img;
     std::string line;
     std::getline(file, line);
-    if (line != "P5") {
-        throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
+    if (line != "P5" && line != "P2") {
+        throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5) o ASCII (P2).");
     }
+
+    bool isBinary = (line == "P5");
 
     // Saltar comentarios
     while (std::getline(file, line)) {
@@ -46,7 +45,15 @@ PGMImage readPGM(const std::string& filename) {
     file.ignore(); // Saltar el carácter de nueva línea
 
     img.data.resize(img.width * img.height);
-    file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
+    if (isBinary) {
+        file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
+    } else {
+        for (int i = 0; i < img.width * img.height; ++i) {
+            int pixel;
+            file >> pixel;
+            img.data[i] = static_cast<unsigned char>(pixel);
+        }
+    }
 
     return img;
 }
