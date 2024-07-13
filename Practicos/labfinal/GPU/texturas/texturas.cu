@@ -1,15 +1,16 @@
-#include <algorithm>
-#include <cmath>
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
-#include <fstream>
 #include <iostream>
-#include <numeric>
-#include <sstream>
-#include <stdexcept>
-#include <string>
+#include <fstream>
 #include <vector>
-using namespace std;
+#include <algorithm>
+#include <string>
+#include <sstream>
+
+#include <cmath>
+#include <numeric>
+#include <algorithm>
+
 
 struct PGMImage {
     int width;
@@ -19,42 +20,32 @@ struct PGMImage {
 };
 
 // Función para leer una imagen PGM
-PGMImage readPGM(const char* filename) {
+PGMImage readPGM(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
-        throw std::runtime_error("No se pudo abrir el archivo.");
+        throw std::runtime_error("No se pudo abrir el archivo: " + filename);
     }
-
+    
     PGMImage img;
     std::string line;
     std::getline(file, line);
-    if (line != "P5" && line != "P2") {
-        throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5) o ASCII (P2).");
+    if (line != "P5") {
+        throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
     }
-
-    bool isBinary = (line == "P5");
-
+    
     // Saltar comentarios
     while (std::getline(file, line)) {
         if (line[0] != '#') break;
     }
-
+    
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
     file.ignore(); // Saltar el carácter de nueva línea
-
+    
     img.data.resize(img.width * img.height);
-    if (isBinary) {
-        file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
-    } else {
-        for (int i = 0; i < img.width * img.height; ++i) {
-            int pixel;
-            file >> pixel;
-            img.data[i] = static_cast<unsigned char>(pixel);
-        }
-    }
-
+    file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
+    
     return img;
 }
 
@@ -64,10 +55,13 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     if (!file) {
         throw std::runtime_error("No se pudo crear el archivo: " + filename);
     }
-
+    
     file << "P5\n" << img.width << " " << img.height << "\n" << img.max_val << "\n";
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
+
+// Declaración de la textura
+texture<unsigned char, 2, cudaReadModeElementType> texInput;
 
 __device__ void heapify(unsigned char* window, int n, int i) {
     int largest = i; // Inicializa largest como raíz
