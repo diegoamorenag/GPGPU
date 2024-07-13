@@ -4,9 +4,10 @@
 #include <algorithm>
 #include <string>
 #include <sstream>
-#include <chrono>
-#include <numeric>
+
 #include <cmath>
+#include <numeric>
+#include <algorithm>
 
 struct PGMImage {
     int width;
@@ -25,22 +26,23 @@ PGMImage readPGM(const std::string& filename) {
     PGMImage img;
     std::string line;
     std::getline(file, line);
-    printf("25");//bool isTypeP5 = line != "P5";
-    //bool isTypeP2 = line != "P2";
-    //if (line != "P5" && line != "P2") {
-        //throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
-    //}
+    if (line != "P5") {
+        throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
+    }
 
     // Saltar comentarios
     while (std::getline(file, line)) {
         if (line[0] != '#') break;
     }
+
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
     file.ignore(); // Saltar el carácter de nueva línea
+
     img.data.resize(img.width * img.height);
     file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
+
     return img;
 }
 
@@ -54,7 +56,6 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     file << "P5\n" << img.width << " " << img.height << "\n" << img.max_val << "\n";
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
-
 // Función para aplicar el filtro mediana a un pixel
 unsigned char medianFilter(const PGMImage& img, int x, int y, int windowSize) {
     std::vector<unsigned char> window;
