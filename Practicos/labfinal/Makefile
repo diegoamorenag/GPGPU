@@ -30,7 +30,7 @@ all: $(TARGETS)
 $(CPU_DIR)/median_filter: $(CPU_DIR)/median_filter.cpp
 	@echo "Compiling $<"
 	@echo "Command: $(CXX) $(CXXFLAGS) -o $@ $<"
-    $(CXX) $(CXXFLAGS) -o $@ $
+	$(CXX) $(CXXFLAGS) -o $@ $
 
 # GPU targets
 $(GPU_DIR)/baseline/baseline: $(GPU_DIR)/baseline/baseline.cu
