@@ -10,6 +10,10 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <thrust/sort.h>
+#include <thrust/device_vector.h>
+#include <thrust/execution_policy.h>
+
 using namespace std;
 
 struct PGMImage {
