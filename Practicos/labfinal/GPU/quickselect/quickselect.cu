@@ -13,15 +13,16 @@ using namespace std;
 
 struct PGMImage {
     int width;
-    int height; 
+    int height;
     int max_val;
     std::vector<unsigned char> data;
 };
 
+// Función para leer una imagen PGM
 PGMImage readPGM(const char* filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
-        throw std::runtime_error("No se pudo abrir el archivo: " + filename);
+        throw std::runtime_error("No se pudo abrir el archivo.");
     }
 
     PGMImage img;
@@ -56,8 +57,9 @@ PGMImage readPGM(const char* filename) {
 
     return img;
 }
+
 // Función para escribir una imagen PGM
-void writePGM(const char* filename, const PGMImage& img) {
+void writePGM(const std::string& filename, const PGMImage& img) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
         throw std::runtime_error("No se pudo crear el archivo: " + filename);
