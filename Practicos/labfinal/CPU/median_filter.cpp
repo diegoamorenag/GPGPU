@@ -144,10 +144,10 @@ int main(int argc, char* argv[]) {
         double mean = calculateMean(executionTimes);
         double stdDev = calculateStdDev(executionTimes, mean);
 
+        std::cout << "Tiempo promedio: " << mean << " ms" << std::endl;
+        std::cout << "Desviación estándar: " << stdDev << " ms" << std::endl;
         std::cout << "Filtro mediana aplicado exitosamente. Resultado guardado en " << outputFilename << std::endl;
-        std::cout << "Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:" << std::endl;
-        std::cout << "Media: " << mean << std::endl;
-        std::cout << "Desviación estándar: " << stdDev << std::endl;
+
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
