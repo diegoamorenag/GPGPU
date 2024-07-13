@@ -204,7 +204,6 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     cudaMemcpy(output.data.data(), d_output, size, cudaMemcpyDeviceToHost);
 
     // Cleanup
-    cudaUnbindTextureObject(texInput);
     cudaFreeArray(cuArray);
     cudaFree(d_output);
     cudaEventDestroy(start);
