@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <string>
 #include <sstream>
-
+#include <cuda_texture_types.h>
 #include <cmath>
 #include <numeric>
 #include <algorithm>
