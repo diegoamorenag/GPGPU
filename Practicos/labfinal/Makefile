@@ -50,7 +50,7 @@ $(GPU_DIR)/texturas/texturas : $(GPU_DIR)/texturas/texturas.cu
 
 # Clean
 clean:
-	rm -f $(TARGETS)
+	/bin/rm -f $(TARGETS)
 
 # Run targets
 run_cpu: $(CPU_DIR)/median_filter
