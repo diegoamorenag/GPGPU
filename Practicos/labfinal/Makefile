@@ -79,5 +79,6 @@ run_cpu: $(CPU_DIR)/median_filter
 run_gpu_%: $(GPU_DIR)/%/%
 	./$(GPU_DIR)/$*/$* input.pgm output.pgm 3
 
-# Phony targets
-.PHONY: all clean run_cpu rebuild $(addprefix run_gpu_,baseline counting memoria_compartida network quickselect radixCub radixCurso radix_filter texturas thrust_filter shell)
+.PHONY: run-algorithms
+run-algorithms:
+	./run_algorithms.sh
