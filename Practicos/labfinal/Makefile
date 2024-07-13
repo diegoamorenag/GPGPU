@@ -11,7 +11,7 @@ endef
 CXX = g++
 NVCC = nvcc
 CXXFLAGS = -Wall -std=c++11 -O2
-NVCCFLAGS = -O2
+NVCCFLAGS = -std=c++11 -O2
 
 # Directories
 CPU_DIR = CPU
