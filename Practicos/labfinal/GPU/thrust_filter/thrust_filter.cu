@@ -23,7 +23,7 @@ struct PGMImage {
     std::vector<unsigned char> data;
 };
 
-// Función para leer una imagen PGM
+// Funcion para leer una imagen PGM
 PGMImage readPGM(const char* filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
@@ -63,7 +63,7 @@ PGMImage readPGM(const char* filename) {
     return img;
 }
 
-// Función para escribir una imagen PGM
+// Funcion para escribir una imagen PGM
 void writePGM(const std::string& filename, const PGMImage& img) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
@@ -73,7 +73,6 @@ void writePGM(const std::string& filename, const PGMImage& img) {
     file << "P5\n" << img.width << " " << img.height << "\n" << img.max_val << "\n";
     file.write(reinterpret_cast<const char*>(img.data.data()), img.data.size());
 }
-
 
 template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
 __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* output, int width, int height) {
@@ -102,7 +101,6 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
             }
         }
     }
-
     __syncthreads();
 
     // Ordenar y encontrar la mediana usando thrust
@@ -120,7 +118,7 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
     }
 }
 
-// Función para aplicar el filtro de mediana en la GPU y medir el tiempo
+// Funcion para aplicar el filtro de mediana en la GPU y medir el tiempo
 float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSize) {
     unsigned char *d_input, *d_output;
     size_t size = input.width * input.height * sizeof(unsigned char);
@@ -157,7 +155,7 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
             medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 11><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
             break;
         default:
-            throw std::runtime_error("Tamaño de ventana no soportado");
+            throw std::runtime_error("Tamano de ventana no soportado");
     }
 
     cudaEventRecord(stop);
@@ -187,7 +185,7 @@ int main(int argc, char* argv[]) {
     int windowSize = std::atoi(argv[3]);
 
     if (windowSize % 2 == 0) {
-        std::cerr << "El tamaño de la ventana debe ser impar." << std::endl;
+        std::cerr << "El tamano de la ventana debe ser impar." << std::endl;
         return 1;
     }
 
@@ -210,7 +208,7 @@ int main(int argc, char* argv[]) {
         float stdev = std::sqrt(sq_sum / NUM_ITERATIONS - mean * mean);
 
         std::cout << "Tiempo promedio: " << mean << " ms" << std::endl;
-        std::cout << "Desviación estándar: " << stdev << " ms" << std::endl;
+        std::cout << "Desviacion estandar: " << stdev << " ms" << std::endl;
 
         writePGM(outputFilename, filtered);
         std::cout << "Filtro mediana aplicado exitosamente. Resultado guardado en " << outputFilename << std::endl;
