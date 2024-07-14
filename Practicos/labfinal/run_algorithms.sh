@@ -11,7 +11,7 @@ window_sizes=(3 5 7 9 11)  # Example window sizes
 images=("1.pgm" "Facultad_de_Ingenieria_UDELAR.pgm" "fing1_ruido.pgm")
 
 # Define executable directories
-exec_dirs=( "CPU/median_filter" "GPU/baseline/baseline" "GPU/counting/counting" "GPU/memoria_compartida/memoria_compartida" \
+exec_dirs=( "CPU/median_filter" "GPU/bancos/bancos" "GPU/baseline/baseline" "GPU/counting/counting" "GPU/memoria_compartida/memoria_compartida" \
             "GPU/network/network" "GPU/quickselect/quickselect" "GPU/radix_filter/radix_filter" "GPU/radixCub/radixCub" \
             "GPU/radixCurso/radixCurso" "GPU/shell/shell" "GPU/texturas/texturas" "GPU/thrust_filter/thrust_filter" )
 
