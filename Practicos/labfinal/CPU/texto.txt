@@ -1,588 +1,541 @@
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_3.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 79.8288
-Desviación estándar: 4.31197
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_5.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 210.249
-Desviación estándar: 3.67778
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_7.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 436.989
-Desviación estándar: 3.41815
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_9.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 802.484
-Desviación estándar: 5.88757
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/median_filter/salida_11.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 1209.59
-Desviación estándar: 4.71445
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_3.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 2483.15
-Desviación estándar: 44.8587
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_5.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 6620.62
-Desviación estándar: 36.4161
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_7.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 13731.6
-Desviación estándar: 5.49047
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_9.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 25202.7
-Desviación estándar: 100.969
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_11.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 38297.3
-Desviación estándar: 103.398
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/median_filter/salida_3.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 264.032
-Desviación estándar: 3.12161
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/median_filter/salida_5.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 705.705
-Desviación estándar: 2.92554
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/median_filter/salida_7.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 1461.83
-Desviación estándar: 4.1474
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/median_filter/salida_9.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 2653.44
-Desviación estándar: 11.9943
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/median_filter/salida_11.pgm
-Estadísticas de tiempo de ejecución (ms) para 10 ejecuciones:
-Media: 3996.66
-Desviación estándar: 6.87361
-Tiempo promedio: 0.871366 ms
-Desviación estándar: 0.0232049 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_3.pgm
-Tiempo promedio: 6.6453 ms
-Desviación estándar: 0.047078 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_5.pgm
-Tiempo promedio: 25.1315 ms
-Desviación estándar: 0.278634 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_7.pgm
-Tiempo promedio: 50.479 ms
-Desviación estándar: 20.2598 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_9.pgm
-Tiempo promedio: 71.1063 ms
-Desviación estándar: 49.7466 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/baseline/salida_11.pgm
-Tiempo promedio: 25.9696 ms
-Desviación estándar: 0 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_3.pgm
-Tiempo promedio: 80.2605 ms
-Desviación estándar: 55.5685 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_5.pgm
-Tiempo promedio: 199.09 ms
-Desviación estándar: 116.821 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_7.pgm
-Tiempo promedio: 462.462 ms
-Desviación estándar: 125.976 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_9.pgm
-Tiempo promedio: 973.531 ms
-Desviación estándar: 126.564 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_11.pgm
-Tiempo promedio: 2.77564 ms
-Desviación estándar: 0.00521342 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_3.pgm
-Tiempo promedio: 20.303 ms
-Desviación estándar: 0.10096 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_5.pgm
-Tiempo promedio: 54.9698 ms
-Desviación estándar: 23.8756 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_7.pgm
-Tiempo promedio: 86.5738 ms
-Desviación estándar: 59.2693 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_9.pgm
-Tiempo promedio: 140.716 ms
-Desviación estándar: 100.35 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/baseline/salida_11.pgm
-Tiempo promedio: 9.48707 ms
-Desviación estándar: 2.01965 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_3.pgm
-Tiempo promedio: 18.3137 ms
-Desviación estándar: 2.06056 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_5.pgm
-Tiempo promedio: 31.7752 ms
-Desviación estándar: 2.08171 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_7.pgm
-Tiempo promedio: 37.8659 ms
-Desviación estándar: 2.98797 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_9.pgm
-Tiempo promedio: 51.2224 ms
-Desviación estándar: 8.71536 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/counting/salida_11.pgm
-Tiempo promedio: 238.444 ms
-Desviación estándar: 16.6242 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_3.pgm
-Tiempo promedio: 440.023 ms
-Desviación estándar: 26.7284 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_5.pgm
-Tiempo promedio: 843.252 ms
-Desviación estándar: 31.3289 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_7.pgm
-Tiempo promedio: 752.567 ms
-Desviación estándar: 61.4207 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_9.pgm
-Tiempo promedio: 1177.96 ms
-Desviación estándar: 67.1928 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_11.pgm
-Tiempo promedio: 28.3852 ms
-Desviación estándar: 2.03214 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/counting/salida_3.pgm
-Tiempo promedio: 54.3451 ms
-Desviación estándar: 4.01757 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/counting/salida_5.pgm
-Tiempo promedio: 90.4794 ms
-Desviación estándar: 10.2895 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/counting/salida_7.pgm
-Tiempo promedio: 85.334 ms
-Desviación estándar: 29.0006 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/counting/salida_9.pgm
-Tiempo promedio: 118.902 ms
-Desviación estándar: 34.9339 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/counting/salida_11.pgm
-Tiempo promedio: 0.117581 ms
-Desviación estándar: 0.00116687 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_3.pgm
-Tiempo promedio: 1.16314 ms
-Desviación estándar: 0.00750112 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_5.pgm
-Tiempo promedio: 3.90653 ms
-Desviación estándar: 0.908819 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_7.pgm
-Tiempo promedio: 5.93676 ms
-Desviación estándar: 4.13812 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_9.pgm
-Tiempo promedio: 8.7254 ms
-Desviación estándar: 7.60363 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/memoria_compartida/salida_11.pgm
-Tiempo promedio: 1.46793 ms
-Desviación estándar: 1.15191 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_3.pgm
-Tiempo promedio: 9.61281 ms
-Desviación estándar: 8.67706 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_5.pgm
-Tiempo promedio: 27.2771 ms
-Desviación estándar: 18.5715 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_7.pgm
-Tiempo promedio: 66.5632 ms
-Desviación estándar: 31.941 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_9.pgm
-Tiempo promedio: 141.699 ms
-Desviación estándar: 43.8789 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_11.pgm
-Tiempo promedio: 0.346229 ms
-Desviación estándar: 0.00104297 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_3.pgm
-Tiempo promedio: 3.40948 ms
-Desviación estándar: 0.808099 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_5.pgm
-Tiempo promedio: 6.464 ms
-Desviación estándar: 5.0372 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_7.pgm
-Tiempo promedio: 11.3516 ms
-Desviación estándar: 9.99975 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_9.pgm
-Tiempo promedio: 19.5848 ms
-Desviación estándar: 15.9053 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/memoria_compartida/salida_11.pgm
-Tiempo promedio: 0.0955584 ms
-Desviación estándar: 0.00413465 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_3.pgm
-Tiempo promedio: 0.245459 ms
-Desviación estándar: 0.0025195 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_5.pgm
-Tiempo promedio: 2.62534 ms
-Desviación estándar: 0.0157163 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_7.pgm
-Tiempo promedio: 47.9783 ms
-Desviación estándar: 12.385 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_9.pgm
-Tiempo promedio: 67.7052 ms
-Desviación estándar: 39.4415 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/network/salida_11.pgm
-Tiempo promedio: 2.47529 ms
-Desviación estándar: 0.0020716 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_3.pgm
-Tiempo promedio: 6.96189 ms
-Desviación estándar: 0.00338291 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_5.pgm
-Tiempo promedio: 51.678 ms
-Desviación estándar: 27.9513 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_7.pgm
-Tiempo promedio: 432.246 ms
-Desviación estándar: 123.116 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_9.pgm
-Tiempo promedio: 939.52 ms
-Desviación estándar: 127.729 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_11.pgm
-Tiempo promedio: 0.279866 ms
-Desviación estándar: 0.00202062 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_3.pgm
-Tiempo promedio: 0.761082 ms
-Desviación estándar: 0.00271863 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_5.pgm
-Tiempo promedio: 8.47412 ms
-Desviación estándar: 0.0202975 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_7.pgm
-Tiempo promedio: 79.6728 ms
-Desviación estándar: 53.0433 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_9.pgm
-Tiempo promedio: 129.929 ms
-Desviación estándar: 87.2719 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/network/salida_11.pgm
-Tiempo promedio: 1.44587 ms
-Desviación estándar: 0.0145668 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_3.pgm
-Tiempo promedio: 7.68074 ms
-Desviación estándar: 0.0721335 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_5.pgm
-Tiempo promedio: 18.5246 ms
-Desviación estándar: 0.173817 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_7.pgm
-Tiempo promedio: 35.0861 ms
-Desviación estándar: 0.288323 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_9.pgm
-Tiempo promedio: 57.856 ms
-Desviación estándar: 3.78393 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/quickselect/salida_11.pgm
-Tiempo promedio: 38.4581 ms
-Desviación estándar: 0.0220971 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_3.pgm
-Tiempo promedio: 89.1052 ms
-Desviación estándar: 63.0145 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_5.pgm
-Tiempo promedio: 281.17 ms
-Desviación estándar: 77.9703 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_7.pgm
-Tiempo promedio: 725.458 ms
-Desviación estándar: 45.5988 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_9.pgm
-Tiempo promedio: 1418.2 ms
-Desviación estándar: 28.3108 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_11.pgm
-Tiempo promedio: 4.29726 ms
-Desviación estándar: 0.0131745 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_3.pgm
-Tiempo promedio: 23.723 ms
-Desviación estándar: 0.0815649 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_5.pgm
-Tiempo promedio: 54.3 ms
-Desviación estándar: 9.11301 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_7.pgm
-Tiempo promedio: 93.4832 ms
-Desviación estándar: 15.0384 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_9.pgm
-Tiempo promedio: 165.426 ms
-Desviación estándar: 14.6429 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/quickselect/salida_11.pgm
-Tiempo promedio: 3.61573 ms
-Desviación estándar: 0.0247631 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_3.pgm
-Tiempo promedio: 11.5709 ms
-Desviación estándar: 0.0732877 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_5.pgm
-Tiempo promedio: 25.2973 ms
-Desviación estándar: 0.16313 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_7.pgm
-Tiempo promedio: 43.6184 ms
-Desviación estándar: 1.52578 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_9.pgm
-Tiempo promedio: 52.9255 ms
-Desviación estándar: 22.9932 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radix_filter/salida_11.pgm
-Tiempo promedio: 62.6659 ms
-Desviación estándar: 38.8218 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_3.pgm
-Tiempo promedio: 122.548 ms
-Desviación estándar: 85.0564 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_5.pgm
-Tiempo promedio: 212.567 ms
-Desviación estándar: 112.314 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_7.pgm
-Tiempo promedio: 352.264 ms
-Desviación estándar: 116.826 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_9.pgm
-Tiempo promedio: 558.176 ms
-Desviación estándar: 116.47 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_11.pgm
-Tiempo promedio: 12.1627 ms
-Desviación estándar: 0.015625 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radix_filter/salida_3.pgm
-Tiempo promedio: 38.8293 ms
-Desviación estándar: 0.078125 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radix_filter/salida_5.pgm
-Tiempo promedio: 57.7074 ms
-Desviación estándar: 28.3196 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radix_filter/salida_7.pgm
-Tiempo promedio: 73.1655 ms
-Desviación estándar: 49.851 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radix_filter/salida_9.pgm
-Tiempo promedio: 94.7735 ms
-Desviación estándar: 66.2939 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radix_filter/salida_11.pgm
-Tiempo promedio: 8.12658 ms
-Desviación estándar: 1.22317 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_3.pgm
-Tiempo promedio: 15.0889 ms
-Desviación estándar: 1.85313 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_5.pgm
-Tiempo promedio: 13.8469 ms
-Desviación estándar: 5.17843 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_7.pgm
-Tiempo promedio: 21.6054 ms
-Desviación estándar: 6.29493 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_9.pgm
-Tiempo promedio: 30.79 ms
-Desviación estándar: 7.39826 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCub/salida_11.pgm
-Tiempo promedio: 232.554 ms
-Desviación estándar: 6.17834 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_3.pgm
-Tiempo promedio: 457.85 ms
-Desviación estándar: 9.27362 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_5.pgm
-Tiempo promedio: 421.449 ms
-Desviación estándar: 26.4805 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_7.pgm
-Tiempo promedio: 722.451 ms
-Desviación estándar: 26.7021 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_9.pgm
-Tiempo promedio: 1211.15 ms
-Desviación estándar: 33.2716 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_11.pgm
-Tiempo promedio: 24.6126 ms
-Desviación estándar: 2.07037 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_3.pgm
-Tiempo promedio: 48.3108 ms
-Desviación estándar: 3.07547 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_5.pgm
-Tiempo promedio: 41.1532 ms
-Desviación estándar: 10.9187 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_7.pgm
-Tiempo promedio: 68.846 ms
-Desviación estándar: 12.1869 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_9.pgm
-Tiempo promedio: 98.9597 ms
-Desviación estándar: 14.8858 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCub/salida_11.pgm
-Tiempo promedio: 2.44875 ms
-Desviación estándar: 0.0211939 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_3.pgm
-Tiempo promedio: 6.67124 ms
-Desviación estándar: 4.06949 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_5.pgm
-Tiempo promedio: 10.14 ms
-Desviación estándar: 7.55504 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_7.pgm
-Tiempo promedio: 14.3047 ms
-Desviación estándar: 10.7482 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_9.pgm
-Tiempo promedio: 23.2175 ms
-Desviación estándar: 14.0869 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/radixCurso/salida_11.pgm
-Tiempo promedio: 22.8092 ms
-Desviación estándar: 13.5062 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_3.pgm
-Tiempo promedio: 102.978 ms
-Desviación estándar: 30.1782 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_5.pgm
-Tiempo promedio: 196.424 ms
-Desviación estándar: 41.0315 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_7.pgm
-Tiempo promedio: 389.437 ms
-Desviación estándar: 42.636 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_9.pgm
-Tiempo promedio: 841.599 ms
-Desviación estándar: 53.1789 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_11.pgm
-Tiempo promedio: 5.43192 ms
-Desviación estándar: 2.65008 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_3.pgm
-Tiempo promedio: 13.8631 ms
-Desviación estándar: 9.73802 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_5.pgm
-Tiempo promedio: 27.0857 ms
-Desviación estándar: 14.2809 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_7.pgm
-Tiempo promedio: 44.0198 ms
-Desviación estándar: 19.3314 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_9.pgm
-Tiempo promedio: 77.0515 ms
-Desviación estándar: 26.6638 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/radixCurso/salida_11.pgm
-Tiempo promedio: 0.921123 ms
-Desviación estándar: 0.0106782 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_3.pgm
-Tiempo promedio: 5.03709 ms
-Desviación estándar: 0.0549832 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_5.pgm
-Tiempo promedio: 14.2588 ms
-Desviación estándar: 0.0639481 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_7.pgm
-Tiempo promedio: 28.6852 ms
-Desviación estándar: 0.0557924 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_9.pgm
-Tiempo promedio: 44.9546 ms
-Desviación estándar: 0.0930967 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/shell/salida_11.pgm
-Tiempo promedio: 25.5733 ms
-Desviación estándar: 0.0135316 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_3.pgm
-Tiempo promedio: 79.1912 ms
-Desviación estándar: 49.9329 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_5.pgm
-Tiempo promedio: 146.736 ms
-Desviación estándar: 104.283 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_7.pgm
-Tiempo promedio: 272.351 ms
-Desviación estándar: 135.644 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_9.pgm
-Tiempo promedio: 394.507 ms
-Desviación estándar: 143.507 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_11.pgm
-Tiempo promedio: 2.73775 ms
-Desviación estándar: 0.00468343 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/shell/salida_3.pgm
-Tiempo promedio: 15.2234 ms
-Desviación estándar: 0.0374674 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/shell/salida_5.pgm
-Tiempo promedio: 45.4943 ms
-Desviación estándar: 0.0413399 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/shell/salida_7.pgm
-Tiempo promedio: 65.4848 ms
-Desviación estándar: 30.0508 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/shell/salida_9.pgm
-Tiempo promedio: 81.9343 ms
-Desviación estándar: 50.2025 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/shell/salida_11.pgm
-Tiempo promedio: 0.997814 ms
-Desviación estándar: 0.0134654 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_3.pgm
-Tiempo promedio: 5.34307 ms
-Desviación estándar: 0.0253906 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_5.pgm
-Tiempo promedio: 16.0989 ms
-Desviación estándar: 0.083048 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_7.pgm
-Tiempo promedio: 41.9473 ms
-Desviación estándar: 0.176431 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_9.pgm
-Tiempo promedio: 64.2169 ms
-Desviación estándar: 22.0472 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/texturas/salida_11.pgm
-Tiempo promedio: 27.6428 ms
-Desviación estándar: 0 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_3.pgm
-Tiempo promedio: 79.9743 ms
-Desviación estándar: 48.7871 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_5.pgm
-Tiempo promedio: 162.975 ms
-Desviación estándar: 100.98 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_7.pgm
-Tiempo promedio: 412.262 ms
-Desviación estándar: 135.626 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_9.pgm
-Tiempo promedio: 918.283 ms
-Desviación estándar: 118.454 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_11.pgm
-Tiempo promedio: 3.02116 ms
-Desviación estándar: 0.00995902 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_3.pgm
-Tiempo promedio: 15.4586 ms
-Desviación estándar: 0.0452181 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_5.pgm
-Tiempo promedio: 46.8935 ms
-Desviación estándar: 0.0563367 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_7.pgm
-Tiempo promedio: 84.0879 ms
-Desviación estándar: 38.0232 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_9.pgm
-Tiempo promedio: 137.251 ms
-Desviación estándar: 59.8515 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/texturas/salida_11.pgm
-Tiempo promedio: 293.004 ms
-Desviación estándar: 112.819 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_3.pgm
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-Tiempo promedio: 173.529 ms
-Desviación estándar: 205.393 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_5.pgm
-Tiempo promedio: 211.902 ms
-Desviación estándar: 123.754 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_7.pgm
-Tiempo promedio: 213.233 ms
-Desviación estándar: 117.345 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_9.pgm
-Tiempo promedio: 218.859 ms
-Desviación estándar: 123.89 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/1/thrust_filter/salida_11.pgm
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-Tiempo promedio: 517.12 ms
-Desviación estándar: 1551.36 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_3.pgm
-temporary_buffer::allocate: get_temporary_buffer failed
-Tiempo promedio: 0 ms
-Desviación estándar: 0 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_5.pgm
-Tiempo promedio: 4709.84 ms
-Desviación estándar: 177.893 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_7.pgm
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-Tiempo promedio: 0 ms
-Desviación estándar: 0 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_9.pgm
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-Tiempo promedio: 0 ms
-Desviación estándar: 0 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_11.pgm
-Tiempo promedio: 658.31 ms
-Desviación estándar: 100.68 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_3.pgm
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-Tiempo promedio: 271.737 ms
-Desviación estándar: 347.31 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_5.pgm
-Tiempo promedio: 550.185 ms
-Desviación estándar: 127.93 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_7.pgm
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-Tiempo promedio: 354.967 ms
-Desviación estándar: 311.274 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_9.pgm
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-temporary_buffer::allocate: get_temporary_buffer failed
-Tiempo promedio: 153.113 ms
-Desviación estándar: 320.052 ms
-Filtro mediana aplicado exitosamente. Resultado guardado en ./evaluaciones/fing1_ruido/thrust_filter/salida_11.pgm
+./evaluaciones/1/median_filter/salida_3.pgm
+79,8288
+4,31197
+./evaluaciones/1/median_filter/salida_5.pgm
+210,249
+3,67778
+./evaluaciones/1/median_filter/salida_7.pgm
+436,989
+3,41815
+./evaluaciones/1/median_filter/salida_9.pgm
+802,484
+5,88757
+./evaluaciones/1/median_filter/salida_11.pgm
+1209,59
+4,71445
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_3.pgm
+2483,15
+44,8587
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_5.pgm
+6620,62
+36,4161
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_7.pgm
+13731,6
+5,49047
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_9.pgm
+25202,7
+100,969
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/median_filter/salida_11.pgm
+38297,3
+103,398
+./evaluaciones/fing1_ruido/median_filter/salida_3.pgm
+264,032
+3,12161
+./evaluaciones/fing1_ruido/median_filter/salida_5.pgm
+705,705
+2,92554
+./evaluaciones/fing1_ruido/median_filter/salida_7.pgm
+1461,83
+4,1474
+./evaluaciones/fing1_ruido/median_filter/salida_9.pgm
+2653,44
+11,9943
+./evaluaciones/fing1_ruido/median_filter/salida_11.pgm
+3996,66
+6,87361
+
+0,871366 ms
+0,0232049 ms
+./evaluaciones/1/baseline/salida_3.pgm
+6,6453 ms
+0,047078 ms
+./evaluaciones/1/baseline/salida_5.pgm
+25,1315 ms
+0,278634 ms
+./evaluaciones/1/baseline/salida_7.pgm
+50,479 ms
+20,2598 ms
+./evaluaciones/1/baseline/salida_9.pgm
+71,1063 ms
+49,7466 ms
+./evaluaciones/1/baseline/salida_11.pgm
+25,9696 ms
+0 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_3.pgm
+80,2605 ms
+55,5685 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_5.pgm
+199,09 ms
+116,821 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_7.pgm
+462,462 ms
+125,976 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_9.pgm
+973,531 ms
+126,564 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/baseline/salida_11.pgm
+2,77564 ms
+0,00521342 ms
+./evaluaciones/fing1_ruido/baseline/salida_3.pgm
+20,303 ms
+0,10096 ms
+./evaluaciones/fing1_ruido/baseline/salida_5.pgm
+54,9698 ms
+23,8756 ms
+./evaluaciones/fing1_ruido/baseline/salida_7.pgm
+86,5738 ms
+59,2693 ms
+./evaluaciones/fing1_ruido/baseline/salida_9.pgm
+140,716 ms
+100,35 ms
+./evaluaciones/fing1_ruido/baseline/salida_11.pgm
+9,48707 ms
+2,01965 ms
+./evaluaciones/1/counting/salida_3.pgm
+18,3137 ms
+2,06056 ms
+./evaluaciones/1/counting/salida_5.pgm
+31,7752 ms
+2,08171 ms
+./evaluaciones/1/counting/salida_7.pgm
+37,8659 ms
+2,98797 ms
+./evaluaciones/1/counting/salida_9.pgm
+51,2224 ms
+8,71536 ms
+./evaluaciones/1/counting/salida_11.pgm
+238,444 ms
+16,6242 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_3.pgm
+440,023 ms
+26,7284 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_5.pgm
+843,252 ms
+31,3289 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_7.pgm
+752,567 ms
+61,4207 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_9.pgm
+1177,96 ms
+67,1928 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/counting/salida_11.pgm
+28,3852 ms
+2,03214 ms
+./evaluaciones/fing1_ruido/counting/salida_3.pgm
+54,3451 ms
+4,01757 ms
+./evaluaciones/fing1_ruido/counting/salida_5.pgm
+90,4794 ms
+10,2895 ms
+./evaluaciones/fing1_ruido/counting/salida_7.pgm
+85,334 ms
+29,0006 ms
+./evaluaciones/fing1_ruido/counting/salida_9.pgm
+118,902 ms
+34,9339 ms
+./evaluaciones/fing1_ruido/counting/salida_11.pgm
+0,117581 ms
+0,00116687 ms
+./evaluaciones/1/memoria_compartida/salida_3.pgm
+1,16314 ms
+0,00750112 ms
+./evaluaciones/1/memoria_compartida/salida_5.pgm
+3,90653 ms
+0,908819 ms
+./evaluaciones/1/memoria_compartida/salida_7.pgm
+5,93676 ms
+4,13812 ms
+./evaluaciones/1/memoria_compartida/salida_9.pgm
+8,7254 ms
+7,60363 ms
+./evaluaciones/1/memoria_compartida/salida_11.pgm
+1,46793 ms
+1,15191 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_3.pgm
+9,61281 ms
+8,67706 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_5.pgm
+27,2771 ms
+18,5715 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_7.pgm
+66,5632 ms
+31,941 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_9.pgm
+141,699 ms
+43,8789 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/memoria_compartida/salida_11.pgm
+0,346229 ms
+0,00104297 ms
+./evaluaciones/fing1_ruido/memoria_compartida/salida_3.pgm
+3,40948 ms
+0,808099 ms
+./evaluaciones/fing1_ruido/memoria_compartida/salida_5.pgm
+6,464 ms
+5,0372 ms
+./evaluaciones/fing1_ruido/memoria_compartida/salida_7.pgm
+11,3516 ms
+9,99975 ms
+./evaluaciones/fing1_ruido/memoria_compartida/salida_9.pgm
+19,5848 ms
+15,9053 ms
+./evaluaciones/fing1_ruido/memoria_compartida/salida_11.pgm
+0,0955584 ms
+0,00413465 ms
+./evaluaciones/1/network/salida_3.pgm
+0,245459 ms
+0,0025195 ms
+./evaluaciones/1/network/salida_5.pgm
+2,62534 ms
+0,0157163 ms
+./evaluaciones/1/network/salida_7.pgm
+47,9783 ms
+12,385 ms
+./evaluaciones/1/network/salida_9.pgm
+67,7052 ms
+39,4415 ms
+./evaluaciones/1/network/salida_11.pgm
+2,47529 ms
+0,0020716 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_3.pgm
+6,96189 ms
+0,00338291 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_5.pgm
+51,678 ms
+27,9513 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_7.pgm
+432,246 ms
+123,116 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_9.pgm
+939,52 ms
+127,729 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/network/salida_11.pgm
+0,279866 ms
+0,00202062 ms
+./evaluaciones/fing1_ruido/network/salida_3.pgm
+0,761082 ms
+0,00271863 ms
+./evaluaciones/fing1_ruido/network/salida_5.pgm
+8,47412 ms
+0,0202975 ms
+./evaluaciones/fing1_ruido/network/salida_7.pgm
+79,6728 ms
+53,0433 ms
+./evaluaciones/fing1_ruido/network/salida_9.pgm
+129,929 ms
+87,2719 ms
+./evaluaciones/fing1_ruido/network/salida_11.pgm
+1,44587 ms
+0,0145668 ms
+./evaluaciones/1/quickselect/salida_3.pgm
+7,68074 ms
+0,0721335 ms
+./evaluaciones/1/quickselect/salida_5.pgm
+18,5246 ms
+0,173817 ms
+./evaluaciones/1/quickselect/salida_7.pgm
+35,0861 ms
+0,288323 ms
+./evaluaciones/1/quickselect/salida_9.pgm
+57,856 ms
+3,78393 ms
+./evaluaciones/1/quickselect/salida_11.pgm
+38,4581 ms
+0,0220971 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_3.pgm
+89,1052 ms
+63,0145 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_5.pgm
+281,17 ms
+77,9703 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_7.pgm
+725,458 ms
+45,5988 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_9.pgm
+1418,2 ms
+28,3108 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/quickselect/salida_11.pgm
+4,29726 ms
+0,0131745 ms
+./evaluaciones/fing1_ruido/quickselect/salida_3.pgm
+23,723 ms
+0,0815649 ms
+./evaluaciones/fing1_ruido/quickselect/salida_5.pgm
+54,3 ms
+9,11301 ms
+./evaluaciones/fing1_ruido/quickselect/salida_7.pgm
+93,4832 ms
+15,0384 ms
+./evaluaciones/fing1_ruido/quickselect/salida_9.pgm
+165,426 ms
+14,6429 ms
+./evaluaciones/fing1_ruido/quickselect/salida_11.pgm
+3,61573 ms
+0,0247631 ms
+./evaluaciones/1/radix_filter/salida_3.pgm
+11,5709 ms
+0,0732877 ms
+./evaluaciones/1/radix_filter/salida_5.pgm
+25,2973 ms
+0,16313 ms
+./evaluaciones/1/radix_filter/salida_7.pgm
+43,6184 ms
+1,52578 ms
+./evaluaciones/1/radix_filter/salida_9.pgm
+52,9255 ms
+22,9932 ms
+./evaluaciones/1/radix_filter/salida_11.pgm
+62,6659 ms
+38,8218 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_3.pgm
+122,548 ms
+85,0564 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_5.pgm
+212,567 ms
+112,314 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_7.pgm
+352,264 ms
+116,826 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_9.pgm
+558,176 ms
+116,47 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radix_filter/salida_11.pgm
+12,1627 ms
+0,015625 ms
+./evaluaciones/fing1_ruido/radix_filter/salida_3.pgm
+38,8293 ms
+0,078125 ms
+./evaluaciones/fing1_ruido/radix_filter/salida_5.pgm
+57,7074 ms
+28,3196 ms
+./evaluaciones/fing1_ruido/radix_filter/salida_7.pgm
+73,1655 ms
+49,851 ms
+./evaluaciones/fing1_ruido/radix_filter/salida_9.pgm
+94,7735 ms
+66,2939 ms
+./evaluaciones/fing1_ruido/radix_filter/salida_11.pgm
+8,12658 ms
+1,22317 ms
+./evaluaciones/1/radixCub/salida_3.pgm
+15,0889 ms
+1,85313 ms
+./evaluaciones/1/radixCub/salida_5.pgm
+13,8469 ms
+5,17843 ms
+./evaluaciones/1/radixCub/salida_7.pgm
+21,6054 ms
+6,29493 ms
+./evaluaciones/1/radixCub/salida_9.pgm
+30,79 ms
+7,39826 ms
+./evaluaciones/1/radixCub/salida_11.pgm
+232,554 ms
+6,17834 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_3.pgm
+457,85 ms
+9,27362 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_5.pgm
+421,449 ms
+26,4805 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_7.pgm
+722,451 ms
+26,7021 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_9.pgm
+1211,15 ms
+33,2716 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCub/salida_11.pgm
+24,6126 ms
+2,07037 ms
+./evaluaciones/fing1_ruido/radixCub/salida_3.pgm
+48,3108 ms
+3,07547 ms
+./evaluaciones/fing1_ruido/radixCub/salida_5.pgm
+41,1532 ms
+10,9187 ms
+./evaluaciones/fing1_ruido/radixCub/salida_7.pgm
+68,846 ms
+12,1869 ms
+./evaluaciones/fing1_ruido/radixCub/salida_9.pgm
+98,9597 ms
+14,8858 ms
+./evaluaciones/fing1_ruido/radixCub/salida_11.pgm
+2,44875 ms
+0,0211939 ms
+./evaluaciones/1/radixCurso/salida_3.pgm
+6,67124 ms
+4,06949 ms
+./evaluaciones/1/radixCurso/salida_5.pgm
+10,14 ms
+7,55504 ms
+./evaluaciones/1/radixCurso/salida_7.pgm
+14,3047 ms
+10,7482 ms
+./evaluaciones/1/radixCurso/salida_9.pgm
+23,2175 ms
+14,0869 ms
+./evaluaciones/1/radixCurso/salida_11.pgm
+22,8092 ms
+13,5062 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_3.pgm
+102,978 ms
+30,1782 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_5.pgm
+196,424 ms
+41,0315 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_7.pgm
+389,437 ms
+42,636 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_9.pgm
+841,599 ms
+53,1789 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/radixCurso/salida_11.pgm
+5,43192 ms
+2,65008 ms
+./evaluaciones/fing1_ruido/radixCurso/salida_3.pgm
+13,8631 ms
+9,73802 ms
+./evaluaciones/fing1_ruido/radixCurso/salida_5.pgm
+27,0857 ms
+14,2809 ms
+./evaluaciones/fing1_ruido/radixCurso/salida_7.pgm
+44,0198 ms
+19,3314 ms
+./evaluaciones/fing1_ruido/radixCurso/salida_9.pgm
+77,0515 ms
+26,6638 ms
+./evaluaciones/fing1_ruido/radixCurso/salida_11.pgm
+0,921123 ms
+0,0106782 ms
+./evaluaciones/1/shell/salida_3.pgm
+5,03709 ms
+0,0549832 ms
+./evaluaciones/1/shell/salida_5.pgm
+14,2588 ms
+0,0639481 ms
+./evaluaciones/1/shell/salida_7.pgm
+28,6852 ms
+0,0557924 ms
+./evaluaciones/1/shell/salida_9.pgm
+44,9546 ms
+0,0930967 ms
+./evaluaciones/1/shell/salida_11.pgm
+25,5733 ms
+0,0135316 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_3.pgm
+79,1912 ms
+49,9329 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_5.pgm
+146,736 ms
+104,283 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_7.pgm
+272,351 ms
+135,644 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_9.pgm
+394,507 ms
+143,507 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/shell/salida_11.pgm
+2,73775 ms
+0,00468343 ms
+./evaluaciones/fing1_ruido/shell/salida_3.pgm
+15,2234 ms
+0,0374674 ms
+./evaluaciones/fing1_ruido/shell/salida_5.pgm
+45,4943 ms
+0,0413399 ms
+./evaluaciones/fing1_ruido/shell/salida_7.pgm
+65,4848 ms
+30,0508 ms
+./evaluaciones/fing1_ruido/shell/salida_9.pgm
+81,9343 ms
+50,2025 ms
+./evaluaciones/fing1_ruido/shell/salida_11.pgm
+0,997814 ms
+0,0134654 ms
+./evaluaciones/1/texturas/salida_3.pgm
+5,34307 ms
+0,0253906 ms
+./evaluaciones/1/texturas/salida_5.pgm
+16,0989 ms
+0,083048 ms
+./evaluaciones/1/texturas/salida_7.pgm
+41,9473 ms
+0,176431 ms
+./evaluaciones/1/texturas/salida_9.pgm
+64,2169 ms
+22,0472 ms
+./evaluaciones/1/texturas/salida_11.pgm
+27,6428 ms
+0 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_3.pgm
+79,9743 ms
+48,7871 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_5.pgm
+162,975 ms
+100,98 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_7.pgm
+412,262 ms
+135,626 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_9.pgm
+918,283 ms
+118,454 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/texturas/salida_11.pgm
+3,02116 ms
+0,00995902 ms
+./evaluaciones/fing1_ruido/texturas/salida_3.pgm
+15,4586 ms
+0,0452181 ms
+./evaluaciones/fing1_ruido/texturas/salida_5.pgm
+46,8935 ms
+0,0563367 ms
+./evaluaciones/fing1_ruido/texturas/salida_7.pgm
+84,0879 ms
+38,0232 ms
+./evaluaciones/fing1_ruido/texturas/salida_9.pgm
+137,251 ms
+59,8515 ms
+./evaluaciones/fing1_ruido/texturas/salida_11.pgm
+293,004 ms
+112,819 ms
+./evaluaciones/1/thrust_filter/salida_3.pgm
+173,529 ms
+205,393 ms
+./evaluaciones/1/thrust_filter/salida_5.pgm
+211,902 ms
+123,754 ms
+./evaluaciones/1/thrust_filter/salida_7.pgm
+213,233 ms
+117,345 ms
+./evaluaciones/1/thrust_filter/salida_9.pgm
+218,859 ms
+123,89 ms
+./evaluaciones/1/thrust_filter/salida_11.pgm
+517,12 ms
+1551,36 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_3.pgm
+0 ms
+0 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_5.pgm
+4709,84 ms
+177,893 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_7.pgm
+0 ms
+0 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_9.pgm
+0 ms
+0 ms
+./evaluaciones/Facultad_de_Ingenieria_UDELAR/thrust_filter/salida_11.pgm
+658,31 ms
+100,68 ms
+./evaluaciones/fing1_ruido/thrust_filter/salida_3.pgm
+271,737 ms
+347,31 ms
+./evaluaciones/fing1_ruido/thrust_filter/salida_5.pgm
+550,185 ms
+127,93 ms
+./evaluaciones/fing1_ruido/thrust_filter/salida_7.pgm
+354,967 ms
+311,274 ms
+./evaluaciones/fing1_ruido/thrust_filter/salida_9.pgm
+153,113 ms
+320,052 ms
+./evaluaciones/fing1_ruido/thrust_filter/salida_11.pgm
