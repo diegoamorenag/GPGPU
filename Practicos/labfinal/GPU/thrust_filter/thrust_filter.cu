@@ -38,8 +38,6 @@ PGMImage readPGM(const char* filename) {
     }
 
     bool isBinary = (line == "P5");
-
-    // Saltar comentarios
     while (std::getline(file, line)) {
         if (line[0] != '#') break;
     }
@@ -47,8 +45,7 @@ PGMImage readPGM(const char* filename) {
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
-    file.ignore(); // Saltar el carácter de nueva línea
-
+    file.ignore();
     img.data.resize(img.width * img.height);
     if (isBinary) {
         file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
@@ -59,11 +56,9 @@ PGMImage readPGM(const char* filename) {
             img.data[i] = static_cast<unsigned char>(pixel);
         }
     }
-
     return img;
 }
 
-// Funcion para escribir una imagen PGM
 void writePGM(const std::string& filename, const PGMImage& img) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
@@ -77,7 +72,6 @@ void writePGM(const std::string& filename, const PGMImage& img) {
 template <int BLOCK_DIM_X, int BLOCK_DIM_Y, int WINDOW_SIZE>
 __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* output, int width, int height) {
     __shared__ unsigned char sharedMem[(BLOCK_DIM_Y + WINDOW_SIZE - 1) * (BLOCK_DIM_X + WINDOW_SIZE - 1)];
-
     int tx = threadIdx.x;
     int ty = threadIdx.y;
     int bx = blockIdx.x * BLOCK_DIM_X;
@@ -87,8 +81,6 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
 
     int sharedWidth = BLOCK_DIM_X + WINDOW_SIZE - 1;
     int sharedHeight = BLOCK_DIM_Y + WINDOW_SIZE - 1;
-
-    // Cargar datos en memoria compartida fila por fila
     for (int row = ty; row < sharedHeight; row += BLOCK_DIM_Y) {
         for (int col = tx; col < sharedWidth; col += BLOCK_DIM_X) {
             int globalX = bx + col - WINDOW_SIZE / 2;
