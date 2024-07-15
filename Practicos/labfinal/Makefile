@@ -38,6 +38,9 @@ CPU/median_filter: CPU/median_filter.cpp
 GPU/baseline/baseline: GPU/baseline/baseline.cu
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/baseline/baseline GPU/baseline/baseline.cu
 
+GPU/bancos/bancos: GPU/bancos/bancos.cu
+	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/bancos/bancos GPU/bancos/bancos.cu
+
 GPU/counting/counting: GPU/counting/counting.cu	
 	/usr/local/cuda-12.1/bin/nvcc -std=c++11 -O2 -arch=sm_60 -I/usr/local/cuda-12.1/include -I/clusteruy/home/gpgpu10/cub/cub -o GPU/counting/counting GPU/counting/counting.cu
 
