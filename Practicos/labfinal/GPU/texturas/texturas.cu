@@ -35,7 +35,6 @@ PGMImage readPGM(const std::string& filename) {
         throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
     }
 
-    // Saltar comentarios
     while (std::getline(file, line)) {
         if (line[0] != '#') break;
     }
@@ -43,7 +42,7 @@ PGMImage readPGM(const std::string& filename) {
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
-    file.ignore(); // Saltar el carácter de nueva línea
+    file.ignore();
 
     img.data.resize(img.width * img.height);
     file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
@@ -63,25 +62,21 @@ void writePGM(const std::string& filename, const PGMImage& img) {
 }
 
 __device__ void heapify(unsigned char* window, int n, int i) {
-    int largest = i; // Inicializa largest como raíz
-    int left = 2 * i + 1; // izquierda = 2*i + 1
-    int right = 2 * i + 2; // derecha = 2*i + 2
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
 
-    // Si el hijo izquierdo es más grande que la raíz
     if (left < n && window[left] > window[largest])
         largest = left;
 
-    // Si el hijo derecho es más grande que el mayor hasta ahora
     if (right < n && window[right] > window[largest])
         largest = right;
 
-    // Si el mayor no es la raíz
     if (largest != i) {
         unsigned char swap = window[i];
         window[i] = window[largest];
         window[largest] = swap;
 
-        // Recursivamente heapify
         heapify(window, n, largest);
     }
 }
@@ -212,7 +207,7 @@ int main(int argc, char* argv[]) {
 
     try {
         PGMImage img = readPGM(inputFilename);
-        PGMImage filtered = img; // Inicializar con la misma estructura
+        PGMImage filtered = img;
 
         const int NUM_ITERATIONS = 10;
         std::vector<float> times(NUM_ITERATIONS);

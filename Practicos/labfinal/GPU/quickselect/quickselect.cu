@@ -212,7 +212,7 @@ int main(int argc, char* argv[]) {
 
     try {
         PGMImage img = readPGM(inputFilename);
-        PGMImage filtered = img; // Inicializar con la misma estructura
+        PGMImage filtered = img;
 
         const int NUM_ITERATIONS = 10;
         std::vector<float> times(NUM_ITERATIONS);

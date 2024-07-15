@@ -40,7 +40,7 @@ PGMImage readPGM(const std::string& filename) {
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
-    file.ignore(); // Saltar el carácter de nueva línea
+    file.ignore();
 
     img.data.resize(img.width * img.height);
     file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
@@ -61,30 +61,30 @@ void writePGM(const std::string& filename, const PGMImage& img) {
 
 __device__ void countingSortWindow(unsigned char* window, int windowSize) {
     const int maxValue = 256;
-    int count[maxValue]; // Usar memoria local del hilo, no compartida ni global
+    int count[maxValue];
 
     int n = windowSize * windowSize;
-    unsigned char sorted[121]; // Asume un máximo de 121 para windowSize = 11
+    unsigned char sorted[121];
     #pragma unroll
     for (int i = 0; i < maxValue; ++i) {
-        count[i] = 0; // Inicialización en cada llamada
+        count[i] = 0;
     }
     #pragma unroll
     for (int i = 0; i < n; ++i) {
         count[window[i]]++;
     }
     #pragma unroll
-    // Acumular conteos
+
     for (int i = 1; i < maxValue; ++i) {
         count[i] += count[i - 1];
     }
     #pragma unroll
-    // Ordenar los elementos en orden inverso para estabilidad
+
     for (int i = n - 1; i >= 0; --i) {
         sorted[--count[window[i]]] = window[i];
     }
     #pragma unroll
-    // Copiar los elementos ordenados de nuevo al array original
+
     for (int i = 0; i < n; ++i) {
         window[i] = sorted[i];
     }
@@ -101,7 +101,6 @@ __global__ void medianFilterSharedKernel(unsigned char* __restrict__ input, unsi
     int x = bx + tx;
     int y = by + ty;
 
-    // Cargar datos en memoria compartida
     for (int dy = ty; dy < BLOCK_DIM_Y + WINDOW_SIZE - 1; dy += BLOCK_DIM_Y) {
         for (int dx = tx; dx < BLOCK_DIM_X + WINDOW_SIZE - 1; dx += BLOCK_DIM_X) {
             int globalX = bx + dx - WINDOW_SIZE / 2;
@@ -117,7 +116,6 @@ __global__ void medianFilterSharedKernel(unsigned char* __restrict__ input, unsi
 
     __syncthreads();
 
-    // Ordenar y encontrar la mediana
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;

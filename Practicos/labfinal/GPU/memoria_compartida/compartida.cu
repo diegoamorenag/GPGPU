@@ -40,7 +40,7 @@ PGMImage readPGM(const std::string& filename) {
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
-    file.ignore(); // Saltar el carácter de nueva línea
+    file.ignore();
 
     img.data.resize(img.width * img.height);
     file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
@@ -48,7 +48,6 @@ PGMImage readPGM(const std::string& filename) {
     return img;
 }
 
-// Función para escribir una imagen PGM
 void writePGM(const std::string& filename, const PGMImage& img) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) {
@@ -83,7 +82,6 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
     int x = bx + tx;
     int y = by + ty;
 
-    // Load data into shared memory
     for (int dy = ty; dy < BLOCK_DIM_Y + WINDOW_SIZE - 1; dy += BLOCK_DIM_Y) {
         for (int dx = tx; dx < BLOCK_DIM_X + WINDOW_SIZE - 1; dx += BLOCK_DIM_X) {
             int globalX = bx + dx - WINDOW_SIZE / 2;
@@ -99,7 +97,6 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
 
     __syncthreads();
 
-    // Sort and find the median
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;
@@ -133,7 +130,6 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     cudaEventCreate(&stop);
     cudaEventRecord(start);
 
-    // Lanzar el kernel apropiado según el tamaño de la ventana
     switch (windowSize) {
         case 3:
             medianFilterSharedKernel<BLOCK_DIM_X, BLOCK_DIM_Y, 3><<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height);
@@ -187,7 +183,7 @@ int main(int argc, char* argv[]) {
 
     try {
         PGMImage img = readPGM(inputFilename);
-        PGMImage filtered = img; // Inicializar con la misma estructura
+        PGMImage filtered = img;
 
         const int NUM_ITERATIONS = 100;
         std::vector<float> times(NUM_ITERATIONS);
@@ -196,10 +192,8 @@ int main(int argc, char* argv[]) {
             times[i] = applyMedianFilterGPU(img, filtered, windowSize);
         }
 
-        // Calcular media
         float mean = std::accumulate(times.begin(), times.end(), 0.0f) / NUM_ITERATIONS;
 
-        // Calcular desviación estándar
         float sq_sum = std::inner_product(times.begin(), times.end(), times.begin(), 0.0f);
         float stdev = std::sqrt(sq_sum / NUM_ITERATIONS - mean * mean);
 

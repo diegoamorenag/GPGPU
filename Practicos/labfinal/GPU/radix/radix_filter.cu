@@ -18,7 +18,6 @@ struct PGMImage {
     std::vector<unsigned char> data;
 };
 
-// Función para leer una imagen PGM
 PGMImage readPGM(const std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) {
@@ -32,7 +31,6 @@ PGMImage readPGM(const std::string& filename) {
         throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
     }
 
-    // Saltar comentarios
     while (std::getline(file, line)) {
         if (line[0] != '#') break;
     }
@@ -40,7 +38,7 @@ PGMImage readPGM(const std::string& filename) {
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
-    file.ignore(); // Saltar el carácter de nueva línea
+    file.ignore();
 
     img.data.resize(img.width * img.height);
     file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());

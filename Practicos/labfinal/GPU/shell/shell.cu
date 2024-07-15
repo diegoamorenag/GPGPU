@@ -32,7 +32,6 @@ PGMImage readPGM(const std::string& filename) {
         throw std::runtime_error("Formato de archivo no soportado. Solo se admite PGM binario (P5).");
     }
 
-    // Saltar comentarios
     while (std::getline(file, line)) {
         if (line[0] != '#') break;
     }
@@ -40,7 +39,7 @@ PGMImage readPGM(const std::string& filename) {
     std::istringstream iss(line);
     iss >> img.width >> img.height;
     file >> img.max_val;
-    file.ignore(); // Saltar el carácter de nueva línea
+    file.ignore();
 
     img.data.resize(img.width * img.height);
     file.read(reinterpret_cast<char*>(img.data.data()), img.data.size());
@@ -84,7 +83,6 @@ __global__ void medianFilterSharedKernel(unsigned char* __restrict__ input, unsi
     int x = bx + tx;
     int y = by + ty;
 
-    // Cargar datos en memoria compartida
     for (int dy = ty; dy < BLOCK_DIM_Y + WINDOW_SIZE - 1; dy += BLOCK_DIM_Y) {
         for (int dx = tx; dx < BLOCK_DIM_X + WINDOW_SIZE - 1; dx += BLOCK_DIM_X) {
             int globalX = bx + dx - WINDOW_SIZE / 2;
@@ -100,7 +98,6 @@ __global__ void medianFilterSharedKernel(unsigned char* __restrict__ input, unsi
 
     __syncthreads();
 
-    // Ordenar y encontrar la mediana
     if (x < width && y < height) {
         unsigned char window[WINDOW_SIZE * WINDOW_SIZE];
         int idx = 0;
@@ -115,7 +112,6 @@ __global__ void medianFilterSharedKernel(unsigned char* __restrict__ input, unsi
     }
 }
 
-// Función para aplicar el filtro de mediana en la GPU y medir el tiempo
 float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSize) {
     unsigned char *d_input, *d_output;
     size_t size = input.width * input.height * sizeof(unsigned char);
@@ -188,7 +184,7 @@ int main(int argc, char* argv[]) {
 
     try {
         PGMImage img = readPGM(inputFilename);
-        PGMImage filtered = img; // Inicializar con la misma estructura
+        PGMImage filtered = img;
 
         const int NUM_ITERATIONS = 10;
         std::vector<float> times(NUM_ITERATIONS);

@@ -533,7 +533,6 @@ __global__ void medianFilterSharedKernel(unsigned char* input, unsigned char* ou
     int x = bx + tx;
     int y = by + ty;
 
-    // Cargar datos en memoria compartida
     for (int dy = ty; dy < BLOCK_DIM_Y + WINDOW_SIZE - 1; dy += BLOCK_DIM_Y) {
         for (int dx = tx; dx < BLOCK_DIM_X + WINDOW_SIZE - 1; dx += BLOCK_DIM_X) {
             int globalX = bx + dx - WINDOW_SIZE / 2;
@@ -646,7 +645,7 @@ int main(int argc, char* argv[]) {
 
     try {
         PGMImage img = readPGM(inputFilename);
-        PGMImage filtered = img; // Inicializar con la misma estructura
+        PGMImage filtered = img;
 
         const int NUM_ITERATIONS = 10;
         std::vector<float> times(NUM_ITERATIONS);

@@ -78,7 +78,7 @@ __global__ void medianFilterKernel(unsigned char* input, unsigned char* output, 
     int y = blockIdx.y * blockDim.y + threadIdx.y;
 
     if (x < width && y < height) {
-        unsigned char window[81]; // Asumimos un tamaño máximo de ventana de 5x5
+        unsigned char window[121];
         int idx = 0;
         int halfWindow = windowSize / 2;
 
@@ -90,13 +90,13 @@ __global__ void medianFilterKernel(unsigned char* input, unsigned char* output, 
                 if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
                     window[idx++] = input[ny * width + nx];
                 } else {
-                    window[idx++] = 0; // Padding con 0 para píxeles fuera de la imagen
+                    window[idx++] = 0; 
                 }
             }
         }
 
         sortWindow(window, windowSize);
-        output[y * width + x] = window[(windowSize * windowSize) / 2]; // Selecciona la mediana
+        output[y * width + x] = window[(windowSize * windowSize) / 2];
     }
 }
 
@@ -105,40 +105,30 @@ float applyMedianFilterGPU(const PGMImage& input, PGMImage& output, int windowSi
     unsigned char *d_input, *d_output;
     size_t size = input.width * input.height * sizeof(unsigned char);
 
-    // Asignar memoria en la GPU
     cudaMalloc(&d_input, size);
     cudaMalloc(&d_output, size);
 
-    // Copiar datos de entrada a la GPU
     cudaMemcpy(d_input, input.data.data(), size, cudaMemcpyHostToDevice);
 
-    // Configurar la ejecución del kernel
     dim3 blockSize(16, 16);
     dim3 gridSize((input.width + blockSize.x - 1) / blockSize.x, (input.height + blockSize.y - 1) / blockSize.y);
 
-    // Crear eventos para medir el tiempo
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
 
-    // Iniciar el temporizador
     cudaEventRecord(start);
 
-    // Lanzar el kernel
     medianFilterKernel<<<gridSize, blockSize>>>(d_input, d_output, input.width, input.height, windowSize);
 
-    // Detener el temporizador
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
 
-    // Calcular el tiempo transcurrido
     float milliseconds = 0;
     cudaEventElapsedTime(&milliseconds, start, stop);
 
-    // Copiar resultados de vuelta a la CPU
     cudaMemcpy(output.data.data(), d_output, size, cudaMemcpyDeviceToHost);
 
-    // Liberar memoria y destruir eventos
     cudaFree(d_input);
     cudaFree(d_output);
     cudaEventDestroy(start);
@@ -164,7 +154,7 @@ int main(int argc, char* argv[]) {
 
     try {
         PGMImage img = readPGM(inputFilename);
-        PGMImage filtered = img; // Inicializar con la misma estructura
+        PGMImage filtered = img;
 
         const int NUM_ITERATIONS = 10;
         std::vector<float> times(NUM_ITERATIONS);
@@ -173,10 +163,8 @@ int main(int argc, char* argv[]) {
             times[i] = applyMedianFilterGPU(img, filtered, windowSize);
         }
 
-        // Calcular media
         float mean = std::accumulate(times.begin(), times.end(), 0.0f) / NUM_ITERATIONS;
 
-        // Calcular desviación estándar
         float sq_sum = std::inner_product(times.begin(), times.end(), times.begin(), 0.0f);
         float stdev = std::sqrt(sq_sum / NUM_ITERATIONS - mean * mean);
 
