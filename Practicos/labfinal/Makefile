@@ -16,6 +16,7 @@ GPU_DIR = GPU
 # Targets
 TARGETS = $(CPU_DIR)/median_filter \
           $(GPU_DIR)/baseline/baseline \
+          $(GPU_DIR)/bancos/bancos \
 		  $(GPU_DIR)/counting/counting \
           $(GPU_DIR)/memoria_compartida/memoria_compartida \
           $(GPU_DIR)/network/network \
